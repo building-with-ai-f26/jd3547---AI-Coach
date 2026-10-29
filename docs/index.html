@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>[Your Product Name] · Building with AI (Fall 2026)</title>
+  <title>AI Coach · Building with AI (Fall 2026)</title>
 
   <!-- Week 1: create your PostHog account only.
        Build 2: paste your project's current PostHog web snippet here,
@@ -19,6 +19,10 @@
       --accent: #1d63dc;
       --tag-bg: #eff6ff;
       --tag-text: #1e40af;
+      --planned-bg: #fef3c7;
+      --planned-text: #92400e;
+      --done-bg: #dcfce7;
+      --done-text: #166534;
     }
     * { box-sizing: border-box; }
     body {
@@ -97,7 +101,7 @@
       font-size: 16px;
       margin: 18px 0 6px;
     }
-    p, ul {
+    p, ul, ol {
       margin: 0 0 12px;
       color: #1f2937;
     }
@@ -137,6 +141,32 @@
       font-size: 13px;
       color: var(--muted);
     }
+    .status {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 8px;
+      border-radius: 999px;
+      vertical-align: middle;
+    }
+    .status-planned {
+      background: var(--planned-bg);
+      color: var(--planned-text);
+    }
+    .status-done {
+      background: var(--done-bg);
+      color: var(--done-text);
+    }
+    .callout {
+      border-left: 4px solid var(--planned-text);
+      background: var(--planned-bg);
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -144,8 +174,8 @@
     <!-- HERO / PRODUCT PITCH -->
     <header>
       <span class="eyebrow">NYU Stern · Building with AI · Fall 2026</span>
-      <h1>[Your Product Name]</h1>
-      <p class="tagline">[One clear sentence: Who is this for, and what painful job does it do for them?]</p>
+      <h1>AI Coach <span class="meta">(working title)</span></h1>
+      <p class="tagline">An AI personal branding coach that helps professionals connect their experiences, strengths, and ambitions into a clear story about who they are and the value they bring.</p>
       <div class="cta-row">
         <a class="btn" href="#live-demo" onclick="window.posthog && posthog.capture('clicked_try_product')">See the Product →</a>
         <a class="btn btn-secondary" href="#prd">Read the Living PRD</a>
@@ -153,53 +183,79 @@
       </div>
     </header>
 
+    <div class="callout">
+      <strong>Reading this page:</strong> nothing here has been built or tested yet. Items marked
+      <span class="status status-planned">Planned</span> are design intentions, and items marked
+      <span class="status status-done">Done</span> are finished work. The problem statement is a hypothesis, not a finding from user research.
+    </div>
+
     <!-- DEMO / SCREENSHOT / VIDEO SHOWCASE -->
     <section id="live-demo">
       <h2>Product Showcase (Prototype / Live App / 2-Min Video)</h2>
       <p>
-        <strong>Current Status:</strong> [Build 1: local prototype / Builds 2–4: local app / Build 5: cloud app]<br />
-        <strong>Demo:</strong> [Add a screenshot or GIF now; add the live cloud app URL in Build 5.]
+        <strong>Current Status:</strong> Build 1. PRD v1 is drafted. The local prototype <span class="status status-planned">Planned</span> has not been built yet.<br />
+        <strong>Demo:</strong> No screenshot yet. One will be added once the prototype runs locally.
       </p>
-      <p class="meta">
-        Ask your coding agent to embed a screenshot or GIF of your local prototype for Build 1. Keep this evidence current, then add your cloud app link and two-minute video in Build 5.
-      </p>
+
+      <h3>The Build 1 interaction we plan to test <span class="status status-planned">Planned</span></h3>
+      <p>Build 1 tests a single question: does one guided question, informed by a person's existing material, help them find a meaningful connection between their experiences and the value they bring?</p>
+      <ol>
+        <li>Paste a short passage from a résumé, LinkedIn profile, or notes, or choose clearly labeled <em>fictional</em> sample material.</li>
+        <li>Answer one conversational coaching question about an experience or belief.</li>
+        <li>See a draft update to the brand landscape. It keeps the person's own information separate from tentative suggestions and open uncertainties.</li>
+        <li>Review an example of the source references behind the interaction.</li>
+      </ol>
+      <p class="meta">If AI is available and practical, the interaction may use it. If not, a clearly labeled sample interaction will show the intended experience. Sample material, sample sources, and sample feedback will never be presented as a live or tested feature.</p>
     </section>
 
     <!-- LIVING PRD (Updated every week!) -->
     <section id="prd">
       <h2>Living PRD (Product Requirements Document)</h2>
-      <p class="meta">Updated every week as we test with real users and learn what works.</p>
+      <p class="meta">PRD v1 is a draft (October 29, 2026). It will be updated every week as we test with real users and learn what works.</p>
 
       <h3>1. Target User & The Job to Be Done</h3>
-      <p><strong>Who is this for?</strong> [Name a specific, reachable person or role you have direct access to.]</p>
-      <p><strong>The painful "Before" workflow:</strong> [How do they do this today, and why is it slow, manual, or broken?]</p>
-      <p><strong>The "After" workflow with this product:</strong> [What does your tool do for them in one sitting?]</p>
+      <p><strong>Who is this for?</strong> The first user is me, Jason Daniels, the builder. I'm a professional who wants to communicate how I see the world, how that perspective shows up in my work, and where I want to go. My relevant material already exists across a LinkedIn profile, a résumé, notes, and prior writing, but together it doesn't tell a connected story or make my value clear.</p>
+      <p class="meta">Still open: at least one other reachable person with the same problem who can try the prototype has not been identified yet.</p>
+      <p><strong>The painful "Before" workflow:</strong> I review scattered materials and try to piece together a professional narrative. I often start from a blank page or end up describing my career as a list of job titles.</p>
+      <p><strong>The "After" workflow with this product:</strong> A guided conversation produces a working <em>personal brand landscape</em>. It's a narrative that connects my worldview, experiences, current value, and aspirations, with supporting experiences I can later adapt to a specific setting.</p>
+
+      <h3>Product vision for the six-week project <span class="status status-planned">Planned</span></h3>
+      <ul>
+        <li><strong>Guided intake:</strong> The user pastes existing material and has a short conversation, one question at a time. The coach summarizes what it learned and flags uncertainties without making the user resolve every gap. The user can review and correct the summary.</li>
+        <li><strong>Coach blending:</strong> Based on the user's goals and materials, the coach recommends a blend of coaching perspectives from a fixed, curated library and explains why. The user can adjust the blend. A lead coach runs the workshop using those perspectives. Each perspective cites its source and does not imply endorsement by, or claim to be, the person behind it.</li>
+        <li><strong>Transparent sources:</strong> Sources appear at the end of each workshop section. They separate the user's own material from external sources and from the coach's interpretation.</li>
+        <li><strong>A visible, evolving brand landscape:</strong> The landscape builds up during the conversation and can be refined by talking to the coach. It has two connected views: a full written narrative, and organized sections for beliefs, experiences, strengths, current value, and aspirations. The experience library can hold both rough ideas and developed stories.</li>
+        <li><strong>Follow-on tracks:</strong> Once the foundation exists, the user picks a setting and audience and adapts it. Example tracks are <em>LinkedIn feedback</em> on pasted profile text and <em>networking preparation</em> for a specific event.</li>
+        <li><strong>Session length:</strong> The first workshop is envisioned at 30–45 minutes, with the option to continue into other tracks. This is a design hypothesis and hasn't been tested.</li>
+      </ul>
 
       <h3>2. Scope & Explicit Non-Goals</h3>
       <ul>
-        <li><strong>In Scope (Core Workflow):</strong> [The 1 main workflow this product does reliably]</li>
-        <li><strong>Out of Scope #1:</strong> [Feature you are deliberately NOT building in 6 weeks]</li>
-        <li><strong>Out of Scope #2:</strong> [Feature you are deliberately NOT building in 6 weeks]</li>
-        <li><strong>Out of Scope #3:</strong> [Feature you are deliberately NOT building in 6 weeks]</li>
+        <li><strong>In Scope (Core Workflow):</strong> The user pastes their own professional material and answers guided coaching questions, one at a time. The result is a personal brand landscape they recognize as their own, with their words kept separate from the coach's suggestions. Build 1 tests the smallest version of this: one question and one landscape update.</li>
+        <li><strong>Out of Scope #1:</strong> No user-uploaded books. Coaching perspectives come from a fixed, curated library.</li>
+        <li><strong>Out of Scope #2:</strong> No direct LinkedIn integration. Users paste their profile text.</li>
+        <li><strong>Out of Scope #3:</strong> No voice conversations. Coaching is text-only.</li>
       </ul>
+      <p class="meta">These non-goals apply to the entire six-week project, not just Build 1.</p>
 
       <h3>3. How It Works Under the Hood & Riskiest Assumption (Week 2+)</h3>
-      <p><strong>Riskiest Assumption:</strong> [What is the #1 technical or user risk that could sink this product?]</p>
-      <p><strong>Simple Architecture:</strong> [User Input] → [Your App / Server] → [AI Model / Tool] → [Output]</p>
+      <p><strong>Riskiest Assumption (draft):</strong> The app may not provide a more valuable coaching experience than ordinary LLM prompting. Its intended value is helping users apply ideas from selected experts to their own experiences through guided questions, reflection, and feedback—the kind of value someone seeks from a book, seminar, or consultant.</p>
+      <p><strong>What we'll look for:</strong> Did the user gain a useful perspective, recognize something they had missed, or become clearer about how to describe their value? Ask for specific examples of what helped and what felt generic.</p>
+      <p><strong>Simple Architecture:</strong> Not decided yet. Intended flow: [Pasted material + answer] → [Local app] → [AI model or labeled sample, TBD] → [Draft landscape update with sources]</p>
 
       <h3>4. Unit Economics & Analytics Snapshot (Updated Weekly)</h3>
       <div class="grid-2">
         <div class="stat-box">
           <div class="stat-label">Cumulative Build Spend</div>
-          <div class="stat-value">[Record actual spend]</div>
+          <div class="stat-value">Not yet recorded</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">Est. Cost Per User Run</div>
-          <div class="stat-value">[Not yet estimated]</div>
+          <div class="stat-value">Not yet estimated</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">User Evidence (Analytics from Build 2)</div>
-          <div class="stat-value">[Not yet measured]</div>
+          <div class="stat-value">Not yet measured</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">Sponsor Call (Week 6)</div>
@@ -216,10 +272,11 @@
       <div class="log-entry">
         <h3>Build 1 · Intent.md & Throwaway Prototype (Due Nov 9)</h3>
         <ul>
-          <li><strong>What shipped:</strong> [What you actually built; link your local prototype screenshot or GIF above.]</li>
+          <li><strong>What shipped:</strong> <span class="status status-done">Done</span> Drafted the product pitch and PRD v1 on this page. <span class="status status-planned">Planned</span> The local prototype of the one-question interaction hasn't been built yet. A screenshot will be added once it is.</li>
           <li><strong>Things learned with AI:</strong> [What you learned from AI practice and Terminus Episodes 1 and 2.]</li>
+          <li><strong>User feedback:</strong> None yet. No one has tried the prototype.</li>
           <li><strong>What broke / changed in PRD:</strong> [Fill in]</li>
-          <li><strong>Cost & time this week:</strong> $[0.00] · [0] hours</li>
+          <li><strong>Cost & time this week:</strong> Not yet recorded</li>
         </ul>
       </div>
 
