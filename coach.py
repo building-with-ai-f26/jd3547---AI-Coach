@@ -38,9 +38,14 @@ def validate_question(data):
         raise CoachError("The AI returned an unexpected format. Your input is still here; please retry.")
     if not valid_text(data["question"], 500) or data["source_ids"] != SOURCE_IDS:
         raise CoachError("The AI response did not pass the source check. Please retry.")
-    if data["question"].count("?") != 1:
+    question = data["question"].strip()
+    # An otherwise valid open question may arrive without its final punctuation.
+    # Normalize only question-led text; do not turn a plain statement into a question.
+    if "?" not in question and re.match(r"^(what|when|where|who|which|why|how)\b", question, re.IGNORECASE):
+        question = question.rstrip(".") + "?"
+    if question.count("?") != 1 or len(question) > 500:
         raise CoachError("The AI did not return one clear question. Please retry.")
-    return data["question"].strip()
+    return question
 
 
 def validate_proposal(data, background, answer):
@@ -105,10 +110,17 @@ def call_model(settings, task, user_input):
         content = response.json()["choices"][0]["message"]["content"]
         if not isinstance(content, str) or len(content) > 20000:
             raise ValueError("Unexpected content")
+        # Some providers wrap otherwise valid JSON in one Markdown code block.
+        # Accept only a complete wrapper; never extract JSON from surrounding prose.
+        fenced = re.fullmatch(r"```(?:json)?[ \t]*\r?\n(.*?)\r?\n```", content.strip(), flags=re.DOTALL)
+        if fenced:
+            content = fenced.group(1)
         return json.loads(content)
     except httpx.TimeoutException:
         raise CoachError("The AI service took too long. Your input is still here; you can retry.") from None
-    except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError):
+    except httpx.HTTPError:
+        raise CoachError("The app could not connect to the AI service. Check the app's internet connection, then retry. Your input is still here.") from None
+    except (ValueError, KeyError, IndexError, TypeError):
         raise CoachError("The AI service returned an unreadable response. Your input is still here; please retry.") from None
 
 

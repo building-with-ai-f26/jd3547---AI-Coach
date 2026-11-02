@@ -21,6 +21,16 @@ def response_for(content, status=200):
 
 
 class ValidationTests(unittest.TestCase):
+    def test_open_question_missing_final_punctuation_is_normalized(self):
+        for text in ("When did your contribution feel most useful", "How did you help."):
+            with self.subTest(text=text):
+                self.assertEqual(validate_question({"question": text, "source_ids": SOURCE_IDS}), text.rstrip(".") + "?")
+
+    def test_question_normalization_keeps_length_and_statement_checks(self):
+        for text in ("Tell me more.", "You helped a team.", "What? Why?", "What " + "x" * 495):
+            with self.subTest(text=text), self.assertRaises(CoachError):
+                validate_question({"question": text, "source_ids": SOURCE_IDS})
+
     def test_question_requires_exact_schema_and_supplied_source(self):
         valid = {"question": "What did you contribute?", "source_ids": list(SOURCE_IDS)}
         self.assertEqual(validate_question(valid), valid["question"])
@@ -134,7 +144,7 @@ class ProviderTests(unittest.TestCase):
         envelopes = [None, {}, {"choices": []}, {"choices": [None]},
                      {"choices": [{"message": {"content": {"unexpected": "object"}}}]},
                      {"choices": [{"message": {"content": "x" * 20001}}]},
-                     {"choices": [{"message": {"content": "```json\n{}\n```"}}]}]
+                     {"choices": [{"message": {"content": "```json\n{bad}\n```"}}]}]
         for envelope in envelopes:
             with self.subTest(envelope=repr(envelope)[:80]):
                 response = response_for("unused")
@@ -146,6 +156,24 @@ class ProviderTests(unittest.TestCase):
         self.post.return_value.json.side_effect = ValueError("invalid HTTP JSON")
         with self.assertRaises(CoachError):
             call_model(SETTINGS, "task", {})
+
+    def test_complete_json_code_fences_are_accepted(self):
+        payload = json.dumps({"question": "What helped?", "source_ids": SOURCE_IDS})
+        for language in ("json", ""):
+            with self.subTest(language=language):
+                self.post.return_value = response_for("```" + language + "\n" + payload + "\n```")
+                self.assertEqual(LiveCoach().question(SAMPLE["background"], SETTINGS), "What helped?")
+
+    def test_fence_handling_does_not_salvage_prose_or_invalid_sources(self):
+        payload = json.dumps({"question": "What helped?", "source_ids": SOURCE_IDS})
+        fenced = "```json\n" + payload + "\n```"
+        for content in ("Here is the answer:\n" + fenced, fenced + "\nExtra text", fenced + "\n" + fenced, "```json\n" + payload):
+            with self.subTest(content=content), self.assertRaises(CoachError):
+                self.post.return_value = response_for(content)
+                LiveCoach().question(SAMPLE["background"], SETTINGS)
+        self.post.return_value = response_for("```json\n" + json.dumps({"question": "What helped?", "source_ids": ["fake"]}) + "\n```")
+        with self.assertRaises(CoachError):
+            LiveCoach().question(SAMPLE["background"], SETTINGS)
 
     def test_live_coach_validates_question_after_provider_json(self):
         self.post.return_value = response_for(json.dumps({"question": "What helped?", "source_ids": ["fake"]}))
