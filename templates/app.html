@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173f3b">
+  <title>AI Coach — Find the thread</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">Skip to the exercise</a>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="AI Coach home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>AI Coach<span class="edition">A small beginning</span></a>
+      <span class="local-label"><span aria-hidden="true"></span>Local workshop</span>
+    </header>
+
+    <main id="workspace">
+      <section class="introduction" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">YOUR EXPERIENCE HAS A THREAD</p>
+          <h1 id="page-title">Let's find it.</h1>
+          <p class="hero-description">Find the thread in your experience. Explore what connects a few moments from your work or life, then decide what feels true to you.</p>
+        </div>
+        <div class="exercise-note"><span class="note-number">01</span><p>One question.<br>A possible connection.<br><em>Your words, your call.</em></p></div>
+      </section>
+
+      <section class="mode-panel" aria-label="Exercise mode">
+        <div class="mode-copy"><span class="mode-dot" aria-hidden="true"></span><div><h2 id="mode-title">Getting the workshop ready</h2><p id="mode-description">Loading the exercise and its source notes…</p></div></div>
+        <div class="mode-actions"><button id="sample-mode-button" class="button button-small button-secondary" type="button" data-action disabled>Fictional example</button><button id="live-mode-button" class="button button-small button-quiet" type="button" data-action disabled>Use my experience</button></div>
+        <p id="setup-note" class="setup-note" hidden>Personal coaching is not connected yet. The example works without an API key or an AI call.</p>
+      </section>
+
+      <ol class="progress" aria-label="Exercise progress">
+        <li id="progress-share" class="is-current" aria-current="step"><span class="step-dot">1</span><span>Share</span><small>A little background</small></li>
+        <li id="progress-reflect"><span class="step-dot">2</span><span>Reflect</span><small>One useful question</small></li>
+        <li id="progress-review"><span class="step-dot">3</span><span>Review</span><small>You decide what fits</small></li>
+      </ol>
+
+      <div class="workshop-grid">
+        <div class="conversation-column">
+          <section class="work-card" id="conversation" aria-label="Guided exercise" aria-busy="false">
+            <div class="card-topline"><span id="card-step-label" class="eyebrow">STEP 1 OF 3</span><span id="exercise-mode-badge" class="badge badge-neutral">Loading</span></div>
+
+            <section id="share-step" aria-labelledby="share-title">
+              <h2 id="share-title" tabindex="-1">Start with a little of your story.</h2>
+              <p class="section-description" id="share-description">Bring a few experiences, rather than trying to sum yourself up. A project, a role, or a moment you care about is enough to begin.</p>
+              <form id="background-form">
+                <div class="field-heading"><label for="background">Your background</label><span id="background-fixture-label" class="fixture-label" hidden>Fictional example · read only</span></div>
+                <textarea id="background" name="background" rows="9" maxlength="6000" placeholder="For example: In one role, I… In another part of my life, I…" aria-describedby="background-help background-count" disabled></textarea>
+                <div class="field-foot"><p id="background-help">Two short experiences give us a place to start.</p><span id="background-count">0 / 6,000</span></div>
+                <div class="form-actions"><button id="start-button" class="button button-primary" type="submit" data-action disabled><span id="start-button-label">Begin the exercise</span><span aria-hidden="true">↗</span></button><span class="button-note" id="start-note">One question at a time</span></div>
+              </form>
+            </section>
+
+            <section id="question-step" aria-labelledby="question-title" hidden>
+              <h2 id="question-title" tabindex="-1">Pause on one connection.</h2>
+              <p class="section-description">You don't need a polished answer. Start with what you actually noticed or did.</p>
+              <div class="question-block"><span class="eyebrow">A QUESTION TO EXPLORE</span><p id="coaching-question"></p></div>
+              <form id="answer-form">
+                <div class="field-heading"><label for="answer">Your reflection</label><span id="answer-fixture-label" class="fixture-label" hidden>Fictional example · read only</span></div>
+                <textarea id="answer" name="answer" rows="6" maxlength="6000" aria-describedby="answer-help answer-count"></textarea>
+                <div class="field-foot"><p id="answer-help">A few honest sentences are enough.</p><span id="answer-count">0 / 6,000</span></div>
+                <div class="form-actions"><button id="answer-button" class="button button-primary" type="submit" data-action><span id="answer-button-label">Explore the connection</span><span aria-hidden="true">↗</span></button></div>
+              </form>
+            </section>
+
+            <section id="review-step" aria-labelledby="review-title" hidden>
+              <h2 id="review-title" tabindex="-1">Does this feel like you?</h2>
+              <p id="review-description" class="section-description">This is a possible connection, not a verdict. Keep it, put it in your own words, or set it aside.</p>
+              <div id="proposal-card" class="proposal-card"><span class="eyebrow">A POSSIBLE THREAD</span><h3 id="proposal-theme"></h3><p id="proposal-statement"></p></div>
+              <div id="evidence-section" class="evidence-section"><h3>What it's grounded in</h3><p class="small-copy">Words from the background and reflection — not new facts.</p><ul id="evidence-list" class="evidence-list"></ul></div>
+              <div id="review-actions" class="review-actions"><button id="accept-button" type="button" class="button button-primary" data-action>That fits</button><button id="edit-button" type="button" class="button button-secondary" data-action>Edit the wording</button><button id="reject-button" type="button" class="button button-quiet" data-action>Set it aside</button></div>
+              <form id="edit-form" class="edit-form" hidden>
+                <h3>Make it sound like you.</h3><label for="edit-theme">The thread</label><input id="edit-theme" name="theme" type="text" maxlength="160" required>
+                <label for="edit-statement">What it means in your experience</label><textarea id="edit-statement" name="statement" rows="4" maxlength="600" required></textarea>
+                <p class="small-copy">Your wording will be marked as edited by you.</p><div class="form-actions"><button id="save-edit-button" type="submit" class="button button-primary" data-action>Save &amp; accept</button><button id="cancel-edit-button" type="button" class="button button-quiet" data-action>Cancel</button></div>
+              </form>
+              <div id="completion-message" class="completion-message" role="status" hidden><span class="completion-icon" aria-hidden="true">✓</span><div><h3 id="completion-title"></h3><p id="completion-description"></p></div></div>
+              <details id="reflection-details" class="reflection-details"><summary>Revisit the words you started with<span aria-hidden="true">+</span></summary><div><h4>Background</h4><p id="review-background" class="preserve-lines"></p><h4>The question</h4><p id="review-question"></p><h4>Reflection</h4><p id="review-answer" class="preserve-lines"></p></div></details>
+            </section>
+
+            <div id="working-status" class="working-status" role="status" aria-live="polite" hidden><span class="loading-dot" aria-hidden="true"></span><span id="working-text">Working…</span></div>
+            <div id="error-panel" class="error-panel" role="alert" hidden><div><h3>We couldn't finish that step.</h3><p id="error-text"></p><p class="error-reassurance">Your words are still here.</p></div><button id="retry-button" type="button" class="button button-small button-secondary" data-action>Try again</button></div>
+          </section>
+
+          <section class="source-card" aria-label="Source and approach">
+            <details id="source-details"><summary><span class="source-symbol" aria-hidden="true">↳</span><span><strong>The idea behind this exercise</strong><small>A Slim-informed reflection, with a source you can inspect.</small></span><span class="details-plus" aria-hidden="true">+</span></summary><div class="source-content"><p class="eyebrow">PUBLISHED IDEA</p><p id="source-method">Loading source notes…</p><div id="source-excerpt-wrap" class="source-excerpt" hidden><p id="source-excerpt"></p></div><a id="source-link" target="_blank" rel="noopener noreferrer">Read the original source <span aria-hidden="true">↗</span></a><p id="source-section" class="small-copy"></p><h3>How we're applying it</h3><p id="source-note"></p><h3>What this covers</h3><p id="source-limitations"></p><p class="independence-note">Independent AI coaching informed by published work. This is an app-designed exercise, not Pamela Slim herself or an endorsed service.</p></div></details>
+          </section>
+        </div>
+
+        <aside class="landscape-column" aria-labelledby="landscape-title">
+          <section class="landscape-card"><div class="landscape-top"><p class="eyebrow">YOUR LANDSCAPE</p><span id="landscape-mode-label" class="badge badge-outline" hidden>Fictional example</span></div><h2 id="landscape-title">A story taking shape.</h2><p class="landscape-intro">A small map of what you discover. You decide what belongs.</p>
+            <div id="landscape-empty" class="landscape-empty"><div class="thread-illustration" aria-hidden="true"><span></span><span></span><span></span></div><h3 id="landscape-empty-title">A little room to notice.</h3><p id="landscape-empty-description">A possible theme will appear here after your reflection. Nothing is accepted automatically.</p></div>
+            <div id="landscape-result" class="landscape-result" hidden><span id="landscape-status" class="status-pill">For your consideration</span><h3 id="landscape-theme"></h3><p id="landscape-statement"></p><div class="landscape-grounding"><span aria-hidden="true">↳</span><p id="landscape-grounding-text">Grounded in your background and reflection.</p></div></div>
+            <div id="landscape-rejected" class="landscape-rejected" hidden><span class="status-pill status-neutral">Set aside by you</span><h3>That thread didn't fit.</h3><p>No theme was added. Recognizing what doesn't fit is part of finding your own words.</p></div>
+            <div class="landscape-foot"><span aria-hidden="true">✳</span><p>Evidence first.<br>Interpretation is always yours to revise.</p></div>
+          </section>
+          <div class="session-tools"><button id="export-button" type="button" class="button button-secondary" data-action disabled><span aria-hidden="true">↓</span>Export this exercise</button><button id="reset-button" type="button" class="button button-quiet" data-action disabled>Start over</button></div>
+          <p class="session-note">Kept for this local session. Export to keep a copy; restarting the server clears the session.</p>
+          <p id="live-privacy-note" class="session-note" hidden>Your background and reflection are sent to the configured AI service. No personal text is stored in this browser.</p>
+        </aside>
+      </div>
+      <p id="page-status" class="sr-only" aria-live="polite"></p>
+    </main>
+    <footer class="site-footer"><span>AI Coach <span aria-hidden="true">/</span> An early, local prototype</span><span>Clarity begins with your experience.</span></footer>
+  </div>
+
+  <dialog id="reset-dialog" aria-labelledby="reset-dialog-title"><form method="dialog"><p class="eyebrow">A FRESH PAGE</p><h2 id="reset-dialog-title">Start this exercise over?</h2><p>This clears the current exercise. Export first if you want to keep a copy.</p><div class="form-actions"><button id="confirm-reset-button" type="button" class="button button-primary">Start over</button><button class="button button-secondary" value="cancel">Keep working</button></div></form></dialog>
+  <noscript><p class="noscript-message">This local workshop needs JavaScript enabled to show the exercise.</p></noscript>
+</body>
+</html>

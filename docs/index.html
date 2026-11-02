@@ -167,6 +167,15 @@
       margin-bottom: 16px;
       font-size: 14px;
     }
+    .prototype-figure { margin: 20px 0; }
+    .prototype-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .prototype-figure figcaption { margin-top: 8px; }
   </style>
 </head>
 <body>
@@ -184,7 +193,7 @@
     </header>
 
     <div class="callout">
-      <strong>Reading this page:</strong> nothing here has been built or tested yet. Items marked
+      <strong>Reading this page:</strong> a local fictional walkthrough is working as of November 2, 2026. Live AI coaching and its usefulness have not been tested yet. Items marked
       <span class="status status-planned">Planned</span> are design intentions, and items marked
       <span class="status status-done">Done</span> are finished work. The problem statement is a hypothesis, not a finding from user research.
     </div>
@@ -193,19 +202,26 @@
     <section id="live-demo">
       <h2>Product Showcase (Prototype / Live App / 2-Min Video)</h2>
       <p>
-        <strong>Current Status:</strong> Build 1. PRD v1 is drafted. The local prototype <span class="status status-planned">Planned</span> has not been built yet.<br />
-        <strong>Demo:</strong> No screenshot yet. One will be added once the prototype runs locally.
+        <strong>Current Status:</strong> Build 1. PRD v1 is drafted. <span class="status status-done">Done</span> A local prototype demonstrates one short coaching exercise with a clearly labeled fictional example.<br />
+        <strong>Demo:</strong> The app runs on the builder's laptop. The screenshot below shows the review step after editing and accepting the example theme.
       </p>
 
-      <h3>The Build 1 interaction we plan to test <span class="status status-planned">Planned</span></h3>
-      <p>Build 1 tests a single question: does one guided question, informed by a person's existing material, help them find a meaningful connection between their experiences and the value they bring?</p>
+      <h3>What works in the prototype <span class="status status-done">Done</span></h3>
       <ol>
-        <li>Paste a short passage from a résumé, LinkedIn profile, or notes, or choose clearly labeled <em>fictional</em> sample material.</li>
-        <li>Answer one conversational coaching question about an experience or belief.</li>
-        <li>See a draft update to the brand landscape. It keeps the person's own information separate from tentative suggestions and open uncertainties.</li>
-        <li>Review an example of the source references behind the interaction.</li>
+        <li>Read two fictional work and volunteer experiences.</li>
+        <li>Step through one prepared reflection question and its example answer.</li>
+        <li>Review a proposed connecting theme alongside the words that support it. Accept it, edit it, or set it aside.</li>
+        <li>Inspect the source behind the exercise, download the exercise record, or start over.</li>
       </ol>
-      <p class="meta">If AI is available and practical, the interaction may use it. If not, a clearly labeled sample interaction will show the intended experience. Sample material, sample sources, and sample feedback will never be presented as a live or tested feature.</p>
+      <p>The example background, question, answer, and original suggestion are prepared text. No AI generates new advice in this mode. The exercise adapts Pamela Slim's approach to finding themes across experiences, described in <a href="https://dorieclark.com/blog/build-personal-brand/">Dorie Clark's article</a>; the full book has not been reviewed.</p>
+      <figure class="prototype-figure">
+        <a href="assets/prototype-nov-02.jpg" aria-label="Open the fictional prototype screenshot at full size">
+          <img src="assets/prototype-nov-02.jpg" alt="AI Coach's fictional example after review: an edited theme, Helping newcomers find their first step, appears with supporting example quotations and export and start-over controls." loading="lazy" />
+        </a>
+        <figcaption class="meta">Local prototype, November 2, 2026. Fictional example with edited wording; this is a screenshot, not a live AI response.</figcaption>
+      </figure>
+      <p><strong>Checked:</strong> 35 automated checks pass. The fictional question, review, edit, export, reset, and reject flow was also checked in a browser. These checks verify the interaction, not the quality of AI coaching.</p>
+      <p><strong>Next:</strong> <span class="status status-planned">Planned</span> Connect an API key, try the exercise with real input, and gather feedback on whether it helps someone recognize and express a useful connection. The book library and expert roundtable are still future work.</p>
     </section>
 
     <!-- LIVING PRD (Updated every week!) -->
@@ -241,7 +257,7 @@
       <h3>3. How It Works Under the Hood & Riskiest Assumption (Week 2+)</h3>
       <p><strong>Riskiest Assumption (draft):</strong> The app may not provide a more valuable coaching experience than ordinary LLM prompting. Its intended value is helping users apply ideas from selected experts to their own experiences through guided questions, reflection, and feedback—the kind of value someone seeks from a book, seminar, or consultant.</p>
       <p><strong>What we'll look for:</strong> Did the user gain a useful perspective, recognize something they had missed, or become clearer about how to describe their value? Ask for specific examples of what helped and what felt generic.</p>
-      <p><strong>Simple Architecture:</strong> Not decided yet. Intended flow: [Pasted material + answer] → [Local app] → [AI model or labeled sample, TBD] → [Draft landscape update with sources]</p>
+      <p><strong>Simple Architecture:</strong> A browser screen connects to a small Python server running on the laptop. The current walkthrough uses prepared fictional material and one source card. A connection to an AI service is implemented but still needs an API key and live testing. The user reviews each suggested theme before keeping it; the exercise stays in memory unless exported.</p>
 
       <h3>4. Unit Economics & Analytics Snapshot (Updated Weekly)</h3>
       <div class="grid-2">
@@ -271,12 +287,14 @@
 
       <div class="log-entry">
         <h3>Build 1 · Intent.md & Throwaway Prototype (Due Nov 9)</h3>
+        <p class="meta">Progress update · November 2, 2026</p>
         <ul>
-          <li><strong>What shipped:</strong> <span class="status status-done">Done</span> Drafted the product pitch and PRD v1 on this page. <span class="status status-planned">Planned</span> The local prototype of the one-question interaction hasn't been built yet. A screenshot will be added once it is.</li>
-          <li><strong>Things learned with AI:</strong> [What you learned from AI practice and Terminus Episodes 1 and 2.]</li>
-          <li><strong>User feedback:</strong> None yet. No one has tried the prototype.</li>
-          <li><strong>What broke / changed in PRD:</strong> [Fill in]</li>
-          <li><strong>Cost & time this week:</strong> Not yet recorded</li>
+          <li><strong>What shipped:</strong> <span class="status status-done">Done</span> Drafted the product pitch and PRD v1. Built a local fictional walkthrough with a question, proposed theme, edit/accept/reject controls, source details, export, and reset. Added the prototype screenshot above. Live AI coaching is not connected yet.</li>
+          <li><strong>Things learned with AI:</strong> I learned that you can't expect AI to interpret exactly what you're thinking. You need to articulate your goals clearly, just like you would to a team of humans.</li>
+          <li><strong>User feedback:</strong> The builder reviewed the fictional demonstration. Coaching usefulness has not been evaluated with real personal material or another target user.</li>
+          <li><strong>What broke / changed in PRD:</strong> Fixed an early review-screen error that prevented completed suggestions from displaying correctly. Checked that restarting an exercise discards old responses. Kept this first version to one exercise; the larger book-workshop and roundtable vision remains planned.</li>
+          <li><strong>Cost & time this week:</strong> The fictional walkthrough makes no model API calls. Total build spend and hours are not yet recorded.</li>
+          <li><strong>Next step:</strong> Connect an API key and test with real input; record what helped, what felt generic, and what needs changing.</li>
         </ul>
       </div>
 

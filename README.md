@@ -1,8 +1,8 @@
-# [Project Name]
+# AI Coach
 
-> **One-line pitch:** [Who is this for, and what job does it do for them?]
+> **One-line pitch:** An AI personal branding coach that helps professionals connect their experiences, strengths, and ambitions into a clear story about who they are and the value they bring.
 
-- **Builder:** [Your Name] (`@github-handle`)
+- **Builder:** Jason Daniels (`@jd3547-nyu`)
 - **Pod:** [Pod Name / Number]
 - **Product Page & Living PRD:** [Add your GitHub Pages URL]
 - **App:** runs locally through Week 4; add a cloud URL in Build 5.
@@ -35,11 +35,49 @@ Create your PostHog account in Week 1. Install it on the Product Page and local 
 
 ## Local setup
 
-Clone **your own repository** and ask your coding agent to document the exact install and run commands here and in `AGENTS.md`.
+This Build 1 prototype runs on your laptop. It contains one short exercise: background → one reflection question → proposed theme → accept, edit, or reject. It is not the complete book workshop or expert roundtable.
+
+From this project folder in Terminal, install once:
 
 ```bash
-git clone https://github.com/building-with-ai-f26/<your-repo-name>.git
-cd <your-repo-name>
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
 ```
 
-If your app needs API keys, use a local environment file such as `.env`. Keep private keys out of source code, browser code, screenshots, and commits. The template ignores `.env`; `.env.example` contains placeholders only.
+Start the app:
+
+```bash
+.venv/bin/python app.py
+```
+
+Open **http://127.0.0.1:8787** in your browser. Leave that Terminal window open while using the app. Press **Control+C** in Terminal to stop it.
+
+### Try it without a key
+
+The fictional walkthrough works immediately. Its background, answer and suggestion are prepared examples, not AI analysis. You can review, edit, accept or reject the suggestion and download an exercise record. It makes no paid API calls.
+
+### Enable live coaching later
+
+Copy `.env.example` to `.env`, then put your own OpenRouter API key in the local `.env` file. Restart the app. A Claude chat subscription does not supply this key. Never put a secret in chat, browser code or a commit. The template ignores `.env`.
+
+Live mode sends your submitted background and answer, plus the method card, to OpenRouter and the configured model provider. It makes one request for the question and another for the suggestion. Accepting, editing and rejecting do not make more requests. Failed requests display an error; they never switch silently to sample results. The live provider connection and coaching quality still need testing with an actual key.
+
+### Source and limitations
+
+The exercise adapts Pamela Slim's approach to finding themes across experiences, described in Dorie Clark's [article](https://dorieclark.com/blog/build-personal-brand/), section “Identify Your Themes.” The source card is in `content/method.json`. This is one article-informed exercise; the full book has not been reviewed and neither author endorses the app.
+
+Suggestions remain tentative. The app checks that evidence quotations occur in the user's input and source IDs are known; those checks do **not** prove that a model's interpretation is correct or useful. The user decides what to keep. Edited statements are user-authored and can go beyond the original evidence.
+
+The app stores exercise content in server memory. Sessions expire after an hour of inactivity; expired content is cleared on the next session request or when the server stops. Starting over also clears the current exercise. An opaque cookie identifies the session; it contains no background text or API key. No browser storage is used. Refreshing the page restarts the visible flow; there is no saved-session recovery. A downloaded export remains on your computer and may contain personal material. Rejected proposals are excluded from the export.
+
+### Checks and code map
+
+```bash
+.venv/bin/python -m unittest discover -s tests -v
+```
+
+- `app.py`: local server, exercise steps, session handling and export.
+- `coach.py`: fictional example, model requests and output validation.
+- `content/method.json`: reviewed source card and coverage limits.
+- `templates/app.html`, `static/`: browser interface.
+- `docs/index.html`: the class Product Page, separate from the local app.
