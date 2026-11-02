@@ -193,7 +193,7 @@
     </header>
 
     <div class="callout">
-      <strong>Reading this page:</strong> a local fictional walkthrough is working as of November 2, 2026. Live AI coaching and its usefulness have not been tested yet. Items marked
+      <strong>Reading this page:</strong> the local prototype supports a fictional walkthrough and live AI coaching as of November 2, 2026. The builder has tested live question and theme generation with his own input. Coaching usefulness has not been established. Items marked
       <span class="status status-planned">Planned</span> are design intentions, and items marked
       <span class="status status-done">Done</span> are finished work. The problem statement is a hypothesis, not a finding from user research.
     </div>
@@ -202,26 +202,26 @@
     <section id="live-demo">
       <h2>Product Showcase (Prototype / Live App / 2-Min Video)</h2>
       <p>
-        <strong>Current Status:</strong> Build 1. PRD v1 is drafted. <span class="status status-done">Done</span> A local prototype demonstrates one short coaching exercise with a clearly labeled fictional example.<br />
+        <strong>Current Status:</strong> Build 1. PRD v1 is drafted. <span class="status status-done">Done</span> A local prototype runs one short coaching exercise using either a clearly labeled fictional example or live AI responses through OpenRouter.<br />
         <strong>Demo:</strong> The app runs on the builder's laptop. The screenshot below shows the review step after editing and accepting the example theme.
       </p>
 
       <h3>What works in the prototype <span class="status status-done">Done</span></h3>
       <ol>
-        <li>Read two fictional work and volunteer experiences.</li>
-        <li>Step through one prepared reflection question and its example answer.</li>
+        <li>Choose the fictional example or enter your own professional background.</li>
+        <li>Follow the prepared example, or answer a live AI-generated reflection question about your experiences.</li>
         <li>Review a proposed connecting theme alongside the words that support it. Accept it, edit it, or set it aside.</li>
         <li>Inspect the source behind the exercise, download the exercise record, or start over.</li>
       </ol>
-      <p>The example background, question, answer, and original suggestion are prepared text. No AI generates new advice in this mode. The exercise adapts Pamela Slim's approach to finding themes across experiences, described in <a href="https://dorieclark.com/blog/build-personal-brand/">Dorie Clark's article</a>; the full book has not been reviewed.</p>
+      <p>The fictional example's background, question, answer, and original suggestion are prepared text; that mode makes no AI calls. Live mode sends the current exercise to the configured AI service and checks the response before displaying it. The exercise adapts Pamela Slim's approach to finding themes across experiences, described in <a href="https://dorieclark.com/blog/build-personal-brand/">Dorie Clark's article</a>; the full book has not been reviewed.</p>
       <figure class="prototype-figure">
         <a href="assets/prototype-nov-02.jpg" aria-label="Open the fictional prototype screenshot at full size">
           <img src="assets/prototype-nov-02.jpg" alt="AI Coach's fictional example after review: an edited theme, Helping newcomers find their first step, appears with supporting example quotations and export and start-over controls." loading="lazy" />
         </a>
         <figcaption class="meta">Local prototype, November 2, 2026. Fictional example with edited wording; this is a screenshot, not a live AI response.</figcaption>
       </figure>
-      <p><strong>Checked:</strong> 35 automated checks pass. The fictional question, review, edit, export, reset, and reject flow was also checked in a browser. These checks verify the interaction, not the quality of AI coaching.</p>
-      <p><strong>Next:</strong> <span class="status status-planned">Planned</span> Connect an API key, try the exercise with real input, and gather feedback on whether it helps someone recognize and express a useful connection. The book library and expert roundtable are still future work.</p>
+      <p><strong>Checked:</strong> 39 automated checks pass. The fictional question, review, edit, export, reset, and reject flow was checked in a browser. Live testing with the builder's own background and reflection reached the generated question and theme review steps; some responses needed retries. These checks do not establish coaching quality.</p>
+      <p><strong>Next:</strong> <span class="status status-planned">Planned</span> Resolve GitHub Pages access with the class staff and prepare the Build 1 submission and demo. Further testing will assess whether the coaching adds useful perspective. The book library and expert roundtable remain future work.</p>
     </section>
 
     <!-- LIVING PRD (Updated every week!) -->
@@ -257,13 +257,14 @@
       <h3>3. How It Works Under the Hood & Riskiest Assumption (Week 2+)</h3>
       <p><strong>Riskiest Assumption (draft):</strong> The app may not provide a more valuable coaching experience than ordinary LLM prompting. Its intended value is helping users apply ideas from selected experts to their own experiences through guided questions, reflection, and feedback—the kind of value someone seeks from a book, seminar, or consultant.</p>
       <p><strong>What we'll look for:</strong> Did the user gain a useful perspective, recognize something they had missed, or become clearer about how to describe their value? Ask for specific examples of what helped and what felt generic.</p>
-      <p><strong>Simple Architecture:</strong> A browser screen connects to a small Python server running on the laptop. The current walkthrough uses prepared fictional material and one source card. A connection to an AI service is implemented but still needs an API key and live testing. The user reviews each suggested theme before keeping it; the exercise stays in memory unless exported.</p>
+      <p><strong>Simple Architecture:</strong> A browser screen connects to a small Python server running on the laptop. Fictional mode uses prepared material. Live mode uses OpenRouter with one source card and the user's current background and reflection; the API key stays on the server. The user reviews each suggested theme before keeping it; the exercise stays in memory unless exported.</p>
 
       <h3>4. Unit Economics & Analytics Snapshot (Updated Weekly)</h3>
       <div class="grid-2">
         <div class="stat-box">
           <div class="stat-label">Cumulative Build Spend</div>
-          <div class="stat-value">Not yet recorded</div>
+          <div class="stat-value">$0.04965 API usage</div>
+          <p class="meta">OpenRouter reports this usage on the project's key as of November 2, 2026, including testing and troubleshooting. Coding-agent subscriptions and other expenses are not included; total project expenses have not been confirmed.</p>
         </div>
         <div class="stat-box">
           <div class="stat-label">Est. Cost Per User Run</div>
@@ -271,7 +272,7 @@
         </div>
         <div class="stat-box">
           <div class="stat-label">User Evidence (Analytics from Build 2)</div>
-          <div class="stat-value">Not yet measured</div>
+          <div class="stat-value">Builder testing only</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">Sponsor Call (Week 6)</div>
@@ -289,12 +290,12 @@
         <h3>Build 1 · Intent.md & Throwaway Prototype (Due Nov 9)</h3>
         <p class="meta">Progress update · November 2, 2026</p>
         <ul>
-          <li><strong>What shipped:</strong> <span class="status status-done">Done</span> Drafted the product pitch and PRD v1. Built a local fictional walkthrough with a question, proposed theme, edit/accept/reject controls, source details, export, and reset. Added the prototype screenshot above. Live AI coaching is not connected yet.</li>
+          <li><strong>What shipped:</strong> <span class="status status-done">Done</span> Drafted the product pitch and PRD v1. Built the local exercise with fictional and live AI modes, question and theme generation, edit/accept/reject controls, source details, export, and reset. Added the fictional prototype screenshot above. Connected OpenRouter and tested live responses with my own background and reflection.</li>
           <li><strong>Things learned with AI:</strong> I learned that you can't expect AI to interpret exactly what you're thinking. You need to articulate your goals clearly, just like you would to a team of humans.</li>
-          <li><strong>User feedback:</strong> The builder reviewed the fictional demonstration. Coaching usefulness has not been evaluated with real personal material or another target user.</li>
-          <li><strong>What broke / changed in PRD:</strong> Fixed an early review-screen error that prevented completed suggestions from displaying correctly. Checked that restarting an exercise discards old responses. Kept this first version to one exercise; the larger book-workshop and roundtable vision remains planned.</li>
-          <li><strong>Cost & time this week:</strong> The fictional walkthrough makes no model API calls. Total build spend and hours are not yet recorded.</li>
-          <li><strong>Next step:</strong> Connect an API key and test with real input; record what helped, what felt generic, and what needs changing.</li>
+          <li><strong>User feedback:</strong> Tested the fictional example and the live exercise with my own input. A judgment of coaching usefulness and feedback from another target user have not yet been recorded.</li>
+          <li><strong>What broke / changed in PRD:</strong> Fixed an early review-screen error, misleading connection errors, and valid AI responses being rejected because of formatting or missing question punctuation. All 39 automated checks pass. Some live responses still needed retries, and an observed draft added an interpretation not stated in the input, so human review remains necessary. Kept this first version to one exercise; the larger book-workshop and roundtable vision remains planned.</li>
+          <li><strong>Cost & time so far:</strong> Approximately 2.5 hours on Build 1, including setup and troubleshooting (my estimate). OpenRouter reports $0.04965 in usage on this project's key as of November 2, 2026, including testing and troubleshooting. Other project expenses have not been confirmed.</li>
+          <li><strong>Next step:</strong> Await Hew's help enabling GitHub Pages, publish the Product Page, and submit the Product Page and repository links in Icerynk. Make and push meaningful progress on another day this week, then prepare the two-minute demo for November 10.</li>
         </ul>
       </div>
 
