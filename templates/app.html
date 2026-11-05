@@ -46,12 +46,44 @@
             <section id="share-step" aria-labelledby="share-title">
               <h2 id="share-title" tabindex="-1">Start with a little of your story.</h2>
               <p class="section-description" id="share-description">Bring a few experiences, rather than trying to sum yourself up. A project, a role, or a moment you care about is enough to begin.</p>
+              <div id="background-choice" class="input-choice" role="group" aria-label="How to add your background" hidden>
+                <button id="choose-upload-button" class="input-choice-button" type="button" aria-pressed="true" data-action>Upload a résumé / CV</button>
+                <button id="choose-paste-button" class="input-choice-button" type="button" aria-pressed="false" data-action>Paste background</button>
+              </div>
+              <form id="document-form" hidden>
+                <div class="upload-introduction"><h3>Start with experiences you've already written down.</h3><p>We'll suggest experience cards from one résumé or CV. You can correct them and choose what goes on your landscape.</p></div>
+                <label for="document-file">Choose one PDF</label>
+                <input id="document-file" type="file" name="file" accept=".pdf,application/pdf" aria-describedby="document-limits document-processing-note document-file-status document-file-error">
+                <p id="document-limits" class="small-copy">Selectable-text PDF only · up to 5 MB, 10 pages, and 30,000 extracted characters. Scanned or image-only PDFs aren't supported; you can paste the text instead.</p>
+                <p id="document-file-status" class="file-status" role="status">No document selected.</p>
+                <p id="document-file-error" class="file-error" role="alert" hidden></p>
+                <div id="document-processing-note" class="processing-note"><strong>Before you continue</strong><p>When you click <strong>Find experiences</strong>, the app extracts the PDF's text and sends it to the configured AI model through OpenRouter to suggest cards. Nothing is sent when you select a file. The PDF isn't saved. Cards and supporting passages remain only for this local session.</p></div>
+                <div class="form-actions"><button id="upload-button" class="button button-primary" type="submit" data-action disabled>Find experiences<span aria-hidden="true">↗</span></button><span class="button-note">You'll review every suggestion</span></div>
+              </form>
               <form id="background-form">
                 <div class="field-heading"><label for="background">Your background</label><span id="background-fixture-label" class="fixture-label" hidden>Fictional example · read only</span></div>
                 <textarea id="background" name="background" rows="9" maxlength="6000" placeholder="For example: In one role, I… In another part of my life, I…" aria-describedby="background-help background-count" disabled></textarea>
                 <div class="field-foot"><p id="background-help">Two short experiences give us a place to start.</p><span id="background-count">0 / 6,000</span></div>
                 <div class="form-actions"><button id="start-button" class="button button-primary" type="submit" data-action disabled><span id="start-button-label">Begin the exercise</span><span aria-hidden="true">↗</span></button><span class="button-note" id="start-note">One question at a time</span></div>
               </form>
+            </section>
+
+            <section id="document-review-step" aria-labelledby="document-review-title" hidden>
+              <h2 id="document-review-title" tabindex="-1">Which experiences belong?</h2>
+              <p class="section-description">These are proposed summaries from your document. Check each against its source, edit the wording if needed, then select the experiences you want to keep.</p>
+              <div id="document-review-context" class="document-context"><span class="eyebrow">YOUR DOCUMENT</span><p id="document-review-name"></p><ul id="document-warnings" class="document-warnings" hidden></ul></div>
+              <form id="document-review-form">
+                <div id="document-review-cards" class="document-review-cards"></div>
+                <div class="import-review-footer"><p id="document-selection-status" role="status" aria-live="polite">No experiences selected.</p><p class="small-copy">Only selected cards are added. To leave all of them out, choose Start over.</p><button id="approve-experiences-button" class="button button-primary" type="submit" data-action disabled>Add selected experiences<span aria-hidden="true">↗</span></button></div>
+              </form>
+            </section>
+
+            <section id="document-ready-step" aria-labelledby="document-ready-title" hidden>
+              <h2 id="document-ready-title" tabindex="-1">Your experiences are on the map.</h2>
+              <p id="document-ready-description" class="section-description"></p>
+              <div class="import-ready-note"><span aria-hidden="true">✓</span><div><h3>Reviewed and chosen by you</h3><p>The next coaching question uses only your approved experience cards. Suggestions you left out won't be used.</p></div></div>
+              <p class="section-description">Ready to explore a possible thread between these experiences? We'll begin with one Slim-informed question.</p>
+              <div class="form-actions"><button id="document-start-button" class="button button-primary" type="button" data-action>Find a question<span aria-hidden="true">↗</span></button><span class="button-note">Or export the experiences you've saved</span></div>
             </section>
 
             <section id="question-step" aria-labelledby="question-title" hidden>
@@ -82,7 +114,7 @@
             </section>
 
             <div id="working-status" class="working-status" role="status" aria-live="polite" hidden><span class="loading-dot" aria-hidden="true"></span><span id="working-text">Working…</span></div>
-            <div id="error-panel" class="error-panel" role="alert" hidden><div><h3>We couldn't finish that step.</h3><p id="error-text"></p><p class="error-reassurance">Your words are still here.</p></div><button id="retry-button" type="button" class="button button-small button-secondary" data-action>Try again</button></div>
+            <div id="error-panel" class="error-panel" role="alert" hidden><div><h3>We couldn't finish that step.</h3><p id="error-text"></p><p class="error-reassurance">Your input and review choices are still here.</p></div><button id="retry-button" type="button" class="button button-small button-secondary" data-action>Try again</button></div>
           </section>
 
           <section class="source-card" aria-label="Source and approach">
@@ -92,14 +124,16 @@
 
         <aside class="landscape-column" aria-labelledby="landscape-title">
           <section class="landscape-card"><div class="landscape-top"><p class="eyebrow">YOUR LANDSCAPE</p><span id="landscape-mode-label" class="badge badge-outline" hidden>Fictional example</span></div><h2 id="landscape-title">A story taking shape.</h2><p class="landscape-intro">A small map of what you discover. You decide what belongs.</p>
+            <section id="landscape-experiences" class="landscape-experiences" aria-labelledby="landscape-experiences-title" hidden><div class="experience-section-heading"><h3 id="landscape-experiences-title">Approved experiences</h3><span id="landscape-experience-count" class="badge badge-outline"></span></div><p id="landscape-document-name" class="small-copy"></p><ul id="landscape-experience-list" class="landscape-experience-list"></ul></section>
             <div id="landscape-empty" class="landscape-empty"><div class="thread-illustration" aria-hidden="true"><span></span><span></span><span></span></div><h3 id="landscape-empty-title">A little room to notice.</h3><p id="landscape-empty-description">A possible theme will appear here after your reflection. Nothing is accepted automatically.</p></div>
+            <p id="landscape-theme-next" class="landscape-theme-next" hidden>Your experiences are here. A possible connecting theme comes after reflection.</p>
             <div id="landscape-result" class="landscape-result" hidden><span id="landscape-status" class="status-pill">For your consideration</span><h3 id="landscape-theme"></h3><p id="landscape-statement"></p><div class="landscape-grounding"><span aria-hidden="true">↳</span><p id="landscape-grounding-text">Grounded in your background and reflection.</p></div></div>
             <div id="landscape-rejected" class="landscape-rejected" hidden><span class="status-pill status-neutral">Set aside by you</span><h3>That thread didn't fit.</h3><p>No theme was added. Recognizing what doesn't fit is part of finding your own words.</p></div>
             <div class="landscape-foot"><span aria-hidden="true">✳</span><p>Evidence first.<br>Interpretation is always yours to revise.</p></div>
           </section>
           <div class="session-tools"><button id="export-button" type="button" class="button button-secondary" data-action disabled><span aria-hidden="true">↓</span>Export this exercise</button><button id="reset-button" type="button" class="button button-quiet" data-action disabled>Start over</button></div>
           <p class="session-note">Kept for this local session. Export to keep a copy; restarting the server clears the session.</p>
-          <p id="live-privacy-note" class="session-note" hidden>Your background and reflection are sent to the configured AI service. No personal text is stored in this browser.</p>
+          <p id="live-privacy-note" class="session-note" hidden>Your background and reflection are sent to the configured AI service. No personal text is saved in browser storage.</p>
         </aside>
       </div>
       <p id="page-status" class="sr-only" aria-live="polite"></p>

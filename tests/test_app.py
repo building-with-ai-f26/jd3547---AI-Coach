@@ -1,6 +1,7 @@
 """Application-state and local-boundary tests; never contact a model service."""
 
 from copy import deepcopy
+from io import BytesIO
 import json
 import threading
 import unittest
@@ -8,6 +9,8 @@ from unittest.mock import patch
 
 from app import COOKIE, MAX_CHARS, create_app
 from coach import CoachError, SAMPLE, SAMPLE_PROPOSAL, SAMPLE_QUESTION, SOURCE_IDS, valid_text
+from documents import DocumentError, MAX_PDF_BYTES
+from test_documents import FICTIONAL_EXPERIENCES, fictional_cv_pdf
 
 
 HEADERS = {"X-Coach-Request": "1", "Origin": "http://localhost"}
@@ -23,6 +26,10 @@ class StubCoach:
     def question(self, background, settings):
         self.calls.append(("question", background))
         return "What did you contribute in both situations?"
+
+    def extract_experiences(self, pages, settings):
+        self.calls.append(("extract", deepcopy(pages)))
+        return deepcopy(FICTIONAL_EXPERIENCES)
 
     def propose(self, background, question, answer, settings):
         self.calls.append(("propose", background, question, answer))
@@ -55,6 +62,10 @@ class BlockingCoach(StubCoach):
         self._wait("propose")
         return super().propose(background, question, answer, settings)
 
+    def extract_experiences(self, pages, settings):
+        self._wait("extract")
+        return super().extract_experiences(pages, settings)
+
 
 class AppTests(unittest.TestCase):
     def setUp(self):
@@ -85,6 +96,219 @@ class AppTests(unittest.TestCase):
         response = (client or self.client).get("/api/export")
         self.assertEqual(response.status_code, 200)
         return response, json.loads(response.get_data(as_text=True))
+
+    def upload(self, client=None, headers=None, document=None, filename="fictional-cv.pdf", initialize=True):
+        client = client or self.client
+        if initialize:
+            client.get("/api/config")
+        response = client.post("/api/documents", data={"file": (BytesIO(fictional_cv_pdf() if document is None else document), filename)},
+                               headers=HEADERS if headers is None else headers, content_type="multipart/form-data")
+        # Werkzeug's test builder may spool its generated HTTP envelope. This is
+        # separate from the app's uploaded-file stream and needs closing in tests.
+        response.request.environ["wsgi.input"].close()
+        return response
+
+    def import_state(self):
+        response = self.upload()
+        self.assertEqual(response.status_code, 200, response.get_data(as_text=True))
+        return response.get_json()
+
+    def card_review(self, state, selected=None):
+        return {"version": state["version"], "cards": [
+            {"id": card["id"], "title": card["title"], "details": card["details"],
+             "include": selected is None or index in selected}
+            for index, card in enumerate(state["experience_cards"])]}
+
+    def test_document_upload_proposes_cards_but_cannot_export_before_review(self):
+        state = self.import_state()
+        self.assertEqual(state["stage"], "import_review")
+        self.assertEqual(state["document"]["page_count"], 2)
+        self.assertEqual(state["document"]["name"], "fictional-cv.pdf")
+        self.assertEqual(state["accepted_experiences"], [])
+        self.assertIsNone(state["background"])
+        self.assertEqual(len({card["id"] for card in state["experience_cards"]}), 3)
+        self.assertNotIn("pages", state)
+        self.assertNotIn("FICTIONAL SAMPLE CV", json.dumps(state))
+        self.assertEqual(self.client.get("/api/export").status_code, 409)
+        self.assertEqual([call[0] for call in self.coach.calls], ["extract"])
+
+    def test_document_edits_and_rejections_limit_export_and_next_model_calls(self):
+        state = self.import_state()
+        review = self.card_review(state, selected={1})
+        review["cards"][1]["title"] = "  Helping new volunteers  "
+        review["cards"][1]["details"] = "I created a guide to help new volunteers find their first task."
+        response = self.post("/api/documents/review", review)
+        self.assertEqual(response.status_code, 200)
+        imported = response.get_json()
+        self.assertEqual(imported["stage"], "imported")
+        self.assertEqual(imported["experience_cards"], [])
+        approved = imported["accepted_experiences"]
+        self.assertEqual(len(approved), 1)
+        self.assertEqual(approved[0]["title"], "Helping new volunteers")
+        self.assertTrue(approved[0]["user_edited"])
+        self.assertEqual(approved[0]["evidence"], state["experience_cards"][1]["evidence"])
+        exported = self.export()[1]
+        self.assertEqual(exported["exercise"], imported)
+        self.assertNotIn("hackathon", json.dumps(exported))
+        self.assertNotIn("survey data", json.dumps(exported))
+        started = self.post("/api/start", {"mode": "live", "use_document": True, "version": imported["version"],
+                                           "background": "Do not include this client-supplied text"})
+        self.assertEqual(started.status_code, 200)
+        question = started.get_json()
+        expected = approved[0]["title"] + "\n" + approved[0]["details"]
+        self.assertEqual(question["background"], expected)
+        self.assertEqual(question["accepted_experiences"], approved)
+        self.assertEqual(self.coach.calls[-1], ("question", expected))
+        response = self.post("/api/answer", {"version": question["version"], "answer": ANSWER})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json["document"], imported["document"])
+        self.assertEqual(self.coach.calls[-1][1], expected)
+        complete = self.post("/api/review", {"version": response.json["version"], "decision": "accept"})
+        self.assertEqual(complete.json["accepted_experiences"], approved)
+        self.assertNotIn("hackathon", json.dumps(self.export()[1]))
+
+    def test_document_review_rejects_invented_duplicate_missing_and_changed_evidence(self):
+        state = self.import_state()
+        valid = self.card_review(state)
+        invalid = []
+        changed = deepcopy(valid); changed["cards"][0]["id"] = "invented"; invalid.append(changed)
+        changed = deepcopy(valid); changed["cards"][1]["id"] = changed["cards"][0]["id"]; invalid.append(changed)
+        changed = deepcopy(valid); changed["cards"].pop(); invalid.append(changed)
+        changed = deepcopy(valid); changed["cards"][0]["evidence"] = {"page": 9, "text": "Invented"}; invalid.append(changed)
+        changed = deepcopy(valid); changed["cards"][0]["include"] = "yes"; invalid.append(changed)
+        changed = deepcopy(valid); changed["cards"][0]["title"] = "x" * 121; invalid.append(changed)
+        changed = deepcopy(valid); changed["cards"][0]["details"] = "x" * 601; invalid.append(changed)
+        invalid.append(self.card_review(state, selected=set()))
+        for payload in invalid:
+            with self.subTest(payload=str(payload)[:70]):
+                self.assertEqual(self.post("/api/documents/review", payload).status_code, 400)
+        accepted = self.post("/api/documents/review", valid)
+        self.assertEqual(accepted.status_code, 200)
+        self.assertFalse(any(card["user_edited"] for card in accepted.json["accepted_experiences"]))
+        self.assertEqual(self.post("/api/documents/review", valid).status_code, 409)
+        self.assertEqual(self.post("/api/start", {"mode": "live", "use_document": True,
+                                                "version": state["version"]}).status_code, 409)
+
+    def test_pending_or_missing_document_cannot_be_used_for_coaching(self):
+        self.assertEqual(self.post("/api/start", {"mode": "live", "use_document": True, "version": 1}).status_code, 409)
+        state = self.import_state()
+        self.assertEqual(self.post("/api/start", {"mode": "live", "use_document": True,
+                                                "version": state["version"]}).status_code, 409)
+        self.assertEqual([call[0] for call in self.coach.calls], ["extract"])
+
+    def test_excluded_cards_can_have_empty_text_but_selected_cards_cannot(self):
+        state = self.import_state()
+        payload = self.card_review(state, selected={1})
+        for index in (0, 2):
+            payload["cards"][index].update(title="", details="")
+        invalid = deepcopy(payload)
+        invalid["cards"][1]["details"] = " "
+        self.assertEqual(self.post("/api/documents/review", invalid).status_code, 400)
+        response = self.post("/api/documents/review", payload)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json["accepted_experiences"]), 1)
+        self.assertEqual(response.json["accepted_experiences"][0]["id"], payload["cards"][1]["id"])
+
+    def test_upload_requires_live_key_cookie_and_exactly_one_pdf(self):
+        self.assertEqual(self.upload(initialize=False).status_code, 409)
+        self.app.config["OPENROUTER_API_KEY"] = ""
+        self.assertEqual(self.upload().status_code, 503)
+        self.app.config["OPENROUTER_API_KEY"] = TEST_KEY
+        for filename, data in (("notes.txt", b"text"), ("empty.pdf", b""), ("fake.pdf", b"not PDF")):
+            with self.subTest(filename=filename):
+                self.assertEqual(self.upload(filename=filename, document=data).status_code, 400)
+        for form in ({"other": (BytesIO(b"%PDF-"), "file.pdf")},
+                     {"file": [(BytesIO(b"%PDF-"), "a.pdf"), (BytesIO(b"%PDF-"), "b.pdf")]},
+                     {"file": (BytesIO(b"%PDF-"), "file.pdf"), "extra": "unexpected"}):
+            response = self.client.post("/api/documents", data=form, headers=HEADERS, content_type="multipart/form-data")
+            self.assertEqual(response.status_code, 400)
+        self.assertEqual(self.coach.calls, [])
+
+    def test_upload_multipart_has_same_origin_protection_and_json_limits_remain(self):
+        for headers in ({}, {"X-Coach-Request": "1", "Origin": "https://attacker.example"},
+                        {"X-Coach-Request": "1", "Sec-Fetch-Site": "cross-site"}):
+            with self.subTest(headers=headers):
+                self.assertEqual(self.upload(headers=headers).status_code, 403)
+        self.assertEqual(self.post("/api/documents", {}).status_code, 403)
+        self.assertEqual(self.client.post("/api/start", data={"file": (BytesIO(b"x"), "a.pdf")},
+                                         headers=HEADERS, content_type="multipart/form-data").status_code, 403)
+        self.assertEqual(self.upload(document=b"%PDF-" + b"x" * MAX_PDF_BYTES).status_code, 413)
+        self.assertEqual(self.post("/api/start", {"mode": "live", "background": "x" * 50000}).status_code, 413)
+
+    def test_upload_stream_stays_in_memory_and_does_not_expose_key(self):
+        observed = []
+        from app import MemoryUploadRequest
+        original = MemoryUploadRequest._get_file_stream
+        def stream(*args, **kwargs):
+            result = original(*args, **kwargs)
+            observed.append(result)
+            return result
+        with patch.object(MemoryUploadRequest, "_get_file_stream", stream), patch("app.extract_pdf", return_value=[{"page": 1, "text": "Fictional text"}]):
+            response = self.upload(document=b"%PDF-" + b"x" * 700000, filename="../../fictional.pdf")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(observed and all(isinstance(item, BytesIO) for item in observed))
+        self.assertEqual(response.json["document"]["name"], "fictional.pdf")
+        self.assertNotIn(TEST_KEY, response.get_data(as_text=True))
+        cookie = self.client.get_cookie(COOKIE).value
+        self.assertNotIn("fictional", cookie)
+        self.assertNotIn(TEST_KEY, cookie)
+
+    def test_upload_parse_or_model_failure_releases_operation_for_retry(self):
+        with patch("app.extract_pdf", side_effect=DocumentError("Please paste readable text.")):
+            self.assertEqual(self.upload().status_code, 400)
+        with patch.object(self.coach, "extract_experiences", side_effect=CoachError("Please retry.")):
+            self.assertEqual(self.upload().status_code, 502)
+        self.assertEqual(self.upload().status_code, 200)
+
+    def test_upload_reset_discards_delayed_extraction_and_blocks_duplicate(self):
+        blocker = BlockingCoach(block_on="extract")
+        app = create_app({"TESTING": True, "OPENROUTER_API_KEY": TEST_KEY, "OPENROUTER_MODEL": "test/model"}, coach=blocker)
+        client = app.test_client()
+        client.get("/api/config")
+        worker_client = app.test_client()
+        worker_client.set_cookie(COOKIE, client.get_cookie(COOKIE).value)
+        responses = []
+        worker = threading.Thread(target=lambda: responses.append(self.upload(client=worker_client, initialize=False)))
+        worker.start()
+        try:
+            self.assertTrue(blocker.started.wait(3))
+            self.assertEqual(self.upload(client=client, initialize=False).status_code, 409)
+            self.assertEqual(self.post("/api/reset", {}, client=client).status_code, 200)
+        finally:
+            blocker.release.set()
+            worker.join(3)
+        self.assertFalse(worker.is_alive())
+        self.assertEqual(responses[0].status_code, 409)
+        self.assertEqual(client.get("/api/export").status_code, 400)
+        self.assertEqual(worker_client.get("/api/export").status_code, 400)
+        self.assertEqual([call[0] for call in blocker.calls], ["extract"])
+
+    def test_reset_during_pdf_parsing_prevents_sending_pages_to_model(self):
+        self.client.get("/api/config")
+        worker_client = self.app.test_client()
+        worker_client.set_cookie(COOKIE, self.client.get_cookie(COOKIE).value)
+        started = threading.Event()
+        release = threading.Event()
+        responses = []
+
+        def delayed_parse(data):
+            started.set()
+            if not release.wait(5):
+                raise AssertionError("Parser wait expired")
+            return [{"page": 1, "text": "Fictional experience that should not be sent."}]
+
+        with patch("app.extract_pdf", side_effect=delayed_parse):
+            worker = threading.Thread(target=lambda: responses.append(self.upload(client=worker_client, initialize=False)))
+            worker.start()
+            try:
+                self.assertTrue(started.wait(2))
+                self.assertEqual(self.post("/api/reset", {}).status_code, 200)
+            finally:
+                release.set()
+                worker.join(3)
+        self.assertFalse(worker.is_alive())
+        self.assertEqual(responses[0].status_code, 409)
+        self.assertEqual(self.coach.calls, [])
 
     def test_sample_ignores_submitted_personal_inputs_and_never_calls_provider(self):
         state = self.start()

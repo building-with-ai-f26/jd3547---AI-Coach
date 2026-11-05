@@ -193,7 +193,7 @@
     </header>
 
     <div class="callout">
-      <strong>Reading this page:</strong> the local prototype supports a fictional walkthrough and live AI coaching as of November 2, 2026. The builder has tested live question and theme generation with his own input. Coaching usefulness has not been established. Items marked
+      <strong>Reading this page:</strong> the local prototype supports a fictional walkthrough, live AI coaching, and reviewed résumé/CV PDF imports as of November 4, 2026. The builder has tested live question and theme generation with his own input; document import was checked with a fictional CV. Coaching usefulness has not been established. Items marked
       <span class="status status-planned">Planned</span> are design intentions, and items marked
       <span class="status status-done">Done</span> are finished work. The problem statement is a hypothesis, not a finding from user research.
     </div>
@@ -202,13 +202,14 @@
     <section id="live-demo">
       <h2>Product Showcase (Prototype / Live App / 2-Min Video)</h2>
       <p>
-        <strong>Current Status:</strong> Build 1. PRD v1 is drafted. <span class="status status-done">Done</span> A local prototype runs one short coaching exercise using either a clearly labeled fictional example or live AI responses through OpenRouter.<br />
-        <strong>Demo:</strong> The app runs on the builder's laptop. The screenshot below shows the review step after editing and accepting the example theme.
+        <strong>Current Status:</strong> Build 1. PRD v1 is drafted. <span class="status status-done">Done</span> A local prototype runs one short coaching exercise using either a clearly labeled fictional example or live AI responses through OpenRouter. Users can also import one résumé/CV PDF and review experience cards before adding them to the landscape.<br />
+        <strong>Demo:</strong> The app runs on the builder's laptop. The screenshots below show a reviewed example theme and a live question based on approved experiences from a fictional CV.
       </p>
 
       <h3>What works in the prototype <span class="status status-done">Done</span></h3>
       <ol>
-        <li>Choose the fictional example or enter your own professional background.</li>
+        <li>Choose the fictional example, paste professional background, or upload one résumé/CV PDF with selectable text.</li>
+        <li>For a PDF, review suggested experiences with exact source quotations and page numbers. Edit and select what belongs; only approved cards enter the landscape and the next coaching step.</li>
         <li>Follow the prepared example, or answer a live AI-generated reflection question about your experiences.</li>
         <li>Review a proposed connecting theme alongside the words that support it. Accept it, edit it, or set it aside.</li>
         <li>Inspect the source behind the exercise, download the exercise record, or start over.</li>
@@ -220,14 +221,20 @@
         </a>
         <figcaption class="meta">Local prototype, November 2, 2026. Fictional example with edited wording; this is a screenshot, not a live AI response.</figcaption>
       </figure>
-      <p><strong>Checked:</strong> 39 automated checks pass. The fictional question, review, edit, export, reset, and reject flow was checked in a browser. Live testing with the builder's own background and reflection reached the generated question and theme review steps; some responses needed retries. These checks do not establish coaching quality.</p>
-      <p><strong>Next:</strong> <span class="status status-planned">Planned</span> Resolve GitHub Pages access with the class staff and prepare the Build 1 submission and demo. Further testing will assess whether the coaching adds useful perspective. The book library and expert roundtable remain future work.</p>
+      <figure class="prototype-figure">
+        <a href="assets/document-landscape-nov-04.jpg" aria-label="Open the fictional CV import screenshot at full size">
+          <img src="assets/document-landscape-nov-04.jpg" alt="AI Coach shows two approved experience cards from a fictional CV, an exact source quote on page one, and a live coaching question referring to the research and hackathon experiences." loading="lazy" />
+        </a>
+        <figcaption class="meta">November 4, 2026. Live AI response using a fictional test CV. Two of three suggested experiences were selected; one was edited. This is test material, not the builder's biography.</figcaption>
+      </figure>
+      <p><strong>Checked:</strong> 70 automated checks pass. Browser testing confirmed live extraction from a fictional two-page CV, editing and approving two of three cards, export containing only those approved cards, and a question based on them. The first question response failed validation and worked on one retry. Earlier testing with the builder's own pasted background reached question and theme review. These checks do not establish coaching quality or reliable extraction across varied real CVs.</p>
+      <p><strong>Next:</strong> <span class="status status-planned">Planned</span> The Product Page is published. Complete the Build 1 submission and demo, then try a real CV and assess usefulness. PostHog installation, a deeper book workshop, and the expert roundtable remain future work.</p>
     </section>
 
     <!-- LIVING PRD (Updated every week!) -->
     <section id="prd">
       <h2>Living PRD (Product Requirements Document)</h2>
-      <p class="meta">PRD v1 is a draft (October 29, 2026). It will be updated every week as we test with real users and learn what works.</p>
+      <p class="meta">PRD v1, drafted October 29 and updated November 4, 2026 to include personal-document intake. It will be updated every week as we test with real users and learn what works.</p>
 
       <h3>1. Target User & The Job to Be Done</h3>
       <p><strong>Who is this for?</strong> The first user is me, Jason Daniels, the builder. I'm a professional who wants to communicate how I see the world, how that perspective shows up in my work, and where I want to go. My relevant material already exists across a LinkedIn profile, a résumé, notes, and prior writing, but together it doesn't tell a connected story or make my value clear.</p>
@@ -237,7 +244,7 @@
 
       <h3>Product vision for the six-week project <span class="status status-planned">Planned</span></h3>
       <ul>
-        <li><strong>Guided intake:</strong> The user pastes existing material and has a short conversation, one question at a time. The coach summarizes what it learned and flags uncertainties without making the user resolve every gap. The user can review and correct the summary.</li>
+        <li><strong>Guided intake:</strong> The user pastes existing material or uploads personal career documents, reviews the experiences found, and has a short conversation, one question at a time. One selectable-text résumé/CV PDF with reviewed experience cards is implemented; broader formats and the longer conversation remain planned.</li>
         <li><strong>Coach blending:</strong> Based on the user's goals and materials, the coach recommends a blend of coaching perspectives from a fixed, curated library and explains why. The user can adjust the blend. A lead coach runs the workshop using those perspectives. Each perspective cites its source and does not imply endorsement by, or claim to be, the person behind it.</li>
         <li><strong>Transparent sources:</strong> Sources appear at the end of each workshop section. They separate the user's own material from external sources and from the coach's interpretation.</li>
         <li><strong>A visible, evolving brand landscape:</strong> The landscape builds up during the conversation and can be refined by talking to the coach. It has two connected views: a full written narrative, and organized sections for beliefs, experiences, strengths, current value, and aspirations. The experience library can hold both rough ideas and developed stories.</li>
@@ -247,7 +254,7 @@
 
       <h3>2. Scope & Explicit Non-Goals</h3>
       <ul>
-        <li><strong>In Scope (Core Workflow):</strong> The user pastes their own professional material and answers guided coaching questions, one at a time. The result is a personal brand landscape they recognize as their own, with their words kept separate from the coach's suggestions. Build 1 tests the smallest version of this: one question and one landscape update.</li>
+        <li><strong>In Scope (Core Workflow):</strong> The user pastes professional material or uploads a personal résumé/CV, reviews the extracted experiences, and answers guided coaching questions, one at a time. The result is a personal brand landscape they recognize as their own, with their words kept separate from the coach's suggestions. The current version supports one selectable-text PDF (up to 5 MB, 10 pages, and 30,000 extracted characters), up to six proposed experience cards, one question, and one proposed connecting theme.</li>
         <li><strong>Out of Scope #1:</strong> No user-uploaded books. Coaching perspectives come from a fixed, curated library.</li>
         <li><strong>Out of Scope #2:</strong> No direct LinkedIn integration. Users paste their profile text.</li>
         <li><strong>Out of Scope #3:</strong> No voice conversations. Coaching is text-only.</li>
@@ -257,7 +264,7 @@
       <h3>3. How It Works Under the Hood & Riskiest Assumption (Week 2+)</h3>
       <p><strong>Riskiest Assumption (draft):</strong> The app may not provide a more valuable coaching experience than ordinary LLM prompting. Its intended value is helping users apply ideas from selected experts to their own experiences through guided questions, reflection, and feedback—the kind of value someone seeks from a book, seminar, or consultant.</p>
       <p><strong>What we'll look for:</strong> Did the user gain a useful perspective, recognize something they had missed, or become clearer about how to describe their value? Ask for specific examples of what helped and what felt generic.</p>
-      <p><strong>Simple Architecture:</strong> A browser screen connects to a small Python server running on the laptop. Fictional mode uses prepared material. Live mode uses OpenRouter with one source card and the user's current background and reflection; the API key stays on the server. The user reviews each suggested theme before keeping it; the exercise stays in memory unless exported.</p>
+      <p><strong>Simple Architecture:</strong> A browser screen connects to a small Python server running on the laptop. Fictional mode uses prepared material. PDF import reads text in a bounded, isolated process, then sends that text through OpenRouter to propose experience cards with matching source quotations. The original file is not saved. Only user-approved card titles and descriptions feed the coaching step. Coaching uses one method source card and the user's background and reflection; the API key stays on the server. The user reviews each proposed theme before keeping it. The exercise stays in memory unless exported; there is no saved-session recovery.</p>
 
       <h3>4. Unit Economics & Analytics Snapshot (Updated Weekly)</h3>
       <div class="grid-2">
@@ -295,7 +302,15 @@
           <li><strong>User feedback:</strong> Tested the fictional example and the live exercise with my own input. A judgment of coaching usefulness and feedback from another target user have not yet been recorded.</li>
           <li><strong>What broke / changed in PRD:</strong> Fixed an early review-screen error, misleading connection errors, and valid AI responses being rejected because of formatting or missing question punctuation. All 39 automated checks pass. Some live responses still needed retries, and an observed draft added an interpretation not stated in the input, so human review remains necessary. Kept this first version to one exercise; the larger book-workshop and roundtable vision remains planned.</li>
           <li><strong>Cost & time so far:</strong> Approximately 2.5 hours on Build 1, including setup and troubleshooting (my estimate). OpenRouter reports $0.04965 in usage on this project's key as of November 2, 2026, including testing and troubleshooting. Other project expenses have not been confirmed.</li>
-          <li><strong>Next step:</strong> Await Hew's help enabling GitHub Pages, publish the Product Page, and submit the Product Page and repository links in Icerynk. Make and push meaningful progress on another day this week, then prepare the two-minute demo for November 10.</li>
+          <li><strong>Next step recorded November 2:</strong> Resolve Pages access, publish the Product Page, make meaningful progress on another day, and prepare submission and the two-minute demo. See the November 4 update below.</li>
+        </ul>
+        <p class="meta">Progress update · November 4, 2026</p>
+        <ul>
+          <li><strong>What shipped:</strong> Added one-PDF résumé/CV intake, source-linked experience cards, edit/select controls, an approved-experience landscape, export, and a follow-up question using only approved material. The new screenshot uses fictional test data. Christian resolved repository access; GitHub Pages was enabled and the public Product Page was verified after deployment.</li>
+          <li><strong>What broke / changed:</strong> Added personal career-document intake to the core workflow while keeping uploaded expert books out of scope. The first extraction request exceeded available API credit; a smaller response budget worked. Credit and truncated-response errors now have clearer messages. Live extraction, card editing/selection, and export worked in the browser. The first coaching question failed the one-question check and succeeded on one retry. All 70 automated checks pass.</li>
+          <li><strong>Evidence and limits:</strong> One fictional two-page CV produced three sourced cards; two were approved and one excluded. Only the two approved cards appeared in the export and subsequent question. Real-CV accuracy and coaching usefulness still need user testing. Scans, Word files, multiple-document imports, and saved-session recovery are not implemented.</li>
+          <li><strong>Cost & time:</strong> Additional November 4 hours and API usage have not yet been recorded. The November 2 figures above remain a dated snapshot, not a current total.</li>
+          <li><strong>Next step:</strong> Try the upload with a real CV, submit the Product Page and repository links in Icerynk, and prepare the November 10 demo. For Build 2, install and verify PostHog, refine the PRD, and improve the workshop from observed problems.</li>
         </ul>
       </div>
 

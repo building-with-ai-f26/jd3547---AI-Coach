@@ -104,6 +104,58 @@ textarea:disabled, input:disabled { opacity: .7; }
 .question-block { background: #eff2ea; border-left: 2px solid #a8baa3; border-radius: 0 7px 7px 0; padding: 20px 23px; margin-bottom: 26px; }
 .question-block .eyebrow { color: #62745c; font-size: 9px; margin-bottom: 10px; }
 .question-block > p { font-family: Georgia, serif; font-size: 24px; letter-spacing: -.3px; line-height: 1.45; margin-bottom: 0; }
+.input-choice { display: flex; gap: 5px; padding: 5px; background: #edf1e8; border: 1px solid #dbe2d3; border-radius: 9px; margin-bottom: 25px; }
+.input-choice-button { flex: 1; border: 1px solid transparent; padding: 10px 12px; border-radius: 6px; color: var(--muted); background: transparent; font-size: 12px; line-height: 1.5; }
+.input-choice-button[aria-pressed="true"] { background: var(--paper); border-color: #d7decf; color: var(--teal); box-shadow: 0 1px 3px #173a3010; font-weight: 600; }
+.input-choice-button:disabled { cursor: not-allowed; opacity: .5; }
+.upload-introduction h3 { font-size: 14px; line-height: 1.6; font-weight: 600; margin-bottom: 6px; }
+.upload-introduction p { font-size: 12px; color: var(--muted); line-height: 1.8; margin-bottom: 20px; }
+input[type="file"] { display: block; width: 100%; border: 1px dashed #afbfaa; border-radius: 9px; padding: 18px 14px; background: #f4f6ed; color: var(--ink); font-size: 12px; margin: 9px 0 9px; cursor: pointer; }
+input[type="file"]::file-selector-button { font: inherit; color: var(--teal); background: var(--paper); border: 1px solid #b7c8af; padding: 9px 12px; border-radius: 6px; margin-right: 12px; cursor: pointer; }
+input[type="file"]:disabled { cursor: not-allowed; opacity: .55; }
+.file-status { font-size: 11px; color: var(--muted); margin: 10px 0 15px; overflow-wrap: anywhere; }
+.file-error { font-size: 12px; color: var(--error); line-height: 1.7; margin-bottom: 15px; }
+.processing-note { background: #f2f0e7; border-left: 2px solid #bea78c; padding: 14px 16px; border-radius: 0 7px 7px 0; }
+.processing-note > strong { font-size: 11px; color: #6d654f; }
+.processing-note p { font-size: 11px; line-height: 1.8; color: #6e705e; margin: 4px 0 0; }
+.document-context { padding: 13px 16px; background: #f1f4eb; border: 1px solid #dee5d6; border-radius: 8px; margin: 0 0 23px; }
+.document-context .eyebrow { font-size: 9px; color: #68815c; margin-bottom: 5px; }
+.document-context > p { font-size: 12px; color: var(--teal); margin: 0; overflow-wrap: anywhere; }
+.document-warnings { padding-left: 17px; margin: 10px 0 0; color: #8d5b3c; font-size: 11px; line-height: 1.8; }
+.document-review-cards { display: grid; gap: 23px; }
+.experience-review-card { min-width: 0; margin: 0; border: 1px solid #d4ddce; border-radius: 9px; padding: 17px 18px 15px; transition: border-color .15s, background-color .15s; }
+.experience-review-card.is-selected { border-color: #6d9565; background: #f7faf2; }
+.experience-review-card legend { padding: 0 7px; font-size: 10px; color: var(--muted); font-weight: 600; }
+.experience-include { display: flex; align-items: flex-start; gap: 10px; margin: 0 0 18px; font-size: 12px; font-weight: 550; cursor: pointer; }
+.experience-include input { width: 17px; height: 17px; flex: 0 0 17px; margin: 1px 0 0; accent-color: var(--teal); cursor: pointer; }
+.experience-review-card label:not(.experience-include) { margin-bottom: 7px; font-size: 11px; }
+.experience-review-card input[type="text"] { margin-bottom: 15px; padding: 10px 12px; }
+.experience-review-card textarea { min-height: 105px; padding: 10px 12px; }
+.experience-source { margin-top: 17px; padding: 12px 14px; background: #f0f2e9; border-radius: 6px; }
+.experience-source-label { font-size: 9px; font-weight: 600; color: #657c59; margin-bottom: 7px; }
+.experience-source blockquote { margin: 0; padding: 0; color: #53674b; font-size: 12px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.experience-edit-note { margin: 9px 0 0; }
+.import-review-footer { border-top: 1px solid var(--line); padding-top: 20px; margin-top: 25px; }
+.import-review-footer > p:first-child { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+.import-review-footer .small-copy { margin-bottom: 17px; }
+.import-ready-note { display: flex; gap: 13px; align-items: flex-start; background: #edf3e7; padding: 19px; border-radius: 8px; margin: 24px 0; }
+.import-ready-note > span { color: var(--teal); background: #dbe8d1; border-radius: 50%; width: 25px; height: 25px; flex: 0 0 25px; text-align: center; line-height: 25px; font-size: 13px; }
+.import-ready-note h3 { font-size: 13px; margin-bottom: 7px; }
+.import-ready-note p { font-size: 12px; color: var(--muted); line-height: 1.8; margin: 0; }
+.landscape-experiences { border-top: 1px solid #d1dcc9; padding-top: 20px; margin-top: 22px; }
+.experience-section-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px; }
+.experience-section-heading h3 { font-size: 12px; font-weight: 650; margin-bottom: 0; color: #4c6943; }
+.landscape-experiences > .small-copy { color: #64785a; margin-bottom: 14px; overflow-wrap: anywhere; }
+.landscape-experience-list { list-style: none; padding: 0; margin: 0; }
+.landscape-experience-list > li { border: 1px solid #d0dcc7; background: #f4f7ee; border-radius: 8px; padding: 15px; margin-bottom: 12px; }
+.landscape-experience-list h4 { font-size: 13px; line-height: 1.6; font-weight: 650; margin-bottom: 7px; overflow-wrap: anywhere; }
+.landscape-experience-list > li > p { font-size: 11px; line-height: 1.8; color: #5a7051; margin-bottom: 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.experience-review-label { display: block; font-size: 9px; color: #5b7851; margin-bottom: 9px; }
+.experience-citation { border-top: 1px solid #dae4d2; padding-top: 9px; }
+.experience-citation summary { color: #5d7650; font-size: 9px; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
+.experience-citation blockquote { margin: 10px 0 0; padding-left: 11px; border-left: 2px solid #bbccb0; font-size: 11px; color: #5f7555; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.landscape-theme-next { font-size: 11px; color: #65795a; line-height: 1.8; padding: 10px 0 16px; margin: 0; }
+.landscape-experiences:not([hidden]) ~ .landscape-result, .landscape-experiences:not([hidden]) ~ .landscape-rejected { border-top: 1px solid #d1dcc9; padding-top: 22px; margin-top: 21px; }
 .source-card { border: 1px solid var(--line); border-radius: 10px; margin-top: 17px; background: #f1f2ea; }
 summary { cursor: pointer; list-style: none; }
 summary::-webkit-details-marker { display: none; }
@@ -246,6 +298,13 @@ dialog .eyebrow { color: var(--copper); }
   .form-actions { gap: 12px; }
   textarea { font-size: 16px; line-height: 1.7; padding: 13px; }
   input[type="text"] { font-size: 16px; }
+  .input-choice-button { font-size: 11px; padding: 10px 7px; }
+  input[type="file"] { font-size: 11px; padding: 14px 10px; }
+  input[type="file"]::file-selector-button { margin-right: 8px; padding: 9px; }
+  .experience-review-card { padding: 14px 12px; }
+  .experience-review-card textarea, .experience-review-card input[type="text"] { font-size: 16px; }
+  .processing-note { padding: 13px; }
+  .experience-source { padding: 11px; }
   .field-foot { gap: 10px; }
   .field-foot p, .field-foot span { font-size: 9px; }
   .button-note { font-size: 9px; }
