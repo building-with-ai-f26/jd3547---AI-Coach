@@ -156,7 +156,9 @@ Analytics is enabled in the shared configuration. It skips loading when the brow
 
 The event list is deliberately limited: pageviews, named button/link clicks, mode/input choices, PDF import and approval milestones, question/theme milestones, review decisions, export, reset, and broad failure categories. Properties distinguish `product_page` from `local_app` and fictional `sample` mode from `live` mode. Some events include a count of cards. Events do not include filenames, document text, personal background, answers, evidence quotations, or suggested wording. Full incoming URLs, search parameters, and referrers are replaced or omitted; a fixed test marker is the exception described below.
 
-Session replay is **configured** to mask all text and input values and block images and personal-content containers. Automatic click/form capture, console logs, network bodies/headers, and canvas recording are disabled. The helper also disables person profiles and identification, and configures analytics identifiers to stay in memory; anonymous session identifiers are still sent with events. The app's opaque exercise cookie is separate. These settings are implementation choices to verify in a real replay; they are not a claim that verification has already happened. PostHog receives events and masked replay data externally, subject to the project's PostHog settings. Local reset, server shutdown, and browser refresh do not delete that remote data.
+Session replay is **configured** to mask all text and input values and block images and personal-content containers. Automatic click/form capture, console logs, network bodies/headers, and canvas recording are disabled. The helper also disables person profiles and identification, and configures analytics identifiers to stay in memory; anonymous session identifiers are still sent with events. The app's opaque exercise cookie is separate.
+
+**Verified November 11, 2026:** browser checks using fictional material confirmed event receipt and masked session replay in PostHog for both the local app and the published Product Page. This covers the tested flows and interface at that time; recheck after interface or analytics changes. It does not establish outside-user adoption or coaching quality. PostHog receives events and masked replay data externally, subject to the project's PostHog settings. Local reset, server shutdown, and browser refresh do not delete that remote data.
 
 For the builder, the [Build 2 dashboard](https://us.posthog.com/project/697808/dashboard/2337055) requires access to the private PostHog project. To check the installation:
 
@@ -182,3 +184,5 @@ node tests/analytics.test.js
 ```
 
 It uses built-in Node modules and no network calls. Node is not required to run the app; this is a separate developer check, not proof that PostHog received events.
+
+On November 11, 2026, all **73 Python checks and 10 JavaScript checks passed**. No paid live-model calls were made during that day's setup and analytics checks.
