@@ -4,10 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Coach · Building with AI (Fall 2026)</title>
+  <meta name="referrer" content="no-referrer">
+  <script src="assets/analytics-config.js" defer></script>
+  <script src="assets/analytics.js" defer data-analytics-surface="product_page"></script>
 
-  <!-- Week 1: create your PostHog account only.
-       Build 2: paste your project's current PostHog web snippet here,
-       then install analytics in the local app and verify events. -->
+  <!-- Shared PostHog settings and privacy controls also serve the local app. -->
 
   <style>
     :root {
@@ -186,14 +187,14 @@
       <h1>AI Coach <span class="meta">(working title)</span></h1>
       <p class="tagline">An AI personal branding coach that helps professionals connect their experiences, strengths, and ambitions into a clear story about who they are and the value they bring.</p>
       <div class="cta-row">
-        <a class="btn" href="#live-demo" onclick="window.posthog && posthog.capture('clicked_try_product')">See the Product →</a>
+        <a class="btn" href="#live-demo">See the Product →</a>
         <a class="btn btn-secondary" href="#prd">Read the Living PRD</a>
         <a class="btn btn-secondary" href="#build-log">Weekly Build Log</a>
       </div>
     </header>
 
     <div class="callout">
-      <strong>Reading this page:</strong> the local prototype supports a fictional walkthrough, live AI coaching, and reviewed résumé/CV PDF imports as of November 4, 2026. The builder has tested live question and theme generation with his own input; document import was checked with a fictional CV. Coaching usefulness has not been established. Items marked
+      <strong>Reading this page:</strong> PRD v2 is dated November 11, 2026. The local prototype supports a fictional walkthrough, live AI coaching, and reviewed résumé/CV PDF imports. The builder has tested live question and theme generation with his own input; document import was checked with a fictional CV. Coaching usefulness has not been established. Items marked
       <span class="status status-planned">Planned</span> are design intentions, and items marked
       <span class="status status-done">Done</span> are finished work. The problem statement is a hypothesis, not a finding from user research.
     </div>
@@ -202,7 +203,7 @@
     <section id="live-demo">
       <h2>Product Showcase (Prototype / Live App / 2-Min Video)</h2>
       <p>
-        <strong>Current Status:</strong> Build 1. PRD v1 is drafted. <span class="status status-done">Done</span> A local prototype runs one short coaching exercise using either a clearly labeled fictional example or live AI responses through OpenRouter. Users can also import one résumé/CV PDF and review experience cards before adding them to the landscape.<br />
+        <strong>Current Status:</strong> Build 2 in progress. Build 1 was submitted November 8; PRD v2 below records the current scope and next comparison. <span class="status status-done">Done</span> A local prototype runs one short coaching exercise using either a clearly labeled fictional example or live AI responses through OpenRouter. Users can also import one résumé/CV PDF and review experience cards before adding them to the landscape.<br />
         <strong>Demo:</strong> The app runs on the builder's laptop. The screenshots below show a reviewed example theme and a live question based on approved experiences from a fictional CV.
       </p>
 
@@ -227,14 +228,14 @@
         </a>
         <figcaption class="meta">November 4, 2026. Live AI response using a fictional test CV. Two of three suggested experiences were selected; one was edited. This is test material, not the builder's biography.</figcaption>
       </figure>
-      <p><strong>Checked:</strong> 70 automated checks pass. Browser testing confirmed live extraction from a fictional two-page CV, editing and approving two of three cards, export containing only those approved cards, and a question based on them. The first question response failed validation and worked on one retry. Earlier testing with the builder's own pasted background reached question and theme review. These checks do not establish coaching quality or reliable extraction across varied real CVs.</p>
-      <p><strong>Next:</strong> <span class="status status-planned">Planned</span> The Product Page is published. Complete the Build 1 submission and demo, then try a real CV and assess usefulness. PostHog installation, a deeper book workshop, and the expert roundtable remain future work.</p>
+      <p><strong>Checked November 4:</strong> 70 automated checks passed. Browser testing confirmed live extraction from a fictional two-page CV, editing and approving two of three cards, export containing only those approved cards, and a question based on them. The first question response failed validation and worked on one retry. Earlier testing with the builder's own pasted background reached question and theme review. These checks do not establish coaching quality or reliable extraction across varied real CVs.</p>
+      <p><strong>Next:</strong> <span class="status status-planned">Planned</span> Finish PostHog setup and verify it on the Product Page and local app, try a real CV, and compare the exercise with competent ordinary prompting. Work from Pamela Slim's <em>Body of Work</em> is reserved for a second build day; the book has not yet been obtained or reviewed for this project. A deeper workshop and the expert roundtable remain planned.</p>
     </section>
 
     <!-- LIVING PRD (Updated every week!) -->
     <section id="prd">
       <h2>Living PRD (Product Requirements Document)</h2>
-      <p class="meta">PRD v1, drafted October 29 and updated November 4, 2026 to include personal-document intake. It will be updated every week as we test with real users and learn what works.</p>
+      <p class="meta">PRD v2 · November 11, 2026. This revision makes the comparison with ordinary prompting explicit, documents the implemented architecture, and adds an assumed cost per run. The current exercise is article-informed; the book workshop and user comparison have not been completed.</p>
 
       <h3>1. Target User & The Job to Be Done</h3>
       <p><strong>Who is this for?</strong> The first user is me, Jason Daniels, the builder. I'm a professional who wants to communicate how I see the world, how that perspective shows up in my work, and where I want to go. My relevant material already exists across a LinkedIn profile, a résumé, notes, and prior writing, but together it doesn't tell a connected story or make my value clear.</p>
@@ -257,14 +258,18 @@
         <li><strong>In Scope (Core Workflow):</strong> The user pastes professional material or uploads a personal résumé/CV, reviews the extracted experiences, and answers guided coaching questions, one at a time. The result is a personal brand landscape they recognize as their own, with their words kept separate from the coach's suggestions. The current version supports one selectable-text PDF (up to 5 MB, 10 pages, and 30,000 extracted characters), up to six proposed experience cards, one question, and one proposed connecting theme.</li>
         <li><strong>Out of Scope #1:</strong> No user-uploaded books. Coaching perspectives come from a fixed, curated library.</li>
         <li><strong>Out of Scope #2:</strong> No direct LinkedIn integration. Users paste their profile text.</li>
-        <li><strong>Out of Scope #3:</strong> No voice conversations. Coaching is text-only.</li>
+        <li><strong>Out of Scope #3:</strong> No full spoken coaching conversations or spoken AI replies. Speech-to-text input is a separate backlog idea: dictate into an editable text box, review the words, then submit. It is not implemented.</li>
       </ul>
       <p class="meta">These non-goals apply to the entire six-week project, not just Build 1.</p>
 
       <h3>3. How It Works Under the Hood & Riskiest Assumption (Week 2+)</h3>
-      <p><strong>Riskiest Assumption (draft):</strong> The app may not provide a more valuable coaching experience than ordinary LLM prompting. Its intended value is helping users apply ideas from selected experts to their own experiences through guided questions, reflection, and feedback—the kind of value someone seeks from a book, seminar, or consultant.</p>
-      <p><strong>What we'll look for:</strong> Did the user gain a useful perspective, recognize something they had missed, or become clearer about how to describe their value? Ask for specific examples of what helped and what felt generic.</p>
-      <p><strong>Simple Architecture:</strong> A browser screen connects to a small Python server running on the laptop. Fictional mode uses prepared material. PDF import reads text in a bounded, isolated process, then sends that text through OpenRouter to propose experience cards with matching source quotations. The original file is not saved. Only user-approved card titles and descriptions feed the coaching step. Coaching uses one method source card and the user's background and reflection; the API key stays on the server. The user reviews each proposed theme before keeping it. The exercise stays in memory unless exported; there is no saved-session recovery.</p>
+      <p><strong>Biggest risk:</strong> The app may offer no more useful insight than competent ordinary LLM prompting. Its intended value is helping users apply ideas from selected experts to their own experiences through guided questions, reflection, and feedback—the kind of value someone seeks from a book, seminar, or consultant. A polished interface or a recognizable expert name would not establish that value.</p>
+      <p><strong>How this build tests the risk:</strong> The current exercise asks about a connection between experiences, proposes one tentative theme, and shows the user's supporting words beside it. The user can correct or reject the result. That makes a small, concrete outcome available to compare: did the exercise reveal a useful connection, and does the person recognize it as their own? Matching quotations checks the evidence trail; it does not prove that the interpretation is accurate or helpful.</p>
+      <p><strong>Small comparison pilot:</strong> <span class="status status-planned">Planned</span> Recruit two or three reachable people with this problem. Compare the app with (A) a competent ordinary coaching prompt and (B) a chat given the same prompt plus the same reviewed source card. Use the same model, task, approved background, and reflection answers for the output comparison. Show the results without tool labels and vary their order. Ask each person to identify a specific useful insight, point out inaccurate or generic claims, and choose which result they would use—or say that none helps.</p>
+      <p><strong>Effort and interpretation:</strong> Separately record the time and corrections needed to complete each approach, and whether the guided question helped the person express something they had struggled to say. Equalizing facts for the output comparison does not measure how well each approach elicits those facts. These few sessions would guide the next revision, not prove superiority. If the app adds no clear benefit over the same-source chat, revise the workshop before adding more coaches. No comparison sessions or outside-user results have been recorded yet.</p>
+      <p><strong>Source scope:</strong> Today, one method card adapts the “Identify Your Themes” section of <a href="https://dorieclark.com/blog/build-personal-brand/">Dorie Clark's article quoting Pamela Slim</a>. It is not a full-book model or a replica of Slim. A bounded <em>Body of Work</em>-informed sequence is planned for the second build day, after obtaining and reviewing the relevant material. The app's questions and interpretations will remain distinguishable from the source's documented ideas.</p>
+      <p><strong>Simple Architecture:</strong> A plain HTML/CSS/JavaScript screen in the browser connects to a Python/Flask server on the laptop. Fictional mode uses prepared material and makes no model calls. For PDF intake, <code>pypdf</code> reads selectable text in a bounded, isolated process; the server sends the extracted text through OpenRouter to propose experience cards with matching source quotations and page numbers. The original file is not saved. Only user-approved card titles and descriptions feed the coaching step.</p>
+      <p>For coaching, the server sends the method card plus the user's background to the configured model for one question, then sends the background, question, and answer for one proposed theme. The repository's default model is <code>anthropic/claude-sonnet-4.6</code>. Response checks validate format, known source IDs, and matching user quotations before review. The API key stays in the server's local <code>.env</code> file. Exercise content stays in server memory, with no database or saved-session recovery; export creates a copy the user chooses to keep. GitHub Pages hosts this public Product Page separately from the local app.</p>
 
       <h3>4. Unit Economics & Analytics Snapshot (Updated Weekly)</h3>
       <div class="grid-2">
@@ -275,17 +280,21 @@
         </div>
         <div class="stat-box">
           <div class="stat-label">Est. Cost Per User Run</div>
-          <div class="stat-value">Not yet estimated</div>
+          <div class="stat-value">About $0.04–$0.08</div>
+          <p class="meta">Illustrative model cost: about $0.04 for pasted background, or $0.08 including one PDF import. Assumptions below; not a measured average or a spending ceiling.</p>
         </div>
         <div class="stat-box">
           <div class="stat-label">User Evidence (Analytics from Build 2)</div>
-          <div class="stat-value">Builder testing only</div>
+          <div class="stat-value">Verification pending</div>
+          <p class="meta" id="analytics-verification">PostHog setup is in progress. Pageviews, clicks, session replay, and dashboard evidence still need verification on the Product Page and local app. Prior evidence is builder testing only.</p>
         </div>
         <div class="stat-box">
           <div class="stat-label">Sponsor Call (Week 6)</div>
           <div class="stat-value">TBD</div>
         </div>
       </div>
+      <p class="meta"><strong>Cost estimate · November 11:</strong> <a href="https://openrouter.ai/anthropic/claude-sonnet-4.6">OpenRouter lists Claude Sonnet 4.6</a> at $3 per million input tokens and $15 per million output tokens. A pasted-background run makes two model requests. Assuming 4,000 input tokens in total, including instructions, source material, and repeated context, and allowing the code's full 900 output tokens for each request: (4,000 × $3 + 1,800 × $15) / 1,000,000 = <strong>$0.039</strong>.</p>
+      <p class="meta">A PDF run adds one extraction request, capped in code at 1,600 output tokens. Assuming 10,000 total input tokens across all three requests and the full 3,400 output-token allowance gives (10,000 × $3 + 3,400 × $15) / 1,000,000 = <strong>$0.081</strong>. Input totals are planning assumptions, not token measurements; output limits are allowances, not expected usage. Longer input or retries can cost more. These examples assume standard uncached rates and exclude purchase fees, subscriptions, hosting, and development/testing calls. Accepting, editing, rejecting, and exporting do not make model calls. Actual token use and cost per completed run still need measurement.</p>
     </section>
 
     <!-- WEEKLY BUILD LOG (Updated at least twice a week via Git commits) -->
@@ -310,16 +319,19 @@
           <li><strong>What broke / changed:</strong> Added personal career-document intake to the core workflow while keeping uploaded expert books out of scope. The first extraction request exceeded available API credit; a smaller response budget worked. Credit and truncated-response errors now have clearer messages. Live extraction, card editing/selection, and export worked in the browser. The first coaching question failed the one-question check and succeeded on one retry. All 70 automated checks pass.</li>
           <li><strong>Evidence and limits:</strong> One fictional two-page CV produced three sourced cards; two were approved and one excluded. Only the two approved cards appeared in the export and subsequent question. Real-CV accuracy and coaching usefulness still need user testing. Scans, Word files, multiple-document imports, and saved-session recovery are not implemented.</li>
           <li><strong>Cost & time:</strong> Additional November 4 hours and API usage have not yet been recorded. The November 2 figures above remain a dated snapshot, not a current total.</li>
-          <li><strong>Next step:</strong> Try the upload with a real CV, submit the Product Page and repository links in Icerynk, and prepare the November 10 demo. For Build 2, install and verify PostHog, refine the PRD, and improve the workshop from observed problems.</li>
+          <li><strong>Follow-up status:</strong> Build 1 was submitted in Icerynk on November 8. Trying the upload with a real CV and assessing coaching usefulness remain open. Build 2 focuses on PostHog, PRD v2, setup documentation, and learning from observed problems.</li>
         </ul>
       </div>
 
       <div class="log-entry">
         <h3>Build 2 · Smallest Local Version & PostHog (Due Nov 16)</h3>
+        <p class="meta">Progress update · November 11, 2026 · In progress</p>
         <ul>
-          <li><strong>What shipped:</strong> [Local working slice, PostHog verified on this page and the local app, PRD v2, and local setup in AGENTS.md]</li>
-          <li><strong>What broke / changed in PRD:</strong> [Fill in]</li>
-          <li><strong>Cost & time this week:</strong> $[0.00] · [0] hours</li>
+          <li><strong>Work this week:</strong> Updated PRD v2 with the biggest risk, a planned comparison with ordinary and same-source chat, the implemented architecture, and an assumed cost per run. The working local AI flow and PDF review-to-landscape feature were already implemented in Build 1. Setup documentation and PostHog integration are being completed; this entry does not claim their verification is finished.</li>
+          <li><strong>What changed in PRD:</strong> The test is whether guided source-informed coaching adds specific, accurate insight at reasonable effort—not whether the app can imitate an expert. Full-book work is deferred to the second build day; <em>Body of Work</em> has not yet been obtained or reviewed. Speech-to-text is a backlog item; full voice conversations remain out of scope.</li>
+          <li><strong>Analytics evidence:</strong> Pending verification of pageviews, clicks, and session replay on both surfaces, followed by a PostHog dashboard screenshot. No outside-user analytics or pilot findings are claimed.</li>
+          <li><strong>Cost & time this week:</strong> Not yet recorded. The cost-per-run figures above are estimates, and the November 2 spend and hours remain a historical snapshot.</li>
+          <li><strong>Next:</strong> Verify analytics and the setup instructions, record actual progress on a second separate build day, and submit the Product Page URL, repository URL, and PostHog dashboard evidence by November 16 at noon, New York time.</li>
         </ul>
       </div>
 

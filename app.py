@@ -10,7 +10,7 @@ import threading
 import time
 
 from dotenv import load_dotenv
-from flask import Flask, Request, g, jsonify, make_response, render_template, request
+from flask import Flask, Request, g, jsonify, make_response, render_template, request, send_from_directory
 
 from coach import CoachError, LiveCoach, SAMPLE, SAMPLE_PROPOSAL, SAMPLE_QUESTION, SOURCE, SOURCE_IDS, valid_text
 from documents import DocumentError, MAX_PDF_BYTES, MAX_PDF_PAGES, extract_pdf
@@ -74,8 +74,9 @@ def create_app(config=None, coach=None):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["Content-Security-Policy"] = (
-            "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
-            "connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+            "default-src 'self'; script-src 'self' https://us-assets.i.posthog.com; style-src 'self'; img-src 'self' data:; "
+            "connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com; "
+            "object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
         )
         if getattr(g, "new_sid", None):
             response.set_cookie(COOKIE, g.new_sid, httponly=True, samesite="Strict", max_age=SESSION_TTL)
@@ -144,6 +145,14 @@ def create_app(config=None, coach=None):
     @app.get("/")
     def index():
         return render_template("app.html")
+
+    @app.get("/analytics/<filename>")
+    def analytics_asset(filename):
+        # Share exactly these two public files with GitHub Pages; never expose a
+        # generic repository-file route or server configuration.
+        if filename not in {"analytics.js", "analytics-config.js"}:
+            return error("Not found.", 404)
+        return send_from_directory(Path(__file__).parent / "docs" / "assets", filename)
 
     @app.get("/api/config")
     def configuration():

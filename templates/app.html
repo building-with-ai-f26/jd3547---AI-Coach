@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#173f3b">
   <title>AI Coach — Find the thread</title>
   <link rel="stylesheet" href="/static/app.css">
+  <script src="/analytics/analytics-config.js" defer></script>
+  <script src="/analytics/analytics.js" defer data-analytics-surface="local_app"></script>
   <script src="/static/app.js" defer></script>
 </head>
 <body>
@@ -50,7 +52,7 @@
                 <button id="choose-upload-button" class="input-choice-button" type="button" aria-pressed="true" data-action>Upload a résumé / CV</button>
                 <button id="choose-paste-button" class="input-choice-button" type="button" aria-pressed="false" data-action>Paste background</button>
               </div>
-              <form id="document-form" hidden>
+              <form id="document-form" class="ph-no-capture" data-analytics-private hidden>
                 <div class="upload-introduction"><h3>Start with experiences you've already written down.</h3><p>We'll suggest experience cards from one résumé or CV. You can correct them and choose what goes on your landscape.</p></div>
                 <label for="document-file">Choose one PDF</label>
                 <input id="document-file" type="file" name="file" accept=".pdf,application/pdf" aria-describedby="document-limits document-processing-note document-file-status document-file-error">
@@ -62,13 +64,13 @@
               </form>
               <form id="background-form">
                 <div class="field-heading"><label for="background">Your background</label><span id="background-fixture-label" class="fixture-label" hidden>Fictional example · read only</span></div>
-                <textarea id="background" name="background" rows="9" maxlength="6000" placeholder="For example: In one role, I… In another part of my life, I…" aria-describedby="background-help background-count" disabled></textarea>
+                <textarea id="background" class="ph-no-capture" data-analytics-private name="background" rows="9" maxlength="6000" placeholder="For example: In one role, I… In another part of my life, I…" aria-describedby="background-help background-count" disabled></textarea>
                 <div class="field-foot"><p id="background-help">Two short experiences give us a place to start.</p><span id="background-count">0 / 6,000</span></div>
                 <div class="form-actions"><button id="start-button" class="button button-primary" type="submit" data-action disabled><span id="start-button-label">Begin the exercise</span><span aria-hidden="true">↗</span></button><span class="button-note" id="start-note">One question at a time</span></div>
               </form>
             </section>
 
-            <section id="document-review-step" aria-labelledby="document-review-title" hidden>
+            <section id="document-review-step" class="ph-no-capture" data-analytics-private aria-labelledby="document-review-title" hidden>
               <h2 id="document-review-title" tabindex="-1">Which experiences belong?</h2>
               <p class="section-description">These are proposed summaries from your document. Check each against its source, edit the wording if needed, then select the experiences you want to keep.</p>
               <div id="document-review-context" class="document-context"><span class="eyebrow">YOUR DOCUMENT</span><p id="document-review-name"></p><ul id="document-warnings" class="document-warnings" hidden></ul></div>
@@ -89,16 +91,16 @@
             <section id="question-step" aria-labelledby="question-title" hidden>
               <h2 id="question-title" tabindex="-1">Pause on one connection.</h2>
               <p class="section-description">You don't need a polished answer. Start with what you actually noticed or did.</p>
-              <div class="question-block"><span class="eyebrow">A QUESTION TO EXPLORE</span><p id="coaching-question"></p></div>
+              <div class="question-block ph-no-capture" data-analytics-private><span class="eyebrow">A QUESTION TO EXPLORE</span><p id="coaching-question"></p></div>
               <form id="answer-form">
                 <div class="field-heading"><label for="answer">Your reflection</label><span id="answer-fixture-label" class="fixture-label" hidden>Fictional example · read only</span></div>
-                <textarea id="answer" name="answer" rows="6" maxlength="6000" aria-describedby="answer-help answer-count"></textarea>
+                <textarea id="answer" class="ph-no-capture" data-analytics-private name="answer" rows="6" maxlength="6000" aria-describedby="answer-help answer-count"></textarea>
                 <div class="field-foot"><p id="answer-help">A few honest sentences are enough.</p><span id="answer-count">0 / 6,000</span></div>
                 <div class="form-actions"><button id="answer-button" class="button button-primary" type="submit" data-action><span id="answer-button-label">Explore the connection</span><span aria-hidden="true">↗</span></button></div>
               </form>
             </section>
 
-            <section id="review-step" aria-labelledby="review-title" hidden>
+            <section id="review-step" class="ph-no-capture" data-analytics-private aria-labelledby="review-title" hidden>
               <h2 id="review-title" tabindex="-1">Does this feel like you?</h2>
               <p id="review-description" class="section-description">This is a possible connection, not a verdict. Keep it, put it in your own words, or set it aside.</p>
               <div id="proposal-card" class="proposal-card"><span class="eyebrow">A POSSIBLE THREAD</span><h3 id="proposal-theme"></h3><p id="proposal-statement"></p></div>
@@ -114,7 +116,7 @@
             </section>
 
             <div id="working-status" class="working-status" role="status" aria-live="polite" hidden><span class="loading-dot" aria-hidden="true"></span><span id="working-text">Working…</span></div>
-            <div id="error-panel" class="error-panel" role="alert" hidden><div><h3>We couldn't finish that step.</h3><p id="error-text"></p><p class="error-reassurance">Your input and review choices are still here.</p></div><button id="retry-button" type="button" class="button button-small button-secondary" data-action>Try again</button></div>
+            <div id="error-panel" class="error-panel ph-no-capture" data-analytics-private role="alert" hidden><div><h3>We couldn't finish that step.</h3><p id="error-text"></p><p class="error-reassurance">Your input and review choices are still here.</p></div><button id="retry-button" type="button" class="button button-small button-secondary" data-action>Try again</button></div>
           </section>
 
           <section class="source-card" aria-label="Source and approach">
@@ -122,7 +124,7 @@
           </section>
         </div>
 
-        <aside class="landscape-column" aria-labelledby="landscape-title">
+        <aside class="landscape-column ph-no-capture" data-analytics-private aria-labelledby="landscape-title">
           <section class="landscape-card"><div class="landscape-top"><p class="eyebrow">YOUR LANDSCAPE</p><span id="landscape-mode-label" class="badge badge-outline" hidden>Fictional example</span></div><h2 id="landscape-title">A story taking shape.</h2><p class="landscape-intro">A small map of what you discover. You decide what belongs.</p>
             <section id="landscape-experiences" class="landscape-experiences" aria-labelledby="landscape-experiences-title" hidden><div class="experience-section-heading"><h3 id="landscape-experiences-title">Approved experiences</h3><span id="landscape-experience-count" class="badge badge-outline"></span></div><p id="landscape-document-name" class="small-copy"></p><ul id="landscape-experience-list" class="landscape-experience-list"></ul></section>
             <div id="landscape-empty" class="landscape-empty"><div class="thread-illustration" aria-hidden="true"><span></span><span></span><span></span></div><h3 id="landscape-empty-title">A little room to notice.</h3><p id="landscape-empty-description">A possible theme will appear here after your reflection. Nothing is accepted automatically.</p></div>
@@ -139,6 +141,7 @@
       <p id="page-status" class="sr-only" aria-live="polite"></p>
     </main>
     <footer class="site-footer"><span>AI Coach <span aria-hidden="true">/</span> An early, local prototype</span><span>Clarity begins with your experience.</span></footer>
+    <p class="session-note">Usage counts and masked session replays help improve this prototype. Personal inputs, document details, and coaching results are blocked from replay. Browser Do Not Track is respected.</p>
   </div>
 
   <dialog id="reset-dialog" aria-labelledby="reset-dialog-title"><form method="dialog"><p class="eyebrow">A FRESH PAGE</p><h2 id="reset-dialog-title">Start this exercise over?</h2><p>This clears the current exercise. Export first if you want to keep a copy.</p><div class="form-actions"><button id="confirm-reset-button" type="button" class="button button-primary">Start over</button><button class="button button-secondary" value="cancel">Keep working</button></div></form></dialog>

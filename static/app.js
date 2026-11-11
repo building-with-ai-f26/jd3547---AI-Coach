@@ -13,6 +13,8 @@
   let experienceDrafts = [];
   let renderedImportVersion = null;
   const MAX_PDF_BYTES = 5 * 1024 * 1024;
+  const track = (name, properties) => { try { window.AIAnalytics?.track(name, properties); } catch (_) {} };
+  const analyticsMode = () => { try { window.AIAnalytics?.setMode(mode); } catch (_) {} };
 
   const setText = (id, value) => { el(id).textContent = value == null ? "" : String(value); };
   const show = (id, visible) => { el(id).hidden = !visible; };
@@ -118,6 +120,7 @@
     try {
       await action();
     } catch (error) {
+      track("step_failed", { stage: session?.stage || "share", failure: error.status === 409 ? "stale" : "request_failed" });
       setText("error-text", error.message || "Something interrupted this step. Please try again.");
       // A stale request needs a fresh exercise, rather than repeating the same version.
       retryAction = error.status === 409 ? null : () => perform(action, workingMessage);
@@ -400,6 +403,12 @@
     }
     session = data;
     mode = data.mode;
+    analyticsMode();
+    if (data.stage === "import_review") track("document_import_ready", { card_count: data.experience_cards.length });
+    if (data.stage === "imported") track("experiences_approved", { card_count: data.accepted_experiences.length });
+    if (data.stage === "question") track("coaching_question_ready", { input_method: mode === "sample" ? "sample" : data.document ? "upload" : "paste" });
+    if (data.stage === "review") track("theme_proposed");
+    if (data.stage === "complete") track("theme_reviewed", { decision: data.decision });
     editing = false;
     if (data.stage === "question") el("answer").value = mode === "sample" ? config.sample.answer : "";
     if (data.answer != null) el("answer").value = data.answer;
@@ -421,6 +430,8 @@
   function selectMode(nextMode) {
     if (busy || session || !config || (nextMode === "live" && !config.live_ready)) return;
     mode = nextMode;
+    analyticsMode();
+    track("mode_selected");
     el("background").value = mode === "sample" ? config.sample.background : "";
     el("answer").value = "";
     el("document-file").value = "";
@@ -447,13 +458,17 @@
   function selectBackgroundChoice(choice) {
     if (busy || session) return;
     backgroundChoice = choice;
+    track("background_selected", { input_method: choice });
     clearError();
     render();
     el(choice === "upload" ? "document-file" : "background").focus();
   }
   el("choose-upload-button").addEventListener("click", () => selectBackgroundChoice("upload"));
   el("choose-paste-button").addEventListener("click", () => selectBackgroundChoice("paste"));
-  el("document-file").addEventListener("change", updateFileSelection);
+  el("document-file").addEventListener("change", () => {
+    updateFileSelection();
+    track("document_selected", { valid: !pdfProblem(el("document-file").files[0]) });
+  });
   el("document-form").addEventListener("submit", (event) => {
     event.preventDefault();
     if (!config || !config.live_ready || mode !== "live" || session) return;
@@ -463,6 +478,7 @@
       if (problem) throw new Error(problem);
       const form = new FormData();
       form.append("file", file);
+      track("document_import_started");
       acceptState(await request("/api/documents", form));
     }, "Reading your PDF and finding experiences for you to review…");
   });
@@ -527,6 +543,7 @@
     el("reset-dialog").close();
     perform(async () => {
       await request("/api/reset", {});
+      track("exercise_reset");
       session = null;
       editing = false;
       experienceDrafts = [];
@@ -559,6 +576,7 @@
       document.body.append(download);
       download.click();
       download.remove();
+      track("exercise_exported");
       window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
       announce("Your exercise export is ready to download.");
     }, "Preparing your export…");
