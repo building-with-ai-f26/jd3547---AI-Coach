@@ -12,6 +12,7 @@
   let backgroundChoice = "upload";
   let experienceDrafts = [];
   let renderedImportVersion = null;
+  let dictation = null;
   const MAX_PDF_BYTES = 5 * 1024 * 1024;
   const track = (name, properties) => { try { window.AIAnalytics?.track(name, properties); } catch (_) {} };
   const analyticsMode = () => { try { window.AIAnalytics?.setMode(mode); } catch (_) {} };
@@ -74,12 +75,13 @@
     el("upload-button").disabled = busy || !ready || !config.live_ready || hasSession || !file || Boolean(pdfProblem(file));
     el("approve-experiences-button").disabled = busy || stage !== "import_review" || !selected.length || selected.some((card) => !card.title.trim() || !card.details.trim());
     el("document-start-button").disabled = busy || stage !== "imported";
-    el("answer-button").disabled = busy || !session || session.stage !== "question" || !el("answer").value.trim();
+    el("answer-button").disabled = busy || !session || session.stage !== "question" || !el("answer").value.trim() || Boolean(dictation?.active);
     el("export-button").disabled = busy || !hasSession || stage === "import_review";
     el("reset-button").disabled = busy || !ready || (!hasSession && (mode === "sample" || (!el("background").value.trim() && !file)));
     el("retry-button").disabled = busy || !retryAction;
     el("background").disabled = busy || !ready;
     el("answer").disabled = busy || !session;
+    dictation?.setEnabled(!busy && mode === "live" && stage === "question");
     el("edit-theme").disabled = busy;
     el("edit-statement").disabled = busy;
     document.querySelectorAll(".experience-card-input").forEach((input) => { input.disabled = busy; });
@@ -178,7 +180,8 @@
     el("choose-upload-button").setAttribute("aria-pressed", String(backgroundChoice === "upload"));
     el("choose-paste-button").setAttribute("aria-pressed", String(backgroundChoice === "paste"));
     el("background").readOnly = isSample;
-    el("answer").readOnly = isSample;
+    el("answer").readOnly = isSample || Boolean(dictation?.active);
+    show("dictation-panel", !isSample);
     el("background").maxLength = config.max_chars;
     el("answer").maxLength = config.max_chars;
     setText("start-button-label", isSample ? "Try the fictional example" : "Find a question");
@@ -401,6 +404,7 @@
       renderedImportVersion = null;
       el("document-review-cards").replaceChildren();
     }
+    dictation?.stop();
     session = data;
     mode = data.mode;
     analyticsMode();
@@ -503,6 +507,9 @@
       acceptState(await request("/api/start", { mode: "live", use_document: true, version: session.version }));
     }, "Finding one question from your approved experiences…");
   });
+  dictation = window.createDictation({ input: el("answer"), start: el("dictation-start"),
+    stop: el("dictation-stop"), cancel: el("dictation-cancel"), status: el("dictation-status"),
+    preview: el("dictation-preview"), changed: updateCounts });
   el("background").addEventListener("input", updateCounts);
   el("answer").addEventListener("input", updateCounts);
   el("background-form").addEventListener("submit", (event) => {
@@ -514,7 +521,7 @@
   });
   el("answer-form").addEventListener("submit", (event) => {
     event.preventDefault();
-    if (!session || !el("answer").value.trim()) return;
+    if (!session || dictation.active || !el("answer").value.trim()) return;
     perform(async () => {
       acceptState(await request("/api/answer", { version: session.version, answer: el("answer").value.trim() }));
     }, mode === "sample" ? "Opening the example insight…" : "Looking for a possible connection…");
@@ -538,7 +545,7 @@
     submitReview("edit");
   });
   el("retry-button").addEventListener("click", () => { if (retryAction) retryAction(); });
-  el("reset-button").addEventListener("click", () => { if (!busy) el("reset-dialog").showModal(); });
+  el("reset-button").addEventListener("click", () => { if (!busy) { dictation.stop(); el("reset-dialog").showModal(); } });
   el("confirm-reset-button").addEventListener("click", () => {
     el("reset-dialog").close();
     perform(async () => {

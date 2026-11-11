@@ -246,6 +246,12 @@ dialog h2 { font-size: 29px; letter-spacing: -.7px; line-height: 1.2; margin-bot
 dialog p:not(.eyebrow) { font-size: 13px; color: var(--muted); }
 dialog .eyebrow { color: var(--copper); }
 .noscript-message { padding: 20px; background: #f7e4dc; color: var(--error); }
+.dictation-panel { margin: 16px 0; padding: 15px; border: 1px solid var(--line); border-radius: 8px; background: #f8f7f1; }
+.dictation-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.dictation-panel .small-copy { margin: 10px 0 0; }
+.dictation-panel .is-listening { color: var(--teal); font-weight: 650; }
+.dictation-panel .is-listening::before { content: "● "; color: #aa4538; }
+.dictation-preview { margin: 10px 0 0; font-style: italic; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; }
 @keyframes breathe { 0%, 100% { opacity: .4; transform: scale(.8); } 50% { opacity: 1; transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 @media (min-width: 1450px) { .page-shell { padding: 0 36px; } }

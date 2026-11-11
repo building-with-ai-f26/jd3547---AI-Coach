@@ -35,6 +35,7 @@
 | `documents.py` | Memory-only PDF extraction in a bounded subprocess; no original PDF saved. |
 | `content/method.json` | Reviewed article source, adaptation, attribution, and coverage limits. |
 | `templates/app.html`, `static/app.js`, `static/app.css` | Local browser interface. |
+| `static/dictation.js`, `tests/dictation.test.js` | Optional browser speech-to-text for live reflections; bounded, editable, no audio persistence. Run focused checks with `node tests/dictation.test.js`. |
 | `docs/index.html` | Public Product Page, living PRD, and honest weekly log; separate from the local application. |
 | `docs/assets/analytics-config.js`, `docs/assets/analytics.js` | Shared public PostHog configuration and event/privacy logic; Flask serves the same files under `/analytics/`. |
 | `tests/test_app.py`, `tests/test_coach.py`, `tests/test_documents.py` | Deterministic tests using fictional inputs and mocked providers. |
@@ -47,6 +48,8 @@ PDF import accepts one selectable-text PDF up to 5 MB, 10 pages, and 30,000 extr
 Session content is held only in the Flask process. The session cookie lasts one hour; server records inactive for over an hour are removed on a subsequent session request. Reset clears the current exercise and server shutdown clears all sessions. Browser refresh does not restore an exercise. Exports are local records, not resumable sessions, and may include a pending theme clearly marked as a proposal. Neither reset nor shutdown deletes downloaded files or data already sent to external providers.
 
 Keep personal documents, exports, and screenshots outside the public repository; `.gitignore` does not automatically exclude every private document. Do not log prompts, document text, filenames, answers, accepted wording, or provider responses containing personal material.
+
+Dictation uses the browser's SpeechRecognition service, which may process audio remotely. Keep the disclosure visible before microphone use. Preserve earlier text, invalidate late callbacks after cancellation/reset, enforce the 60-second limit, and require transcript review and explicit submission. Interim speech must remain inside an analytics-blocked element. Do not claim microphone accuracy from mocked recognition tests.
 
 ## 5. Analytics boundaries and verification
 

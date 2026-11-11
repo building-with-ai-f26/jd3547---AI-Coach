@@ -124,6 +124,14 @@ Keep this key private: do not paste it into a chat, screenshot, browser script, 
 
 Live mode sends your submitted background and answer, plus the method card, to OpenRouter and the configured model provider. It makes one request for the question and another for the suggestion. Accepting, editing and rejecting do not make more requests. Failed requests display an error; they never switch silently to sample results. A working connection does not establish coaching quality.
 
+### Speak your reflection
+
+In **Use my experience** mode, reach the reflection question, then choose **Speak your answer**. Allow microphone access when your browser asks. Speak in English, select **Stop dictation**, review/edit the text, and submit it normally. Each recording attempt is limited to 60 seconds. **Cancel dictation** removes that attempt's words and restores the text you had before starting. Existing text survives permission or connection failures. Switching away from the page stops listening.
+
+This uses the browser's speech service, with no additional API key or app transcription charge. It is not supported in every browser or embedded preview; try Chrome at `http://127.0.0.1:8787/`, or use keyboard dictation/typing if unavailable. The fictional walkthrough stays read-only. Browser speech recognition may send audio to an external service and require internet access; AI Coach does not record or save audio. Only the reviewed text is sent through the existing coaching request when you submit. See [browser speech recognition details](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition).
+
+Eight focused mock speech-recognition checks passed November 11. They cover text preservation, cancel/stop, late callbacks, errors, limits, and unavailable browsers. Actual microphone recognition still needs a hands-on check in the user's browser; these checks do not establish transcription accuracy.
+
 ### Upload a résumé or CV
 
 Choose **Use my experience**, then the PDF upload option. Select one PDF with selectable text and click **Find experiences**. Selecting the file alone does not send it to the AI service. Processing sends the extracted document text to OpenRouter and the configured model in one additional request, which uses your API credit.
