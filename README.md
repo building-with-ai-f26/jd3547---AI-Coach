@@ -122,7 +122,7 @@ Replace the placeholder on the `OPENROUTER_API_KEY` line with your own key. Leav
 
 Keep this key private: do not paste it into a chat, screenshot, browser script, or Git commit. `.gitignore` excludes `.env`; `.env.example` must contain placeholders only. The [OpenRouter quickstart](https://openrouter.ai/docs/quickstart) explains its API access. If the app shows an AI-service error, check your local key, configured model, and account credit; enabling the live button only means settings are present, not that a request has succeeded.
 
-Live mode sends your submitted background and answer, plus the method card, to OpenRouter and the configured model provider. It makes one request for the question and another for the suggestion. Accepting, editing and rejecting do not make more requests. Failed requests display an error; they never switch silently to sample results. A working connection does not establish coaching quality.
+Live mode sends your submitted background and answer, plus the method card, to OpenRouter and the configured model provider. It normally makes one request for the question and another for the suggestion. A question-format failure that returns within 20 seconds gets one automatic regeneration, which can add model cost; the second response must pass the same checks. Source, schema, transport, and credit errors are not automatically retried. Accepting, editing and rejecting do not make more requests. Failed requests display an error; they never switch silently to sample results. A working connection does not establish coaching quality.
 
 ### Speak your reflection
 

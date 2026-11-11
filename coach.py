@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 import re
+from time import monotonic
 
 import httpx
 
@@ -29,6 +30,10 @@ class CoachError(Exception):
     """A provider failure safe to describe without revealing provider payloads."""
 
 
+class QuestionShapeError(CoachError):
+    """Valid source/schema, but not one punctuated question."""
+
+
 def valid_text(value, maximum):
     return isinstance(value, str) and bool(value.strip()) and len(value) <= maximum
 
@@ -44,7 +49,7 @@ def validate_question(data):
     if "?" not in question and re.match(r"^(what|when|where|who|which|why|how)\b", question, re.IGNORECASE):
         question = question.rstrip(".") + "?"
     if question.count("?") != 1 or len(question) > 500:
-        raise CoachError("The AI did not return one clear question. Please retry.")
+        raise QuestionShapeError("The AI did not return one clear question. Please retry.")
     return question
 
 
@@ -224,10 +229,20 @@ class LiveCoach:
         task = (
             "Ask ONE short, open question that helps the user compare their experiences for a recurring "
             "contribution. If they have provided only one experience, ask about a similar situation. "
-            "Do not propose a theme yet. Use one question mark. Schema: "
+            "Do not propose a theme yet. Ask just one question under 500 characters, beginning with What or How. "
+            "End with exactly one question mark; include no other questions or quoted questions. Schema: "
             '{"question":"...","source_ids":' + json.dumps(SOURCE_IDS) + "}."
         )
-        return validate_question(call_model(settings, task, {"background": background}))
+        started = monotonic()
+        try:
+            return validate_question(call_model(settings, task, {"background": background}))
+        except QuestionShapeError:
+            # One regeneration only, and only after a quick invalid response.
+            # Leave headroom in the browser's 90-second request window.
+            if monotonic() - started > 20:
+                raise
+        retry_task = task + " The previous attempt did not meet the one-question rule. Return a single concise question, not a list."
+        return validate_question(call_model(settings, retry_task, {"background": background}))
 
     def propose(self, background, question, answer, settings):
         task = (
