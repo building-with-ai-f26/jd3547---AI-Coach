@@ -3,7 +3,7 @@
 > Give this file to your coding agent and check that it is using these instructions. Keep the stack, commands, and ground rules current.
 
 ## 1. Project Overview
-- **What this repo builds:** AI Coach, a personal branding prototype. Users paste career background or upload one résumé/CV PDF, review extracted experience cards, and add only approved cards to the landscape. One reflection answer then leads to a proposed theme they can accept, edit, or reject.
+- **What this repo builds:** AI Coach, a personal branding prototype. The quick exercise uses pasted background or approved résumé/CV cards to propose one theme. The separate `/workshop` flow adapts selected Body of Work exercises through roots, ingredients, and contribution questions, then individual accept/edit/reject review of typed landscape records.
 - **Primary user & core workflow:** Professionals connecting their experiences into a clearer story. See the living PRD in `docs/index.html`. The local app is separate from that public Product Page.
 - **Tech stack:** Python 3.9+ / Flask / pypdf / plain HTML, CSS and JavaScript / OpenRouter (optional live mode) / PostHog usage events and masked replay. Exercise data is in memory; no database.
 
@@ -11,6 +11,7 @@
 - **Working folder:** Jason's checkout is `~/Desktop/jd3547---AI-Coach`; run commands from the project root. Beginner instructions are in `README.md`.
 - **Install dependencies:** On first setup, `python3 -m venv .venv`; reuse a working existing environment. Then `.venv/bin/python -m pip install -r requirements.txt`. Python 3.9+ is required; the local PDF reader uses POSIX resource limits.
 - **Private configuration:** Use `cp -n .env.example .env` to create a missing `.env` without replacing existing settings. Read configuration names from `.env.example`; do not print or paste secret `.env` values. `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` enable optional live mode. Sample mode works without them.
+- **Private workshop guide:** The server loads `~/.config/ai-coach/body-of-work-v1.json`, or the absolute `BODY_OF_WORK_SOURCE_PATH` override, once on startup. This reviewed, versioned guide is separate from the full book and public source metadata. A fresh clone does not include it. Missing/invalid guides disable personal workshop mode; the fixed fictional walkthrough remains available. Never copy the guide, full book, or detailed extraction into the public repository, session JSON, browser configuration, or exports.
 - **Run locally:** `.venv/bin/python app.py`; open `http://127.0.0.1:8787`. Bind only to loopback; do not enable debug mode with personal input.
 - **Stop/restart:** Control+C in the server's Terminal, then rerun the start command and refresh the browser. Restart after Python or `.env` changes. Explain that stopping clears in-memory exercises; export first if the user wants a copy.
 - **Run deterministic tests:** `.venv/bin/python -m unittest discover -s tests -v`
@@ -32,20 +33,25 @@
 | --- | --- |
 | `app.py` | Flask routes, opaque session cookies, state/version checks, document review, and exports. |
 | `coach.py` | OpenRouter transport, experience extraction, question/proposal validation, and the fixed fictional sample. |
+| `workshop.py` | Seven fixed book-informed prompts, typed state, bounded synthesis, evidence/source validation, revision, review, and export. |
 | `documents.py` | Memory-only PDF extraction in a bounded subprocess; no original PDF saved. |
 | `content/method.json` | Reviewed article source, adaptation, attribution, and coverage limits. |
 | `templates/app.html`, `static/app.js`, `static/app.css` | Local browser interface. |
+| `templates/workshop.html`, `static/workshop.js`, `static/workshop.css` | Book workshop interface, step recovery, and per-item review. |
 | `static/dictation.js`, `tests/dictation.test.js` | Optional browser speech-to-text for live reflections; bounded, editable, no audio persistence. Run focused checks with `node tests/dictation.test.js`. |
 | `docs/index.html` | Public Product Page, living PRD, and honest weekly log; separate from the local application. |
 | `docs/assets/analytics-config.js`, `docs/assets/analytics.js` | Shared public PostHog configuration and event/privacy logic; Flask serves the same files under `/analytics/`. |
 | `tests/test_app.py`, `tests/test_coach.py`, `tests/test_documents.py` | Deterministic tests using fictional inputs and mocked providers. |
+| `tests/test_workshop.py` | Workshop transition and grounding checks with fictional data and mocked synthesis. |
 | `tests/test_analytics.py`, `tests/analytics.test.js` | Analytics asset/privacy checks and optional JavaScript allowlist checks. |
 | `.env.example`, `.gitignore` | Placeholder settings and exclusions for secrets/dependencies. Never overwrite a user's `.env`. |
 | `README.md`, `AGENTS.md`, `CLAUDE.md` | Human setup instructions, agent operating rules, and Claude Code's pointer to these rules. |
 
 PDF import accepts one selectable-text PDF up to 5 MB, 10 pages, and 30,000 extracted characters, producing at most six cards. The user reviews those cards before they enter the landscape. Preserve page/quote evidence and mark edits; use only approved titles/descriptions in subsequent coaching requests. Unreviewed import cards cannot be exported. Do not weaken source, identifier, version, or same-origin checks to accommodate a provider failure.
 
-Session content is held only in the Flask process. The session cookie lasts one hour; server records inactive for over an hour are removed on a subsequent session request. Reset clears the current exercise and server shutdown clears all sessions. Browser refresh does not restore an exercise. Exports are local records, not resumable sessions, and may include a pending theme clearly marked as a proposal. Neither reset nor shutdown deletes downloaded files or data already sent to external providers.
+Session content is held only in the Flask process. The session cookie lasts one hour; server records inactive for over an hour are removed on a subsequent session request. Reset clears the current exercise and server shutdown clears all sessions. The quick exercise does not restore on refresh; `/api/workshop/state` restores submitted workshop steps while the server session survives. Unsaved typing is not recovered. Exports are local records, not resumable sessions, and distinguish pending proposals from accepted results. Neither reset nor shutdown deletes downloaded files or data already sent to external providers.
+
+The book workshop uses server-owned steps and one optional synthesis request per explicit attempt. Keeping the user's own words makes no model call. Do not silently substitute fictional text after a live failure. Keep roots, current ingredients, desired ingredients, directions, and themes distinct. Evidence references point to approved experiences or submitted reflections; method references describe the exercise, not facts about the person. Allow skipped/unresolved answers. Review must cover every proposal. Rejecting excludes its wording from accepted records and exports; editing is user-authored and does not prove the old evidence supports the new wording. Revising a step clears that answer, later answers, and downstream results after an explicit UI warning; earlier answers remain. Preserve version/operation guards so delayed responses cannot restore superseded work.
 
 Keep personal documents, exports, and screenshots outside the public repository; `.gitignore` does not automatically exclude every private document. Do not log prompts, document text, filenames, answers, accepted wording, or provider responses containing personal material.
 

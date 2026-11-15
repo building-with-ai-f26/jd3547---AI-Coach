@@ -194,7 +194,7 @@
     </header>
 
     <div class="callout">
-      <strong>Reading this page:</strong> PRD v2 is dated November 11, 2026. The local prototype supports a fictional walkthrough, live AI coaching, and reviewed résumé/CV PDF imports. The builder has tested live question and theme generation with his own input; document import was checked with a fictional CV. Coaching usefulness has not been established. Items marked
+      <strong>Reading this page:</strong> PRD v2 was updated November 15, 2026. The local prototype includes the quick reflection, reviewed résumé/CV PDF imports, and a compact <em>Body of Work</em> workshop. Earlier live checks covered the quick exercise; the new workshop's coaching usefulness and advantage over ordinary prompting have not been established. Items marked
       <span class="status status-planned">Planned</span> are design intentions, and items marked
       <span class="status status-done">Done</span> are finished work. The problem statement is a hypothesis, not a finding from user research.
     </div>
@@ -203,7 +203,7 @@
     <section id="live-demo">
       <h2>Product Showcase (Prototype / Live App / 2-Min Video)</h2>
       <p>
-        <strong>Current Status:</strong> Build 2 in progress. Build 1 was submitted November 8; PRD v2 below records the current scope and next comparison. <span class="status status-done">Done</span> A local prototype runs one short coaching exercise using either a clearly labeled fictional example or live AI responses through OpenRouter. Users can also import one résumé/CV PDF and review experience cards before adding them to the landscape.<br />
+        <strong>Current Status:</strong> Build 2 in progress. Build 1 was submitted November 8; PRD v2 below records the current scope and next comparison. The local app retains the quick reflection and reviewed PDF intake, and adds a separate book-informed mini-workshop at <code>/workshop</code>. It uses seven guided questions and optional AI synthesis before individual review.<br />
         <strong>Demo:</strong> The app runs on the builder's laptop. The screenshots below show a reviewed example theme and a live question based on approved experiences from a fictional CV.
       </p>
 
@@ -215,7 +215,8 @@
         <li>Review a proposed connecting theme alongside the words that support it. Accept it, edit it, or set it aside.</li>
         <li>Inspect the source behind the exercise, download the exercise record, or start over.</li>
       </ol>
-      <p>The fictional example's background, question, answer, and original suggestion are prepared text; that mode makes no AI calls. Live mode sends the current exercise to the configured AI service and checks the response before displaying it. The exercise adapts Pamela Slim's approach to finding themes across experiences, described in <a href="https://dorieclark.com/blog/build-personal-brand/">Dorie Clark's article</a>; the full book has not been reviewed.</p>
+      <p>The quick exercise's fictional example uses prepared text and makes no AI calls. Its live mode adapts Pamela Slim's approach to finding themes across experiences, described in <a href="https://dorieclark.com/blog/build-personal-brand/">Dorie Clark's article</a>. The new mini-workshop instead uses a reviewed, shortened adaptation of selected exercises from the supplied <em>Body of Work</em> transcription. Neither flow represents or is endorsed by Slim.</p>
+      <p><strong>Book workshop:</strong> Confirm one to three experiences in your own words, or select already-approved PDF cards. Explore roots, ingredients to carry forward or develop, and a possible contribution. Leave uncertain answers open. Keep your own words without a model call, or request one AI synthesis and review each proposal with its personal evidence and separate method reference. Future goals remain distinct from current capabilities.</p>
       <figure class="prototype-figure">
         <a href="assets/prototype-nov-02.jpg" aria-label="Open the fictional prototype screenshot at full size">
           <img src="assets/prototype-nov-02.jpg" alt="AI Coach's fictional example after review: an edited theme, Helping newcomers find their first step, appears with supporting example quotations and export and start-over controls." loading="lazy" />
@@ -230,13 +231,13 @@
       </figure>
       <p><strong>Checked November 4:</strong> 70 automated checks passed. Browser testing confirmed live extraction from a fictional two-page CV, editing and approving two of three cards, export containing only those approved cards, and a question based on them. The first question response failed validation and worked on one retry. Earlier testing with the builder's own pasted background reached question and theme review. These checks do not establish coaching quality or reliable extraction across varied real CVs.</p>
       <p><strong>Checked November 11:</strong> PostHog received pageviews and button clicks from this Product Page and the local app, plus progress events from the fictional coaching exercise. Masked session replays were viewed for both surfaces. All 73 Python and 10 JavaScript checks passed. These are builder checks, not evidence of outside-user adoption or coaching quality.</p>
-      <p><strong>Next:</strong> <span class="status status-planned">Planned</span> Try a real CV and compare the exercise with competent ordinary prompting. Work from Pamela Slim's <em>Body of Work</em> is reserved for a second build day; the book has not yet been obtained or reviewed for this project. A deeper workshop and the expert roundtable remain planned.</p>
+      <p><strong>Next:</strong> <span class="status status-planned">Planned</span> Try the mini-workshop with a person and compare it with competent ordinary prompting and same-source chat. Review source fidelity alongside usefulness, effort, and corrections. Audience-specific storytelling and the expert roundtable remain planned.</p>
     </section>
 
     <!-- LIVING PRD (Updated every week!) -->
     <section id="prd">
       <h2>Living PRD (Product Requirements Document)</h2>
-      <p class="meta">PRD v2 · November 11, 2026. This revision makes the comparison with ordinary prompting explicit, documents the implemented architecture, and adds an assumed cost per run. The current exercise is article-informed; the book workshop and user comparison have not been completed.</p>
+      <p class="meta">PRD v2 · Updated November 15, 2026. The current scope adds a bounded book-informed workshop to the existing quick exercise. The comparison with ordinary prompting remains planned; the November 11 cost assumptions below describe the quick exercise, not a measured workshop cost.</p>
 
       <h3>1. Target User & The Job to Be Done</h3>
       <p><strong>Who is this for?</strong> The first user is me, Jason Daniels, the builder. I'm a professional who wants to communicate how I see the world, how that perspective shows up in my work, and where I want to go. My relevant material already exists across a LinkedIn profile, a résumé, notes, and prior writing, but together it doesn't tell a connected story or make my value clear.</p>
@@ -246,17 +247,17 @@
 
       <h3>Product vision for the six-week project <span class="status status-planned">Planned</span></h3>
       <ul>
-        <li><strong>Guided intake:</strong> The user pastes existing material or uploads personal career documents, reviews the experiences found, and has a short conversation, one question at a time. One selectable-text résumé/CV PDF with reviewed experience cards is implemented; broader formats and the longer conversation remain planned.</li>
+        <li><strong>Guided intake:</strong> The user writes experiences or uploads one selectable-text résumé/CV PDF and reviews the extracted cards. The mini-workshop adds seven fixed questions, one at a time. Broader document formats and an open-ended conversation remain planned.</li>
         <li><strong>Coach blending:</strong> Based on the user's goals and materials, the coach recommends a blend of coaching perspectives from a fixed, curated library and explains why. The user can adjust the blend. A lead coach runs the workshop using those perspectives. Each perspective cites its source and does not imply endorsement by, or claim to be, the person behind it.</li>
         <li><strong>Transparent sources:</strong> Sources appear at the end of each workshop section. They separate the user's own material from external sources and from the coach's interpretation.</li>
         <li><strong>A visible, evolving brand landscape:</strong> The landscape builds up during the conversation and can be refined by talking to the coach. It has two connected views: a full written narrative, and organized sections for beliefs, experiences, strengths, current value, and aspirations. The experience library can hold both rough ideas and developed stories.</li>
         <li><strong>Follow-on tracks:</strong> Once the foundation exists, the user picks a setting and audience and adapts it. Example tracks are <em>LinkedIn feedback</em> on pasted profile text and <em>networking preparation</em> for a specific event.</li>
-        <li><strong>Session length:</strong> The first workshop is envisioned at 30–45 minutes, with the option to continue into other tracks. This is a design hypothesis and hasn't been tested.</li>
+        <li><strong>Session length:</strong> The compact first workshop targets roughly 15–25 minutes; longer tracks may follow. This is a product assumption, not a tested duration or one prescribed by the book.</li>
       </ul>
 
       <h3>2. Scope & Explicit Non-Goals</h3>
       <ul>
-        <li><strong>In Scope (Core Workflow):</strong> The user pastes professional material or uploads a personal résumé/CV, reviews the extracted experiences, and answers guided coaching questions, one at a time. The result is a personal brand landscape they recognize as their own, with their words kept separate from the coach's suggestions. The current version supports one selectable-text PDF (up to 5 MB, 10 pages, and 30,000 extracted characters), up to six proposed experience cards, one question, and one proposed connecting theme.</li>
+        <li><strong>In Scope (Core Workflow):</strong> The user confirms experiences, answers guided questions, and reviews a landscape with their words separated from AI interpretations. PDF limits remain one selectable-text file up to 5 MB, 10 pages, and 30,000 extracted characters, producing at most six review candidates. The quick flow offers one question and theme. The book workshop adds roots, current ingredients, desired ingredients, possible directions, and tentative themes, each subject to review.</li>
         <li><strong>Out of Scope #1:</strong> No user-uploaded books. Coaching perspectives come from a fixed, curated library.</li>
         <li><strong>Out of Scope #2:</strong> No direct LinkedIn integration. Users paste their profile text.</li>
         <li><strong>Out of Scope #3:</strong> No full spoken coaching conversations or spoken AI replies. Optional speech-to-text for the reflection is implemented: speak, stop, review/edit the words, then submit. It depends on browser support and still needs a hands-on microphone check.</li>
@@ -265,12 +266,13 @@
 
       <h3>3. How It Works Under the Hood & Riskiest Assumption (Week 2+)</h3>
       <p><strong>Biggest risk:</strong> The app may offer no more useful insight than competent ordinary LLM prompting. Its intended value is helping users apply ideas from selected experts to their own experiences through guided questions, reflection, and feedback—the kind of value someone seeks from a book, seminar, or consultant. A polished interface or a recognizable expert name would not establish that value.</p>
-      <p><strong>How this build tests the risk:</strong> The current exercise asks about a connection between experiences, proposes one tentative theme, and shows the user's supporting words beside it. The user can correct or reject the result. That makes a small, concrete outcome available to compare: did the exercise reveal a useful connection, and does the person recognize it as their own? Matching quotations checks the evidence trail; it does not prove that the interpretation is accurate or helpful.</p>
+      <p><strong>How this build tests the risk:</strong> The mini-workshop gathers what matters to the person, what they want to carry forward or learn, and what they might contribute next before offering a synthesis. The person reviews each proposed addition against their own words. The planned comparison asks whether that sequence reveals a useful connection at reasonable effort. Matching quotations checks the evidence trail; it does not prove that the interpretation is accurate or helpful.</p>
       <p><strong>Small comparison pilot:</strong> <span class="status status-planned">Planned</span> Recruit two or three reachable people with this problem. Compare the app with (A) a competent ordinary coaching prompt and (B) a chat given the same prompt plus the same reviewed source card. Use the same model, task, approved background, and reflection answers for the output comparison. Show the results without tool labels and vary their order. Ask each person to identify a specific useful insight, point out inaccurate or generic claims, and choose which result they would use—or say that none helps.</p>
       <p><strong>Effort and interpretation:</strong> Separately record the time and corrections needed to complete each approach, and whether the guided question helped the person express something they had struggled to say. Equalizing facts for the output comparison does not measure how well each approach elicits those facts. These few sessions would guide the next revision, not prove superiority. If the app adds no clear benefit over the same-source chat, revise the workshop before adding more coaches. No comparison sessions or outside-user results have been recorded yet.</p>
-      <p><strong>Source scope:</strong> Today, one method card adapts the “Identify Your Themes” section of <a href="https://dorieclark.com/blog/build-personal-brand/">Dorie Clark's article quoting Pamela Slim</a>. It is not a full-book model or a replica of Slim. A bounded <em>Body of Work</em>-informed sequence is planned for the second build day, after obtaining and reviewing the relevant material. The app's questions and interpretations will remain distinguishable from the source's documented ideas.</p>
+      <p><strong>Source scope:</strong> The quick exercise retains its article source. On November 15, all nine chapters and the conclusion of the supplied <em>Body of Work</em> transcription were reviewed. The mini-workshop shortens and reorders “Identify Your Roots” (Chapter 2), “Determine Your Ingredients” (Chapter 3), and “Body of Work” (Chapter 1). Its questions are app-authored adaptations. The transcription has OCR gaps and no verified print-page mapping, so references use chapters, exercise titles, and transcription lines. The full book and detailed notes remain outside the public repository.</p>
       <p><strong>Simple Architecture:</strong> A plain HTML/CSS/JavaScript screen in the browser connects to a Python/Flask server on the laptop. Fictional mode uses prepared material and makes no model calls. For PDF intake, <code>pypdf</code> reads selectable text in a bounded, isolated process; the server sends the extracted text through OpenRouter to propose experience cards with matching source quotations and page numbers. The original file is not saved. Only user-approved card titles and descriptions feed the coaching step.</p>
-      <p>For coaching, the server sends the method card plus the user's background to the configured model for one question, then sends the background, question, and answer for one proposed theme. The repository's default model is <code>anthropic/claude-sonnet-4.6</code>. Response checks validate format, known source IDs, and matching user quotations before review. The API key stays in the server's local <code>.env</code> file. Exercise content stays in server memory, with no database or saved-session recovery; export creates a copy the user chooses to keep. GitHub Pages hosts this public Product Page separately from the local app.</p>
+      <p>The quick exercise makes a question request and a theme request. The mini-workshop uses fixed questions and one optional synthesis request per explicit attempt; keeping the user's own words requires no model call. The server supplies a bounded private method guide and the approved experiences and submitted answers. Checks validate response shape, allowed method/evidence references, exact quotations, and separation of future goals from current ingredients. These checks do not prove semantic accuracy. The repository's default model is <code>anthropic/claude-sonnet-4.6</code>; the API key stays in the server's local <code>.env</code>.</p>
+      <p>Workshop steps and results stay in server memory, with no database or personal browser storage. Refresh can restore submitted workshop steps while the one-hour session survives; stopping the server clears it. Export is a local record, not a resumable session. Revising an earlier question clears that answer, later answers, and downstream results after a warning. The private guide is loaded from a local path and never included in browser configuration or exports; missing configuration disables personal workshop mode. GitHub Pages hosts this Product Page separately from the local app.</p>
 
       <h3>4. Unit Economics & Analytics Snapshot (Updated Weekly)</h3>
       <div class="grid-2">
@@ -282,7 +284,7 @@
         <div class="stat-box">
           <div class="stat-label">Est. Cost Per User Run</div>
           <div class="stat-value">About $0.04–$0.08</div>
-          <p class="meta">Illustrative model cost: about $0.04 for pasted background, or $0.08 including one PDF import. Assumptions below; not a measured average or a spending ceiling.</p>
+          <p class="meta">November 11 quick-exercise estimate: about $0.04 for pasted background, or $0.08 with a PDF import. Not a measured average or ceiling. The new workshop's optional synthesis cost has not been measured.</p>
         </div>
         <div class="stat-box">
           <div class="stat-label">User Evidence (Analytics from Build 2)</div>
@@ -342,6 +344,20 @@
             <img src="assets/posthog-dashboard-nov-11.jpg" alt="PostHog dashboard showing pageviews from the local app and Product Page, fictional coaching milestones, and named button-click counts." loading="lazy" />
           </a>
           <figcaption class="meta">November 11, 2026. Builder verification with fictional input. Pageviews, clicks, and milestone totals demonstrate that tracking works; they do not establish independent users or coaching value.</figcaption>
+        </figure>
+        <p class="meta">Progress update · November 15, 2026 · Local workshop integration</p>
+        <ul>
+          <li><strong>What changed:</strong> Reviewed the supplied nine-chapter <em>Body of Work</em> transcription and conclusion, then added a compact Roots → Ingredients → Contribution workshop alongside the quick exercise. Seven fixed questions lead to optional AI synthesis or an own-words review. Each proposed landscape addition has accept/edit/reject controls, with future learning goals separate from present capabilities.</li>
+          <li><strong>Source and state design:</strong> Kept the book and detailed analysis outside the public repository. A private reviewed guide supports the model; the browser shows limited attribution and separate personal evidence. Submitted workshop steps can survive a browser refresh within the active server session. Revising earlier answers clears later answers and results instead of retaining stale interpretations.</li>
+          <li><strong>Verification and limits:</strong> Automated Python checks and 11 analytics filtering checks passed using fictional inputs and mocked providers. A browser walkthrough verified the seven questions, own-words review, keep/edit/leave-out controls, and recovery after refresh. One real synthesis request using fictional answers was rejected by OpenRouter for insufficient credit; live workshop synthesis and coaching usefulness remain unverified. Replaced a native confirmation popup that stalled the embedded preview with an in-page dialog; both cancellation and confirmed reset were then verified in the browser. The November 11 analytics evidence covers the earlier interface; it does not establish actual replay behavior or user adoption for the new screens.</li>
+          <li><strong>Design lesson:</strong> Book context needs a defined exercise sequence and explicit review rules. Keeping future learning goals separate from present skills helps avoid turning an aspiration into an unsupported claim.</li>
+          <li><strong>Cost, time, and next steps:</strong> Actual additional hours and current API usage still need recording. The workshop is this week's second implementation day, after November 11. Compare it with ordinary prompting and same-source chat, restore API credit for live workshop verification, and submit the required links and PostHog evidence.</li>
+        </ul>
+        <figure class="prototype-figure">
+          <a href="assets/body-of-work-workshop-nov-15.jpg" aria-label="Open the fictional book workshop at full size">
+            <img src="assets/body-of-work-workshop-nov-15.jpg" alt="Body of Work workshop with a fictional reviewed landscape, separating roots, current ingredients, future learning goals, and possible contributions." loading="lazy" />
+          </a>
+          <figcaption class="meta">November 15, 2026. Fictional walkthrough after keep, edit, and leave-out decisions. This demonstrates the guided flow and review controls; no AI call was used to produce this example.</figcaption>
         </figure>
       </div>
 

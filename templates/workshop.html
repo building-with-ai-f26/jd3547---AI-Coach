@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173f3b">
+  <title>AI Coach — Body of Work workshop</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <link rel="stylesheet" href="/static/workshop.css">
+  <script src="/analytics/analytics-config.js" defer></script>
+  <script src="/analytics/analytics.js" defer data-analytics-surface="local_app"></script>
+  <script src="/static/workshop.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#workshop-main">Skip to the workshop</a>
+  <div class="page-shell">
+    <header class="site-header"><a class="wordmark" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>AI Coach</a><a href="/" class="small-copy">Quick reflection &amp; PDF import ↗</a></header>
+    <main id="workshop-main">
+      <section class="introduction"><div><p class="eyebrow">A BODY OF WORK MINI WORKSHOP</p><h1>What will you<br>carry forward?</h1><p class="hero-description">Connect your experiences with what matters to you, the ingredients you want to use, and a contribution you might make next.</p></div><div class="exercise-note"><span class="note-number">↳</span><p>Seven small reflections.<br>Room for uncertainty.<br><em>You decide what belongs.</em></p></div></section>
+      <p class="workshop-attribution">A shortened, reordered adaptation of three exercises in Pamela Slim's <cite>Body of Work</cite>. Independent and not endorsed by the author.</p>
+      <div id="workshop-loading" class="processing-note" role="status">Opening your workshop…</div>
+      <div id="workshop-body" hidden>
+        <section id="workshop-mode" class="mode-panel is-live" aria-label="Workshop mode"><div class="mode-copy"><span class="mode-dot" aria-hidden="true"></span><div><h2 id="mode-title">Your experience</h2><p id="mode-description">Reflect in your own words. AI connections are an optional final step.</p></div></div><div class="mode-actions"><button id="personal-mode" type="button" class="button button-small button-secondary">Use my experience</button><button id="sample-mode" type="button" class="button button-small button-quiet">Fictional example</button></div></section>
+        <ol id="workshop-progress" class="progress workshop-progress" aria-label="Workshop progress"><li><span class="step-dot">1</span><span>Experiences</span></li><li><span class="step-dot">2</span><span>Roots</span></li><li><span class="step-dot">3</span><span>Ingredients</span></li><li><span class="step-dot">4</span><span>Direction</span></li><li><span class="step-dot">5</span><span>Review</span></li></ol>
+        <div class="workshop-grid">
+          <div>
+            <section id="workshop-conversation" class="work-card ph-no-capture" data-analytics-private aria-busy="false">
+              <p id="step-label" class="eyebrow">CHOOSE YOUR EXPERIENCES</p>
+              <section id="start-section" aria-labelledby="start-title">
+                <h2 id="start-title" tabindex="-1">Start with something real.</h2><p class="section-description">A role, project, life experience, or unfinished contribution is enough. Choose what you want to explore today.</p>
+                <div id="legacy-note" class="processing-note" hidden><strong>You have another exercise open.</strong><p>Starting this workshop replaces that exercise. Approved PDF experiences can carry over below. <a href="/api/export" download>Export the earlier exercise first</a> if you want to keep it.</p></div>
+                <p id="availability-note" class="processing-note" hidden></p>
+                <div id="sample-intro" class="processing-note" hidden><strong>A fixed, fictional walkthrough.</strong><p>Follow a person who improved an onboarding checklist and a volunteer guide. All reflections are prerecorded. No AI call is made.</p></div>
+                <div id="experience-inputs">
+                  <div id="experience-choice" class="input-choice" role="group" aria-label="Experience source" hidden><button id="use-imported" class="input-choice-button" type="button" aria-pressed="true">Approved PDF experiences</button><button id="use-manual" class="input-choice-button" type="button" aria-pressed="false">Write my own</button></div>
+                  <div id="imported-cards"></div>
+                  <div id="manual-cards"></div>
+                  <button id="add-experience" type="button" class="button button-small button-secondary">+ Add an experience</button>
+                  <p class="small-copy workshop-space">Prefer a résumé? <a href="/">Import and review a PDF in the quick reflection</a>, then return here.</p>
+                </div>
+                <p id="start-disclosure" class="small-copy">Starting confirms these experiences in your own words. Nothing is sent to the AI service unless you later choose “Suggest connections with AI.”</p>
+                <div class="form-actions"><button id="start-workshop" type="button" class="button button-primary">Use these experiences →</button></div>
+              </section>
+              <section id="reflection-section" hidden aria-labelledby="reflection-title">
+                <h2 id="reflection-title" tabindex="-1"></h2><p id="reflection-prompt" class="workshop-question"></p><p id="reflection-help" class="section-description"></p>
+                <form id="reflection-form"><label for="reflection-answer">Your reflection</label><textarea id="reflection-answer" rows="6" maxlength="1200" aria-describedby="reflection-count"></textarea><div class="field-foot"><p>A few honest sentences are enough.</p><span id="reflection-count">0 / 1,200</span></div><div class="form-actions"><button id="save-answer" type="submit" class="button button-primary">Keep this reflection →</button><button id="skip-answer" type="button" class="button button-quiet">Leave this open</button></div></form>
+                <p id="step-source" class="small-copy workshop-space"></p>
+              </section>
+              <section id="synthesis-section" hidden aria-labelledby="synthesis-title">
+                <h2 id="synthesis-title" tabindex="-1">See what is taking shape.</h2><p class="section-description">You can keep your reflections as you wrote them, or ask AI to suggest a few connections. You will review every proposed addition.</p><div class="form-actions"><button id="synthesize-ai" type="button" class="button button-primary">Suggest connections with AI</button><button id="synthesize-own" type="button" class="button button-secondary">Keep my own words</button></div><p id="ai-disclosure" class="small-copy workshop-space">AI receives only your chosen experiences, submitted reflections, and relevant method guidance through OpenRouter. This uses your configured model and API credit.</p><p id="ai-unavailable" class="small-copy workshop-space" hidden>AI suggestions are not connected. You can still complete the workshop in your own words.</p>
+              </section>
+              <section id="review-section" hidden aria-labelledby="review-title">
+                <h2 id="review-title" tabindex="-1">You decide what belongs.</h2><p class="section-description">Keep, edit, or leave out each item. A matching quotation shows where the words came from; it does not prove that an interpretation fits you.</p><form id="review-form"><div id="proposal-cards"></div><p id="empty-proposals" class="processing-note" hidden>No additions were proposed. Your experiences and reflections are still here; an open question is a valid outcome.</p><div class="form-actions"><button id="save-review" type="submit" class="button button-primary">Save my reviewed landscape →</button></div></form>
+              </section>
+              <section id="complete-section" hidden aria-labelledby="complete-title"><h2 id="complete-title" tabindex="-1">A direction you can revisit.</h2><p class="section-description">Your reviewed landscape is ready. It can contain possibilities and open questions; it does not have to be a finished personal brand.</p><p id="completion-summary"></p><a class="button button-primary" href="/api/workshop/export" download>Export my workshop ↓</a></section>
+              <div id="workshop-working" class="working-status" role="status" hidden><span class="loading-dot" aria-hidden="true"></span><span id="working-message">Saving…</span></div>
+              <div id="workshop-error" class="error-panel" role="alert" hidden><div><h3>We couldn't finish that step.</h3><p id="error-message"></p><p class="error-reassurance">Your saved experiences and reflections are still here.</p></div><button id="recover-workshop" type="button" class="button button-small button-secondary">Reload saved progress</button></div>
+            </section>
+            <details class="source-card workshop-source"><summary>How the book informs this workshop</summary><div class="source-content"><p id="method-adaptation"></p><p id="method-coverage"></p><ul id="method-references"></ul><p class="small-copy">These are source references for the method, separate from the personal evidence supporting your landscape. The questions are app-authored adaptations. This is not the full book process.</p></div></details>
+          </div>
+          <aside class="ph-no-capture" data-analytics-private aria-labelledby="workshop-landscape-title"><section class="landscape-card"><p class="eyebrow">YOUR LANDSCAPE</p><h2 id="workshop-landscape-title">The pieces so far.</h2><p id="landscape-placeholder" class="landscape-intro">Your chosen experiences and reviewed additions will appear here.</p><div id="landscape-experience-cards"></div><div id="landscape-records"></div><details id="reflection-history" class="workshop-history" hidden><summary>Revisit your reflections</summary><p class="small-copy">Revising an earlier reflection keeps preceding answers. That answer and all later reflections and results will need to be redone.</p><div id="history-list"></div></details></section><div class="session-tools"><a id="export-workshop" class="button button-secondary" href="/api/workshop/export" download hidden>Export this workshop ↓</a><button id="reset-workshop" class="button button-quiet" type="button" hidden>Start over</button></div><p class="session-note">Held in this local server's memory for up to one hour of inactivity. Refresh can restore saved progress while the session survives. Export to keep a record; exports cannot resume a workshop. Restarting the server clears it.</p></aside>
+        </div>
+      </div>
+      <p id="workshop-status" class="sr-only" aria-live="polite"></p>
+    </main>
+    <footer class="site-footer"><span>AI Coach / A small, guided workshop</span><span>Experience first. Interpretation by agreement.</span></footer>
+    <p class="session-note">Usage counts and masked session replay help improve this prototype. Personal workshop content is blocked from replay. Browser Do Not Track is respected.</p>
+  </div>
+  <dialog id="workshop-confirm" aria-labelledby="workshop-confirm-title" aria-describedby="workshop-confirm-message">
+    <form method="dialog">
+      <p class="eyebrow">REVIEW THIS CHANGE</p>
+      <h2 id="workshop-confirm-title">Continue with this change?</h2>
+      <p id="workshop-confirm-message"></p>
+      <div class="form-actions">
+        <button type="submit" class="button button-secondary" value="cancel" autofocus>Keep working</button>
+        <button id="workshop-confirm-accept" type="submit" class="button button-primary" value="confirm">Continue</button>
+      </div>
+    </form>
+  </dialog>
+  <noscript><p class="noscript-message">Please enable JavaScript to use this local workshop.</p></noscript>
+</body>
+</html>

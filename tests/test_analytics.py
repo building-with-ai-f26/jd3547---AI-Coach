@@ -66,3 +66,10 @@ class AnalyticsTests(unittest.TestCase):
                         "review-answer", "landscape-document-name", "landscape-experience-list", "landscape-theme",
                         "landscape-statement", "error-text"):
             self.assertIn(element, parser.private_ids, element)
+
+    def test_workshop_personal_content_is_inside_replay_blocks(self):
+        parser = PrivateElements()
+        parser.feed(self.client.get("/workshop").get_data(as_text=True))
+        for element in ("manual-cards", "imported-cards", "reflection-answer", "proposal-cards",
+                        "landscape-experience-cards", "landscape-records", "history-list", "error-message"):
+            self.assertIn(element, parser.private_ids, element)

@@ -29,6 +29,7 @@ Create your PostHog account in Week 1. Install it on the Product Page and local 
 | --- | --- |
 | [`app.py`](./app.py) | Local server, exercise steps, session handling, and export. |
 | [`coach.py`](./coach.py) | Fictional example, model requests, and response checks. |
+| [`workshop.py`](./workshop.py) | Body of Work questions, typed landscape records, source/evidence checks, and review transitions. |
 | [`documents.py`](./documents.py) | PDF text reading with file, page, memory, and time limits. |
 | [`templates/app.html`](./templates/app.html), [`static/`](./static/) | The app's browser interface. |
 | [`content/method.json`](./content/method.json) | Reviewed coaching source and its coverage limits. |
@@ -46,7 +47,7 @@ Create your PostHog account in Week 1. Install it on the Product Page and local 
 
 ## Run on your Mac
 
-This prototype runs on your laptop. Start with pasted background, or upload one résumé/CV PDF and review the experiences it finds. Approved experiences appear on your landscape and can feed the short coaching exercise: one reflection question → proposed theme → accept, edit, or reject. It is not the complete book workshop or expert roundtable.
+This prototype runs on your laptop. The quick exercise uses pasted background or reviewed résumé/CV experiences: one reflection question → proposed theme → accept, edit, or reject. A separate **Body of Work mini-workshop** adds roots, ingredients, and future contribution to the same local app. It covers selected exercises, not the complete book or expert roundtable.
 
 Use a normal Terminal prompt for the commands below. If Terminal is currently showing a conversation with a coding agent, open a new Terminal window. Run each command by pressing Return.
 
@@ -124,6 +125,18 @@ Keep this key private: do not paste it into a chat, screenshot, browser script, 
 
 Live mode sends your submitted background and answer, plus the method card, to OpenRouter and the configured model provider. It normally makes one request for the question and another for the suggestion. A question-format failure that returns within 20 seconds gets one automatic regeneration, which can add model cost; the second response must pass the same checks. Source, schema, transport, and credit errors are not automatically retried. Accepting, editing and rejecting do not make more requests. Failed requests display an error; they never switch silently to sample results. A working connection does not establish coaching quality.
 
+### Try the Body of Work mini-workshop
+
+Open **[http://127.0.0.1:8787/workshop](http://127.0.0.1:8787/workshop)** while the server runs. Choose the fixed fictional example, or confirm one to three experiences in your own words. You can also bring selected PDF experience cards that you have already approved in the quick exercise. Starting a workshop replaces that browser session's prior exercise; export it first if you want to keep it.
+
+Seven questions explore what matters to you, the experiences behind it, whom you want to help, the ingredients you want to use or develop, and a possible future contribution. You can leave a question open. At the end, keep your own words or explicitly request AI suggestions, then accept, edit, or reject each proposed addition. Current ingredients and future learning goals stay separate. Revising an earlier question keeps earlier answers but clears that answer, later answers, and their results so you can work through them again.
+
+Personal mode needs a reviewed local source guide, stored **outside the repository** at `~/.config/ai-coach/body-of-work-v1.json`. Jason's local setup includes this guide; a fresh clone does not. If it is missing, the app explains that personal workshop mode is unavailable, while the fictional example remains available. To use an existing reviewed guide elsewhere, set `BODY_OF_WORK_SOURCE_PATH` to its absolute path in your private `.env`, then restart. Do not point this setting at the full book: it expects the versioned guide format described in `workshop.py`.
+
+The fixed questions and keeping your own words do not need an API key. **AI suggestions** require the OpenRouter connection above and make one request per explicit attempt, using the selected experiences, submitted answers, and a bounded private guide. There is no automatic retry. Review and export make no AI calls. The book file and detailed analysis are not browser assets or export content; only limited method attribution is shown.
+
+Refresh can restore a submitted workshop while its server-memory session remains active. Unsaved typing is not restored. Export is a record, not a way to resume after the server stops. The quick exercise remains available at `/`; its speech-to-text option has not been extended to this workshop.
+
 ### Speak your reflection
 
 In **Use my experience** mode, reach the reflection question, then choose **Speak your answer**. Allow microphone access when your browser asks. Speak in English, select **Stop dictation**, review/edit the text, and submit it normally. Each recording attempt is limited to 60 seconds. **Cancel dictation** removes that attempt's words and restores the text you had before starting. Existing text survives permission or connection failures. Switching away from the page stops listening.
@@ -144,13 +157,17 @@ The original PDF is processed in memory and is not saved by the app. Extracted t
 
 ### Source and limitations
 
-The exercise adapts Pamela Slim's approach to finding themes across experiences, described in Dorie Clark's [article](https://dorieclark.com/blog/build-personal-brand/), section “Identify Your Themes.” The source card is in `content/method.json`. This is one article-informed exercise; the full book has not been reviewed and neither author endorses the app.
+The quick exercise adapts Pamela Slim's approach to finding themes across experiences, described in Dorie Clark's [article](https://dorieclark.com/blog/build-personal-brand/), section “Identify Your Themes.” Its source card remains in `content/method.json`.
+
+For the mini-workshop, all nine chapters and the conclusion of the supplied *Body of Work* transcription were reviewed on November 15. Its original app questions shorten and reorder “Identify Your Roots” (Chapter 2), “Determine Your Ingredients” (Chapter 3), and “Body of Work” (Chapter 1). This is an adaptation, not the full exercises, a replica of Slim, or an endorsed service. The supplied text has OCR gaps and no verified print-page mapping; source references use chapters, exercise titles, and transcription lines. User evidence and method references are kept separate.
 
 Suggestions remain tentative. The app checks that evidence quotations occur in the user's input and source IDs are known; those checks do **not** prove that a model's interpretation is correct or useful. The user decides what to keep. Edited statements are user-authored and can go beyond the original evidence.
 
-The app stores exercise content, including imported cards and their evidence, in server memory. It does not save exercise content in browser storage or a database. An opaque cookie identifies the exercise; it contains no background text or API key and lasts one hour. The server removes sessions inactive for over an hour when another session request arrives. Stopping the server clears all of its sessions; **Start over** clears the current exercise. Refreshing the page restarts the visible flow; there is no saved-session recovery.
+The app stores exercise content, including imported cards and their evidence, in server memory. It does not save exercise content in browser storage or a database. An opaque cookie identifies the exercise; it contains no background text or API key and lasts one hour. The server removes sessions inactive for over an hour when another session request arrives. Stopping the server clears all of its sessions; **Start over** clears the current exercise. Refreshing the quick exercise restarts its visible flow; the book workshop can restore submitted steps from the still-active server session. Neither flow has durable saved-session recovery.
 
 An export is a downloaded JSON file: a structured record you can keep locally, not a resumable saved session. It may contain your background, answer, document name, approved experiences and evidence, and a theme still marked as a proposal. Unreviewed import cards cannot be exported, and rejected experience cards and rejected themes are excluded. Keep private résumés, PDFs, exports, and screenshots containing personal material **outside this public Git repository**. They are not all automatically covered by `.gitignore`.
+
+The workshop export distinguishes accepted records, pending proposals, and skipped reflections. Rejected proposal wording and the private source guide are excluded. Exact quotations verify where words came from, not whether an interpretation is correct; edited wording is marked as user-authored.
 
 Resetting or stopping the app does not delete a downloaded export or information already sent to OpenRouter and its model provider. Their data handling is separate from the app's local memory; this app does not promise provider-side deletion or a particular retention period.
 

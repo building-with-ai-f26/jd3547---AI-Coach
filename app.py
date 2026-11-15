@@ -14,6 +14,7 @@ from flask import Flask, Request, g, jsonify, make_response, render_template, re
 
 from coach import CoachError, LiveCoach, SAMPLE, SAMPLE_PROPOSAL, SAMPLE_QUESTION, SOURCE, SOURCE_IDS, valid_text
 from documents import DocumentError, MAX_PDF_BYTES, MAX_PDF_PAGES, extract_pdf
+import workshop
 
 
 MAX_CHARS = 6000
@@ -38,10 +39,17 @@ def create_app(config=None, coach=None):
         TRUSTED_HOSTS=["localhost", "127.0.0.1", "[::1]"],
         OPENROUTER_API_KEY=os.getenv("OPENROUTER_API_KEY", ""),
         OPENROUTER_MODEL=os.getenv("OPENROUTER_MODEL", "anthropic/claude-sonnet-4.6"),
+        BODY_OF_WORK_SOURCE_PATH=os.getenv("BODY_OF_WORK_SOURCE_PATH", str(Path.home() / ".config" / "ai-coach" / "body-of-work-v1.json")),
     )
     if config:
         app.config.update(config)
     generator = coach or LiveCoach()
+    # A reviewed, private packet is loaded once per process. Never place it in
+    # session state, browser configuration, exports, or the public repository.
+    try:
+        workshop_packet = workshop.load_packet(app.config["BODY_OF_WORK_SOURCE_PATH"])
+    except (OSError, ValueError, TypeError):
+        workshop_packet = None
     sessions = {}
     lock = threading.RLock()
 
@@ -113,7 +121,7 @@ def create_app(config=None, coach=None):
             entry["touched"] = now
         return entry
 
-    def reserve(stage=None, version=None):
+    def reserve(stage=None, version=None, replace_workshop=False):
         # Caller holds lock. An operation ID prevents a delayed model response from
         # restoring content after Start over, or a double click from paying twice.
         entry = session(create=stage is None)
@@ -121,6 +129,8 @@ def create_app(config=None, coach=None):
             return None, error("This session expired. Please start again.", 409)
         if entry["operation"]:
             return None, error("A request is already running. Please wait.", 409)
+        if stage is None and not replace_workshop and entry["state"] and entry["state"].get("flow") == "body_of_work":
+            return None, error("Your book workshop is still open. Open the guided workshop to continue, or export it and choose Start over there before beginning a quick exercise.", 409)
         if stage is not None:
             state = entry["state"]
             if not state or state["stage"] != stage or type(version) is not int or version != entry["version"]:
@@ -145,6 +155,132 @@ def create_app(config=None, coach=None):
     @app.get("/")
     def index():
         return render_template("app.html")
+
+    @app.get("/workshop")
+    def workshop_page():
+        return render_template("workshop.html")
+
+    @app.get("/api/workshop/config")
+    def workshop_configuration():
+        with lock:
+            if not session(create=True):
+                return error("Too many sessions are open. Please restart the local server.", 503)
+        return jsonify(live_ready=ready(), available=workshop_packet is not None,
+                       method=workshop.public_metadata(), steps=workshop.STEPS,
+                       sample_answers=workshop.SAMPLE_ANSWERS,
+                       error=None if workshop_packet else "The book workshop's local source guide is not configured. The fictional walkthrough is still available.")
+
+    @app.get("/api/workshop/state")
+    def workshop_current():
+        with lock:
+            entry = session(create=True)
+            if not entry:
+                return error("Too many sessions are open. Please restart the local server.", 503)
+            state = entry["state"]
+            is_workshop = bool(state and state.get("flow") == "body_of_work")
+            return jsonify(state=deepcopy(state) if is_workshop else None,
+                           imported_experiences=deepcopy(state.get("accepted_experiences", [])) if state and not is_workshop else [],
+                           current_version=entry["version"], legacy_present=bool(state and not is_workshop))
+
+    @app.post("/api/workshop/start")
+    def workshop_start():
+        data = body()
+        mode = data.get("mode")
+        if mode not in ("sample", "live"):
+            return error("Choose your own experience or the fictional walkthrough.")
+        if mode == "live" and workshop_packet is None:
+            return error("The book workshop's local source guide is not configured. You can still try the fictional walkthrough.", 503)
+        with lock:
+            entry = session()
+            if not entry or type(data.get("version")) is not int or data["version"] != entry["version"]:
+                return error("This session has changed. Reload the workshop before starting.", 409)
+            if data.get("use_document") is True:
+                old = entry["state"] or {}
+                approved = {card["id"]: card for card in old.get("accepted_experiences", [])}
+                ids = data.get("experience_ids")
+                if (mode != "live" or old.get("flow") == "body_of_work" or not approved
+                        or not isinstance(ids, list) or not ids or len(ids) > 6
+                        or any(not isinstance(i, str) or i not in approved for i in ids)
+                        or len(set(ids)) != len(ids)):
+                    return error("Choose only experiences you have already reviewed and approved.")
+                experiences = [deepcopy(approved[i]) for i in ids]
+            elif mode == "sample":
+                experiences = []  # The engine owns the fixed fictional fixture.
+            else:
+                supplied = data.get("experiences")
+                if not isinstance(supplied, list) or not 1 <= len(supplied) <= 3:
+                    return error("Add one to three experiences to explore.")
+                experiences = []
+                for card in supplied:
+                    if (not isinstance(card, dict) or set(card) != {"title", "details"}
+                            or not valid_text(card.get("title"), 120) or not valid_text(card.get("details"), 1200)):
+                        return error("Give each experience a title (up to 120 characters) and your own description (up to 1,200 characters).")
+                    experiences.append(dict(id="experience-" + secrets.token_hex(8), title=card["title"].strip(),
+                                            details=card["details"].strip(), user_edited=True, origin="self_report"))
+            ticket, failure = reserve(replace_workshop=True)
+        if failure:
+            return failure
+        try:
+            state = workshop.new_state(mode, experiences)
+        except workshop.WorkshopError as exc:
+            return finish(ticket, failure=exc, failure_status=400)
+        return finish(ticket, state)
+
+    def workshop_transition(operation):
+        data = body()
+        with lock:
+            ticket, failure = reserve("workshop", data.get("version"))
+        if failure:
+            return failure
+        try:
+            state = operation(ticket[3], data)
+        except workshop.WorkshopError as exc:
+            return finish(ticket, failure=exc, failure_status=400)
+        except CoachError as exc:
+            return finish(ticket, failure=exc)
+        return finish(ticket, state)
+
+    @app.post("/api/workshop/answer")
+    def workshop_answer():
+        def advance(state, data):
+            if type(data.get("skip", False)) is not bool:
+                raise workshop.WorkshopError("Choose to answer or leave this question open.")
+            return workshop.advance(state, data.get("answer"), data.get("skip", False))
+        return workshop_transition(advance)
+
+    @app.post("/api/workshop/revise")
+    def workshop_revise():
+        return workshop_transition(lambda state, data: workshop.revise(state, data.get("step_id")))
+
+    @app.post("/api/workshop/synthesize")
+    def workshop_synthesize():
+        def synthesize(state, data):
+            if type(data.get("own_words", False)) is not bool:
+                raise workshop.WorkshopError("Choose AI suggestions or your own words.")
+            if data.get("own_words") is True or state["mode"] == "sample":
+                return workshop.build_own_words(state)
+            if not ready():
+                raise workshop.WorkshopError("AI suggestions need a configured API key. You can keep your own words without one.")
+            if workshop_packet is None:
+                raise workshop.WorkshopError("The reviewed source guide is unavailable. You can keep your own words.")
+            return workshop.synthesize(state, workshop_packet, app.config)
+        return workshop_transition(synthesize)
+
+    @app.post("/api/workshop/review")
+    def workshop_review():
+        return workshop_transition(lambda state, data: workshop.review(state, data.get("decisions")))
+
+    @app.get("/api/workshop/export")
+    def workshop_export():
+        with lock:
+            entry = session()
+            if not entry or not entry["state"] or entry["state"].get("flow") != "body_of_work":
+                return error("There is no book workshop to export yet.", 409)
+            payload = workshop.export_state(deepcopy(entry["state"]))
+        response = make_response(json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
+        response.headers["Content-Type"] = "application/json; charset=utf-8"
+        response.headers["Content-Disposition"] = 'attachment; filename="ai-coach-body-of-work.json"'
+        return response
 
     @app.get("/analytics/<filename>")
     def analytics_asset(filename):
@@ -333,6 +469,8 @@ def create_app(config=None, coach=None):
             if not entry or not entry["state"]:
                 return error("There is no exercise to export yet.")
             state = deepcopy(entry["state"])
+            if state.get("flow") == "body_of_work":
+                return workshop_export()
             if state["stage"] == "import_review":
                 return error("Review the experience cards before exporting. Unapproved cards are not exported.", 409)
         payload = {

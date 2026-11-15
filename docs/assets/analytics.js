@@ -42,6 +42,10 @@
     "theme_reviewed": { decision: new Set(["accept", "edit", "reject"]) },
     "exercise_exported": {},
     "exercise_reset": {},
+    "workshop_progress": {
+      phase: new Set(["reflect", "synthesize", "review", "complete"]),
+      step: new Set(["roots_value", "roots_example", "roots_service", "ingredient_current", "ingredient_future", "direction", "direction_why"])
+    },
     "step_failed": { stage: new Set(["share", "import_review", "imported", "question", "review", "complete"]), failure: new Set(["stale", "request_failed"]) }
   });
 

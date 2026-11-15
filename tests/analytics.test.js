@@ -176,4 +176,18 @@ test("replay preserves page metadata without an isInitial flag and strips all pr
   assert.equal(redacted.name, "http://127.0.0.1:8787/");
   assert.equal(redacted.responseBody, undefined);
 });
+test("workshop progress accepts only fixed phase and step and strips personal material", () => {
+  const { window, options, sdk, sent } = boot();
+  options.loaded(sdk);
+  window.AIAnalytics.track("workshop_progress", { phase: "review", step: "roots_value", answer: "PRIVATE_ANSWER", evidence: "PRIVATE_QUOTE" });
+  const event = sent.find((entry) => entry.event === "workshop_progress");
+  assert.equal(event.properties.phase, "review");
+  assert.equal(event.properties.step, "roots_value");
+  assert.equal(event.properties.answer, undefined);
+  assert.equal(event.properties.evidence, undefined);
+  window.AIAnalytics.track("workshop_progress", { phase: "PRIVATE_PHASE", step: "PRIVATE_STEP" });
+  const last = sent[sent.length - 1];
+  assert.equal(last.properties.phase, undefined);
+  assert.equal(last.properties.step, undefined);
+});
 console.log(`${passed} analytics safeguard tests passed (stub SDK; no network).`);
