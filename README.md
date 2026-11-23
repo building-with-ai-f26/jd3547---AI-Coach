@@ -224,7 +224,7 @@ The introduction exercise is app-authored, drawing on a publicly documented intr
 
 The optional introduction request uses approved experience summaries, reviewed landscape additions, the starting introduction, and presentation settings. It excludes the book guide, raw PDFs, and unreviewed reflections. A starting introduction is a draft, not citable evidence. Evidence quotation checks do not establish the truth of a claim; read every version before keeping it.
 
-See [the Build 3 record](journal/build-3-nov22-23.md). The app is deployed, and live workflow, security, and analytics checks are recorded below. Icerynk submission and an actual classmate phone check are still pending.
+See [the Build 3 record](journal/build-3-nov22-23.md). The app is deployed, and live workflow, security, and analytics checks are recorded below. Build 3 was submitted in Icerynk as Attempt 1 on November 23, 2026 at 8:51 AM New York time. An actual classmate phone check remains pending.
 
 ## Public hosting (Build 3)
 

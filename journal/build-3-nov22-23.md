@@ -1,6 +1,6 @@
 # Build 3: November 22 and 23
 
-Due Monday, November 23, 2026, 12:00 PM America/New_York. Beginner lane. The app is live; Icerynk submission and an actual classmate phone check are pending.
+Due Monday, November 23, 2026, 12:00 PM America/New_York. Beginner lane. The app is live. Icerynk Build 3 Attempt 1 was submitted November 23, 2026 at 8:51 AM New York time; an actual classmate phone check remains pending.
 
 ## Sunday, November 22 — opening-line refinement
 
@@ -30,9 +30,9 @@ Due Monday, November 23, 2026, 12:00 PM America/New_York. Beginner lane. The app
 - Jason reports approximately **2 hours** for Build 3.
 - Learning: **“I need to refine the user experience.”**
 
-## Remaining work and limits
+## Submission and remaining limits
 
-- Submit the live URL, repository, Beginner lane, SECURITY.md link, and security-test screenshot in Icerynk. Submission is pending; append the observed receipt after it succeeds.
+- Submission success was observed in Icerynk: Attempt 1, November 23, 2026 at 8:51 AM New York time; the instructor can see it. Included the live workshop link, repository, SECURITY.md and Product Page links, Beginner lane, the 130 KB `build3-security-nov23.png` attachment, 2 hours, and “I need to refine the user experience.” No private receipt screenshot is published.
 - Have a classmate complete the workflow on an actual phone. The browser-width check does not substitute for that result.
 - The CF-Connecting-IP denial's rejecting layer remains unverified. Memory-only sessions and counters reset on server sleep/restart; exports are records, not resumable sessions.
 - The November 17 live workshop demo succeeded after the skipped-answer evidence fix; guessed demo answers were labeled unconfirmed. Neither that demo nor this deployment establishes coaching usefulness or superiority over ordinary prompting. The comparison pilot remains future work.
