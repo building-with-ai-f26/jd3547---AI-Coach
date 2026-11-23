@@ -5,9 +5,9 @@
 - **Builder:** Jason Daniels (`@jd3547-nyu`)
 - **Pod:** [Pod Name / Number]
 - **Product Page & Living PRD:** [AI Coach Product Page](https://building-with-ai-f26.github.io/jd3547---AI-Coach/)
-- **App:** currently local. Build 3 now requires a publicly usable app by November 23 at noon; deployment is still pending.
+- **Live app:** [Open the guided workshop](https://jd3547-ai-coach.onrender.com/workshop) · [Quick exercise](https://jd3547-ai-coach.onrender.com/)
 
-To use the prototype, go to [Run on your Mac](#run-on-your-mac). The Product Page above describes the project; the working app opens separately on your laptop.
+Use the live app above, or follow [Run on your Mac](#run-on-your-mac) for a local copy. The GitHub Pages Product Page describes the project; Render runs the working app. The free service may need about a minute to wake after inactivity.
 
 ## Start here: Build 1
 
@@ -27,7 +27,7 @@ Create your PostHog account in Week 1. Install it on the Product Page and local 
 
 | File / folder | Purpose |
 | --- | --- |
-| [`app.py`](./app.py) | Local server, exercise steps, session handling, and export. |
+| [`app.py`](./app.py) | Local and hosted server, exercise steps, session handling, and export. |
 | [`coach.py`](./coach.py) | Fictional example, model requests, and response checks. |
 | [`workshop.py`](./workshop.py) | Body of Work questions, typed landscape records, source/evidence checks, and review transitions. |
 | [`introductions.py`](./introductions.py) | Audience/settings filters, bounded introduction drafts, and explicit review. |
@@ -174,7 +174,7 @@ Resetting or stopping the app does not delete a downloaded export or information
 
 ### PostHog usage measurements
 
-The Product Page and local app share two files: `docs/assets/analytics-config.js` supplies the PostHog project token, US collection address, and `enabled` switch; `docs/assets/analytics.js` defines the events and privacy settings. Flask serves these same files under `/analytics/` for the local app. You do not need a personal PostHog API key to run the app.
+The Product Page and the local and hosted app share two files: `docs/assets/analytics-config.js` supplies the PostHog project token, US collection address, and `enabled` switch; `docs/assets/analytics.js` defines the events and privacy settings. Flask serves these same files under `/analytics/` for the local app. You do not need a personal PostHog API key to run the app.
 
 The **public PostHog project ingestion token** identifies the project that receives events and is intended to be visible in browser code. It does not provide access to the private dashboard. This is different from a **secret OpenRouter key** or a **personal PostHog API key**; neither secret belongs in these files, the browser, or a commit.
 
@@ -185,6 +185,8 @@ The event list is deliberately limited: pageviews, named button/link clicks, mod
 Session replay is **configured** to mask all text and input values and block images and personal-content containers. Automatic click/form capture, console logs, network bodies/headers, and canvas recording are disabled. The helper also disables person profiles and identification, and configures analytics identifiers to stay in memory; anonymous session identifiers are still sent with events. The app's opaque exercise cookie is separate.
 
 **Verified November 11, 2026:** browser checks using fictional material confirmed event receipt and masked session replay in PostHog for both the local app and the published Product Page. This covers the tested flows and interface at that time; recheck after interface or analytics changes. It does not establish outside-user adoption or coaching quality. PostHog receives events and masked replay data externally, subject to the project's PostHog settings. Local reset, server shutdown, and browser refresh do not delete that remote data.
+
+**Verified November 23, 2026:** PostHog received pageviews and `workshop_progress` from `https://jd3547-ai-coach.onrender.com`. The observed hosted replay showed text as `[hidden]` and blocked personal-content containers. Replay and workflow screenshots remain private. This was builder verification with fictional input, not evidence of outside-user adoption.
 
 For the builder, the [Build 2 dashboard](https://us.posthog.com/project/697808/dashboard/2337055) requires access to the private PostHog project. To check the installation:
 
@@ -222,16 +224,18 @@ The introduction exercise is app-authored, drawing on a publicly documented intr
 
 The optional introduction request uses approved experience summaries, reviewed landscape additions, the starting introduction, and presentation settings. It excludes the book guide, raw PDFs, and unreviewed reflections. A starting introduction is a draft, not citable evidence. Evidence quotation checks do not establish the truth of a claim; read every version before keeping it.
 
-See [the two-day Build 3 plan](journal/build-3-nov22-23.md). Deployment, the live security audit, live analytics verification, and submission remain required before November 23 at noon. The local feature work does not complete those requirements.
+See [the Build 3 record](journal/build-3-nov22-23.md). The app is deployed, and live workflow, security, and analytics checks are recorded below. Icerynk submission and an actual classmate phone check are still pending.
 
 ## Public hosting (Build 3)
 
-The deployment target is a Free Render Python Web Service, with Python 3.12.16 and Gunicorn. The checked-in `render.yaml` describes the configuration; [AGENTS.md Shipping](./AGENTS.md#shipping--render-beginner-lane) gives the exact steps and private secret-file setup. The first public deployment is pending account sign-in. The GitHub Pages Product Page remains separate.
+The app went live on a Free Render Python Web Service on November 23, 2026 at 8:20 AM New York time, serving revision `b83f1cb` with Python 3.12.16 and one Gunicorn worker. Automatic deploys are off so a documentation push does not clear active workshops. The checked-in `render.yaml` describes the configuration; [AGENTS.md Shipping](./AGENTS.md#shipping--render-beginner-lane) records the commands and private secret-file setup. The GitHub Pages Product Page remains separate.
 
 The app keeps exercises in one server process. It has no database or login. A free Render service sleeps after inactivity and may take about a minute to wake; sleep, deployments, and restarts clear exercises. Export anything you want to keep. The export cannot restore a workshop. See [Render's free-service limits](https://render.com/docs/free).
 
-Production protects all five AI-capable routes with a shared 20-attempt/hour allowance per IP and session, plus a 100-attempt/hour global backstop. Invalid requests and fictional attempts also count. Opening more tabs or resetting an exercise does not refresh the allowance. A 429 response includes Retry-After; wait before trying again. Those counters reset with the process, so a separate approved monthly provider cap is required. Network sharing can make classmates share an IP allowance.
+Production protects all five AI-capable routes with a shared 20-attempt/hour allowance per IP and session, plus a 100-attempt/hour global backstop. Invalid requests and fictional attempts also count. Opening more tabs or resetting an exercise does not refresh the allowance. A 429 response includes Retry-After; wait before trying again. Those counters reset with the process; the owner-approved $100 monthly OpenRouter key cap was saved and verified November 23 as a separate spending backstop. Network sharing can make classmates share an IP allowance.
 
 The production dependencies require Python 3.12+. An old Python 3.9 virtual environment must be upgraded separately before reinstalling the new requirements; do not delete private configuration or exports.
 
-Security findings and live verification status are in [SECURITY.md](./SECURITY.md).
+A live AI check with fictional input completed all seven reflections, kept six landscape additions, generated an opening line, edited and kept it, and downloaded an export containing that edit. The browser viewport was 390 × 844 with no horizontal overflow. This is a browser-width check, not an actual classmate phone test or evidence of coaching usefulness.
+
+The live security check scanned 11 resources without finding a secret. Thirty deliberately invalid empty requests produced 18 validation responses (400) and 12 rate-limit responses (429 with Retry-After), without model calls. Cookie-free and forwarded-for probes remained rate-limited; a forged connecting-IP header was denied with 403, whose rejecting layer was not established. See [SECURITY.md](./SECURITY.md), the [security screenshot](docs/assets/build3-security-nov23.png), and [recorded results](docs/assets/build3-security-results.json) for scope and limitations.

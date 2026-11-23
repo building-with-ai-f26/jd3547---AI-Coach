@@ -134,6 +134,17 @@ def invalid_start(client, origin, extra_headers=None):
         return {"status": None, "retry_after": None, "error": "request_failed"}
 
 
+
+def classify_probe(result):
+    """Distinguish quota evidence from a denial whose source is unverified."""
+    limited = result.get("status") == 429 and result.get("retry_after") is not None
+    denied = result.get("status") == 403
+    classified = dict(result, outcome="rate_limited" if limited else "denied_403" if denied else "unexpected",
+                      rate_limit_confirmed=limited, blocked=limited or denied, passed=limited or denied)
+    if denied:
+        classified["denial_origin"] = "unverified"
+    return classified
+
 def check(origin):
     secret, comparison = local_secret()
     report = {
@@ -193,11 +204,14 @@ def check(origin):
             with httpx.Client(timeout=httpx.Timeout(20, connect=10), follow_redirects=False,
                               headers={"User-Agent": "AI-Coach-Build3-Security-Check"}) as probe_client:
                 result = invalid_start(probe_client, origin, headers)
-            probes.append(dict(result, probe=label, fresh_cookie_free_client=True, passed=limited(result)))
+            probes.append(classify_probe(dict(result, probe=label, fresh_cookie_free_client=True)))
         report["forwarded_header_bypass"] = {
             "design": "Three separate clients with no cookies or previous session, after the primary 30-request quota probe: no spoof header, forwarded-for spoof, and connecting-IP spoof.",
             "responses": probes,
-            "passed": report["rate_limit"]["passed"] and all(item["passed"] for item in probes),
+            "all_probes_blocked": all(item["blocked"] for item in probes),
+            "all_rate_limits_confirmed": all(item["rate_limit_confirmed"] for item in probes),
+            "assessment": "Pass means no bypass was observed in these probes. A 403 denial does not confirm quota enforcement or identify the denial's source.",
+            "passed": report["rate_limit"]["passed"] and all(item["blocked"] for item in probes),
         }
     report["passed"] = all(report[key]["passed"] for key in ("secret_scan", "rate_limit", "forwarded_header_bypass"))
     return report

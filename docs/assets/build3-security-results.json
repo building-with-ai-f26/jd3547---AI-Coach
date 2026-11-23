@@ -1,0 +1,293 @@
+{
+  "format": "ai-coach-live-security-v1",
+  "checked_at_utc": "2026-11-23T13:29:54.680088+00:00",
+  "origin": "https://jd3547-ai-coach.onrender.com",
+  "scope": "Public HTML and referenced same-origin scripts/styles; invalid-body rate-limit and forwarded-header probes. No paid AI calls or personal input.",
+  "limitations": "Pattern checks cannot prove absence of every secret. This does not test session isolation, semantic prompt safety, or provider spending limits.",
+  "secret_scan": {
+    "exact_local_secret_comparison": "performed",
+    "resources": [
+      {
+        "url": "https://jd3547-ai-coach.onrender.com/",
+        "status": 200,
+        "secret_patterns": [],
+        "bytes_scanned": 20798,
+        "passed": true
+      },
+      {
+        "url": "https://jd3547-ai-coach.onrender.com/workshop",
+        "status": 200,
+        "secret_patterns": [],
+        "bytes_scanned": 16453,
+        "passed": true
+      },
+      {
+        "url": "https://jd3547-ai-coach.onrender.com/analytics/analytics-config.js",
+        "status": 200,
+        "secret_patterns": [],
+        "bytes_scanned": 254,
+        "passed": true
+      },
+      {
+        "url": "https://jd3547-ai-coach.onrender.com/analytics/analytics.js",
+        "status": 200,
+        "secret_patterns": [],
+        "bytes_scanned": 9212,
+        "passed": true
+      },
+      {
+        "url": "https://jd3547-ai-coach.onrender.com/static/app.css",
+        "status": 200,
+        "secret_patterns": [],
+        "bytes_scanned": 27262,
+        "passed": true
+      },
+      {
+        "url": "https://jd3547-ai-coach.onrender.com/static/app.js",
+        "status": 200,
+        "secret_patterns": [],
+        "bytes_scanned": 31572,
+        "passed": true
+      },
+      {
+        "url": "https://jd3547-ai-coach.onrender.com/static/dictation.js",
+        "status": 200,
+        "secret_patterns": [],
+        "bytes_scanned": 6214,
+        "passed": true
+      },
+      {
+        "url": "https://jd3547-ai-coach.onrender.com/static/workshop.css",
+        "status": 200,
+        "secret_patterns": [],
+        "bytes_scanned": 6371,
+        "passed": true
+      },
+      {
+        "url": "https://jd3547-ai-coach.onrender.com/static/workshop.js",
+        "status": 200,
+        "secret_patterns": [],
+        "bytes_scanned": 36693,
+        "passed": true
+      },
+      {
+        "url": "https://jd3547-ai-coach.onrender.com/api/config",
+        "status": 200,
+        "secret_patterns": [],
+        "bytes_scanned": 1260,
+        "passed": true
+      },
+      {
+        "url": "https://jd3547-ai-coach.onrender.com/api/workshop/config",
+        "status": 200,
+        "secret_patterns": [],
+        "bytes_scanned": 4621,
+        "passed": true
+      }
+    ],
+    "asset_limit_exceeded": false,
+    "passed": true
+  },
+  "rate_limit": {
+    "url": "https://jd3547-ai-coach.onrender.com/api/start",
+    "attempt_count": 30,
+    "request_kind": "Invalid empty JSON counted before provider execution; these are not 30 paid requests.",
+    "responses": [
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 400,
+        "retry_after": null
+      },
+      {
+        "status": 429,
+        "retry_after": {
+          "seconds": 3103
+        }
+      },
+      {
+        "status": 429,
+        "retry_after": {
+          "seconds": 3103
+        }
+      },
+      {
+        "status": 429,
+        "retry_after": {
+          "seconds": 3103
+        }
+      },
+      {
+        "status": 429,
+        "retry_after": {
+          "seconds": 3103
+        }
+      },
+      {
+        "status": 429,
+        "retry_after": {
+          "seconds": 3103
+        }
+      },
+      {
+        "status": 429,
+        "retry_after": {
+          "seconds": 3103
+        }
+      },
+      {
+        "status": 429,
+        "retry_after": {
+          "seconds": 3103
+        }
+      },
+      {
+        "status": 429,
+        "retry_after": {
+          "seconds": 3102
+        }
+      },
+      {
+        "status": 429,
+        "retry_after": {
+          "seconds": 3102
+        }
+      },
+      {
+        "status": 429,
+        "retry_after": {
+          "seconds": 3102
+        }
+      },
+      {
+        "status": 429,
+        "retry_after": {
+          "seconds": 3102
+        }
+      },
+      {
+        "status": 429,
+        "retry_after": {
+          "seconds": 3101
+        }
+      }
+    ],
+    "status_counts": {
+      "400": 18,
+      "429": 12
+    },
+    "passed": true
+  },
+  "forwarded_header_bypass": {
+    "design": "Three separate clients with no cookies or previous session, after the primary 30-request quota probe: no spoof header, forwarded-for spoof, and connecting-IP spoof.",
+    "responses": [
+      {
+        "status": 429,
+        "retry_after": {
+          "seconds": 3101
+        },
+        "probe": "cookies_dropped",
+        "fresh_cookie_free_client": true,
+        "passed": true,
+        "outcome": "rate_limited",
+        "rate_limit_confirmed": true,
+        "blocked": true
+      },
+      {
+        "status": 429,
+        "retry_after": {
+          "seconds": 3101
+        },
+        "probe": "forwarded_for",
+        "fresh_cookie_free_client": true,
+        "passed": true,
+        "outcome": "rate_limited",
+        "rate_limit_confirmed": true,
+        "blocked": true
+      },
+      {
+        "status": 403,
+        "retry_after": null,
+        "probe": "connecting_ip",
+        "fresh_cookie_free_client": true,
+        "passed": true,
+        "outcome": "denied_403",
+        "rate_limit_confirmed": false,
+        "blocked": true,
+        "denial_origin": "unverified"
+      }
+    ],
+    "passed": true,
+    "all_probes_blocked": true,
+    "all_rate_limits_confirmed": false,
+    "assessment": "Pass means no bypass was observed in these probes. A 403 denial does not confirm quota enforcement or identify the denial's source."
+  },
+  "passed": true,
+  "review_note": "Observed responses retained. Classification distinguishes a 403 denied probe from verified 429 rate limiting. Denial origin unverified."
+}
