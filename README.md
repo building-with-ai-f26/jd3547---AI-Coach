@@ -75,7 +75,7 @@ The app requires Python 3.9 or newer. If Python is missing, use the [official Py
 On your first setup, create a separate Python environment for this project. It is a folder named `.venv` that holds the app's packages:
 
 ```bash
-python3 -m venv .venv
+python3.12 -m venv .venv
 ```
 
 If this project already has a working `.venv`, skip that command. Install the packages listed by the project:
@@ -223,3 +223,15 @@ The introduction exercise is app-authored, drawing on a publicly documented intr
 The optional introduction request uses approved experience summaries, reviewed landscape additions, the starting introduction, and presentation settings. It excludes the book guide, raw PDFs, and unreviewed reflections. A starting introduction is a draft, not citable evidence. Evidence quotation checks do not establish the truth of a claim; read every version before keeping it.
 
 See [the two-day Build 3 plan](journal/build-3-nov22-23.md). Deployment, the live security audit, live analytics verification, and submission remain required before November 23 at noon. The local feature work does not complete those requirements.
+
+## Public hosting (Build 3)
+
+The deployment target is a Free Render Python Web Service, with Python 3.12.16 and Gunicorn. The checked-in `render.yaml` describes the configuration; [AGENTS.md Shipping](./AGENTS.md#shipping--render-beginner-lane) gives the exact steps and private secret-file setup. The first public deployment is pending account sign-in. The GitHub Pages Product Page remains separate.
+
+The app keeps exercises in one server process. It has no database or login. A free Render service sleeps after inactivity and may take about a minute to wake; sleep, deployments, and restarts clear exercises. Export anything you want to keep. The export cannot restore a workshop. See [Render's free-service limits](https://render.com/docs/free).
+
+Production protects all five AI-capable routes with a shared 20-attempt/hour allowance per IP and session, plus a 100-attempt/hour global backstop. Invalid requests and fictional attempts also count. Opening more tabs or resetting an exercise does not refresh the allowance. A 429 response includes Retry-After; wait before trying again. Those counters reset with the process, so a separate approved monthly provider cap is required. Network sharing can make classmates share an IP allowance.
+
+The production dependencies require Python 3.12+. An old Python 3.9 virtual environment must be upgraded separately before reinstalling the new requirements; do not delete private configuration or exports.
+
+Security findings and live verification status are in [SECURITY.md](./SECURITY.md).

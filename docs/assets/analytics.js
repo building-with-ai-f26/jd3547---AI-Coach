@@ -6,8 +6,10 @@
   "use strict";
   const surface = document.currentScript?.dataset.analyticsSurface === "local_app" ? "local_app" : "product_page";
   const config = window.AI_COACH_ANALYTICS;
-  const canonicalURL = surface === "local_app" ? "http://127.0.0.1:8787/" : "https://building-with-ai-f26.github.io/jd3547---AI-Coach/";
-  const title = surface === "local_app" ? "AI Coach — Local workshop" : "AI Coach — Product Page";
+  // Only the Render origin is retained: never paths, query strings, or referrers.
+  const hostedOrigin = /^https:\/\/[a-z0-9-]+\.onrender\.com$/.test(window.location.origin || "") ? window.location.origin : null;
+  const canonicalURL = surface === "local_app" ? (hostedOrigin ? `${hostedOrigin}/` : "http://127.0.0.1:8787/") : "https://building-with-ai-f26.github.io/jd3547---AI-Coach/";
+  const title = surface === "local_app" ? "AI Coach — Workshop" : "AI Coach — Product Page";
   const testRun = new URLSearchParams(window.location.search).get("analytics_test") === "build2-nov11";
   let mode = surface === "local_app" ? "sample" : null;
   let sdk = null;

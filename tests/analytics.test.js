@@ -25,6 +25,7 @@ function boot(overrides = {}) {
   if (overrides.dnt) navigator.doNotTrack = "1";
   if (overrides.gpc) navigator.globalPrivacyControl = true;
   if (overrides.search !== undefined) window.location.search = overrides.search;
+  if (overrides.origin !== undefined) window.location.origin = overrides.origin;
   vm.runInNewContext(source, { window, document, navigator, URLSearchParams });
   const options = window.posthog?._i[0][1];
   const sent = [];
@@ -190,4 +191,16 @@ test("workshop progress accepts only fixed phase and step and strips personal ma
   assert.equal(last.properties.phase, undefined);
   assert.equal(last.properties.step, undefined);
 });
+
+// Hosting must not relabel public sessions as localhost or restore private URL fields.
+test("hosted events retain only an approved Render origin", () => {
+  const { options, sdk, sent } = boot({ origin: "https://ai-coach-test.onrender.com", search: "?email=private@example.com" });
+  options.loaded(sdk);
+  assert.equal(sent[0].properties.$current_url, "https://ai-coach-test.onrender.com/");
+  assert.doesNotMatch(JSON.stringify(sent), /private|email|secret/);
+  const other = boot({ origin: "https://private.example.com" });
+  other.options.loaded(other.sdk);
+  assert.equal(other.sent[0].properties.$current_url, "http://127.0.0.1:8787/");
+});
+
 console.log(`${passed} analytics safeguard tests passed (stub SDK; no network).`);

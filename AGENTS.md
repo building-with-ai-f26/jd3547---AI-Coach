@@ -5,11 +5,11 @@
 ## 1. Project Overview
 - **What this repo builds:** AI Coach, a personal branding prototype. The quick exercise uses pasted background or approved résumé/CV cards to propose one theme. The separate `/workshop` flow adapts selected Body of Work exercises through roots, ingredients, and contribution questions, then individual accept/edit/reject review of typed landscape records.
 - **Primary user & core workflow:** Professionals connecting their experiences into a clearer story. See the living PRD in `docs/index.html`. The local app is separate from that public Product Page.
-- **Tech stack:** Python 3.9+ / Flask / pypdf / plain HTML, CSS and JavaScript / OpenRouter (optional live mode) / PostHog usage events and masked replay. Exercise data is in memory; no database.
+- **Tech stack:** Python 3.12.16 / Flask / Gunicorn / pypdf / plain HTML, CSS and JavaScript / OpenRouter (optional live mode) / PostHog usage events and masked replay. Exercise data is in memory; no database.
 
 ## 2. Commands
 - **Working folder:** Jason's checkout is `~/Desktop/jd3547---AI-Coach`; run commands from the project root. Beginner instructions are in `README.md`.
-- **Install dependencies:** On first setup, `python3 -m venv .venv`; reuse a working existing environment. Then `.venv/bin/python -m pip install -r requirements.txt`. Python 3.9+ is required; the local PDF reader uses POSIX resource limits.
+- **Install dependencies:** On first setup, `python3.12 -m venv .venv`; reuse a working existing environment. Then `.venv/bin/python -m pip install -r requirements.txt`. Python 3.12.16 is the verified deployment target; use Python 3.12+ for a new local environment; the local PDF reader uses POSIX resource limits.
 - **Private configuration:** Use `cp -n .env.example .env` to create a missing `.env` without replacing existing settings. Read configuration names from `.env.example`; do not print or paste secret `.env` values. `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` enable optional live mode. Sample mode works without them.
 - **Private workshop guide:** The server loads `~/.config/ai-coach/body-of-work-v1.json`, or the absolute `BODY_OF_WORK_SOURCE_PATH` override, once on startup. This reviewed, versioned guide is separate from the full book and public source metadata. A fresh clone does not include it. Missing/invalid guides disable personal workshop mode; the fixed fictional walkthrough remains available. Never copy the guide, full book, or detailed extraction into the public repository, session JSON, browser configuration, or exports.
 - **Run locally:** `.venv/bin/python app.py`; open `http://127.0.0.1:8787`. Bind only to loopback; do not enable debug mode with personal input.
@@ -77,16 +77,20 @@ Use `?analytics_test=build2-nov11` for the dated builder-check marker; it is a f
 - Real mistake rule (November 17): generated workshop records cited answers of the wrong kind after questions were skipped. Derive generation rules from the validator's available evidence mapping, omit unsupported kinds, and never disable evidence checks to make a model response pass.
 - Focused checks for this feature: `.venv/bin/python -B -m unittest discover -s tests -p 'test_introductions.py'` and the relevant workshop/route checks. Mocked provider tests do not prove live model quality.
 
-### Shipping — Build 3 plan, not yet deployed
+### Shipping — Render, Beginner lane
 
-The current assignment requires the Python app to be public by November 23 at noon. Follow the Beginner lane. The GitHub Pages Product Page is not the Python app's deployment.
+1. Review the intended diff, run checks appropriate to changed behavior, and commit/push to the class repository. Keep the source guide, `.env`, private inputs, and exports outside Git. Use the exact pushed revision for deployment; no backdated commits.
+2. Create one **Free Python Web Service** on Render from `https://github.com/building-with-ai-f26/jd3547---AI-Coach`, branch `main`. Build: `pip install -r requirements.txt`. Start: `gunicorn --config gunicorn.conf.py app:app`. Health check: `/health`. `.python-version` pins Python 3.12.16. `render.yaml` records these settings. Disable automatic deploys so later documentation pushes do not silently clear active sessions.
+3. Keep **one instance and one Gunicorn worker** (four threads). Session state and rate-limit counters live in that process; extra workers or instances would split them. Never expose the Flask development server or enable debug mode.
+4. Set `APP_ENV=production`; Render supplies `RENDER=true` and `RENDER_EXTERNAL_HOSTNAME`. Exact trusted hosts are required. Keep `OPENROUTER_API_KEY` private in Render's environment, and `OPENROUTER_MODEL=anthropic/claude-sonnet-4.6`. Add the reviewed guide as a private secret file named `body-of-work-v1.json`; set `BODY_OF_WORK_SOURCE_PATH=/etc/secrets/body-of-work-v1.json`. Obtain authorization before moving those secrets or source material to a new host. Never put their contents in deployment logs, screenshots, Git, or client assets.
+5. Verify the approved **monthly** OpenRouter key budget before enabling public AI. Per-IP and per-session limits permit up to 20 AI-capable route attempts per hour across all five endpoints; a global backstop permits 100. Invalid and sample attempts also count. `/api/start` may make one bounded internal retry, so attempt limits are not a dollar cap. API flood and session-creation limits also apply. The server uses Secure/HttpOnly/SameSite cookies and exact host/origin checks.
+6. After a manual deploy succeeds, verify `/health`, a complete mobile-width core workflow, session isolation, PostHog event receipt and a masked replay with fictional inputs. Before the rate-limit audit, finish any paid workflow check from the same network. Run `scripts/check_live_security.py --url <verified-https-origin> --output <private-report.json>`; it scans public assets and makes 30 invalid-body requests to the actual AI route without buying 30 model responses, then checks spoofed forwarding headers. Save a screenshot of the real results. A blocked response must be 429 with Retry-After, not merely a validation failure.
+7. Run `pip-audit` against the resolved production environment, fix high-severity findings, and finish the agent review in `SECURITY.md`. Keep any remaining limits explicit. No database/buckets/backups are needed for this memory-only version; revisit this if storage is added.
+8. Update the verified app URL, PRD v3, Build 3 log, actual spend/hours, and this document's deployment record. Push the second actual build day's work and submit the live URL, repository, Beginner lane, SECURITY.md link, and security-test screenshot in Icerynk. Re-read the assignment if requirements change.
 
-1. Finish and review local changes; commit real work on each actual build day. Do not alter dates to manufacture separate workdays.
-2. Before public deployment, configure production host/port, a production WSGI server, session isolation, and bounded rate limits on every paid route, including `/api/workshop/introductions`.
-3. Configure hosting secrets separately from Git. The private reviewed Body of Work guide must be provisioned privately on the host, never in public assets, repository, browser state, or exports.
-4. Apply an approved provider spending cap; audit dependencies and source for secrets; perform the assignment's appropriate live access/rate-limit test and write `SECURITY.md` with evidence and remaining issues.
-5. Verify a complete phone workflow and masked PostHog events/replay on the public app. Record the actual production URL, commands, deployment settings, and results here after deployment.
-6. Update PRD v3/build log and submit the live URL, repository, lane, SECURITY.md link, and security-test screenshot. Check the live Icerynk assignment if requirements change.
+**Deployment record:** account sign-in and first public deployment pending as of November 23 preparation. Do not claim a live check or submission until its returned state is observed.
+
+**Recovery:** keep the previous successful revision available in Render's deployment history. Roll back to that revision if a deployment fails its checks; confirm health and the core flow afterward. A restart, rollback, deploy, or free-service sleep clears active sessions and local counters. Export active work before a planned restart. The provider cap remains independent of process restarts.
 
 ### Ask me first
 

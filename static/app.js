@@ -40,7 +40,7 @@
       response = await fetch(path, options);
     } catch (error) {
       if (error.name === "AbortError") throw new Error("This step took longer than expected. Your input is still here; try again, or start over if the workshop says this step has already changed.");
-      throw new Error("The local workshop couldn't be reached. Check that it is still running, then try again.");
+      throw new Error("The workshop couldn't be reached. Check your connection and try again in a moment.");
     } finally {
       window.clearTimeout(timeout);
     }

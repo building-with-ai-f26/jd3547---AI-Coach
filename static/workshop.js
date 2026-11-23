@@ -71,12 +71,12 @@
     try {
       const response = await fetch(path, options);
       let result;
-      try { result = await response.json(); } catch (_) { throw new Error("The workshop returned an unreadable response. Your saved progress is unchanged."); }
+      try { result = await response.json(); } catch (_) { throw new Error("The workshop returned an unreadable response. Reload saved progress before retrying."); }
       if (!response.ok) throw new Error(typeof result.error === "string" ? result.error : "That step could not be completed. Please try again.");
       return result;
     } catch (error) {
       if (error.name === "AbortError") throw new Error("This step took too long. Reload saved progress before retrying; the server may still be finishing it.");
-      if (error instanceof TypeError) throw new Error("The local workshop could not be reached. Check that the server is still running.");
+      if (error instanceof TypeError) throw new Error("The workshop could not be reached. Check your connection and try again in a moment.");
       throw error;
     } finally { window.clearTimeout(timer); }
   }

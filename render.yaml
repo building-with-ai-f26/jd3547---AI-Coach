@@ -1,0 +1,22 @@
+# One free instance and one Gunicorn worker are required for memory-only state.
+# Add the private guide as a Render secret file named body-of-work-v1.json.
+# Secret file contents and API credentials must never be added to this file.
+services:
+  - type: web
+    name: ai-coach
+    runtime: python
+    plan: free
+    numInstances: 1
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --config gunicorn.conf.py app:app
+    healthCheckPath: /health
+    autoDeployTrigger: off
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_MODEL
+        value: anthropic/claude-sonnet-4.6
+      - key: BODY_OF_WORK_SOURCE_PATH
+        value: /etc/secrets/body-of-work-v1.json

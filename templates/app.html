@@ -16,7 +16,7 @@
   <div class="page-shell">
     <header class="site-header">
       <a class="wordmark" href="/" aria-label="AI Coach home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>AI Coach<span class="edition">A small beginning</span></a>
-      <span class="local-label"><span aria-hidden="true"></span>Local workshop</span>
+      <span class="local-label"><span aria-hidden="true"></span>Guided workshop</span>
     </header>
 
     <main id="workspace">
@@ -70,7 +70,7 @@
                 <p id="document-limits" class="small-copy">Selectable-text PDF only · up to 5 MB, 10 pages, and 30,000 extracted characters. Scanned or image-only PDFs aren't supported; you can paste the text instead.</p>
                 <p id="document-file-status" class="file-status" role="status">No document selected.</p>
                 <p id="document-file-error" class="file-error" role="alert" hidden></p>
-                <div id="document-processing-note" class="processing-note"><strong>Before you continue</strong><p>When you click <strong>Find experiences</strong>, the app extracts the PDF's text and sends it to the configured AI model through OpenRouter to suggest cards. Nothing is sent when you select a file. The PDF isn't saved. Cards and supporting passages remain only for this local session.</p></div>
+                <div id="document-processing-note" class="processing-note"><strong>Before you continue</strong><p>When you click <strong>Find experiences</strong>, the app extracts the PDF's text and sends it to the configured AI model through OpenRouter to suggest cards. Nothing is sent when you select a file. The PDF isn't saved. The app keeps cards and supporting passages in server memory for this session.</p></div>
                 <div class="form-actions"><button id="upload-button" class="button button-primary" type="submit" data-action disabled>Find experiences<span aria-hidden="true">↗</span></button><span class="button-note">You'll review every suggestion</span></div>
               </form>
               <form id="background-form">
@@ -156,17 +156,17 @@
             <div class="landscape-foot"><span aria-hidden="true">✳</span><p>Evidence first.<br>Interpretation is always yours to revise.</p></div>
           </section>
           <div class="session-tools"><button id="export-button" type="button" class="button button-secondary" data-action disabled><span aria-hidden="true">↓</span>Export this exercise</button><button id="reset-button" type="button" class="button button-quiet" data-action disabled>Start over</button></div>
-          <p class="session-note">Kept for this local session. Export to keep a copy; restarting the server clears the session.</p>
+          <p class="session-note">Kept in server memory for up to one hour of inactivity. A host restart or sleep clears progress. This quick exercise does not restore after a page refresh. Export to keep a record; exports cannot resume an exercise.</p>
           <p id="live-privacy-note" class="session-note" hidden>Your background and reflection are sent to the configured AI service. No personal text is saved in browser storage.</p>
         </aside>
       </div>
       <p id="page-status" class="sr-only" aria-live="polite"></p>
     </main>
-    <footer class="site-footer"><span>AI Coach <span aria-hidden="true">/</span> An early, local prototype</span><span>Clarity begins with your experience.</span></footer>
+    <footer class="site-footer"><span>AI Coach <span aria-hidden="true">/</span> An early prototype</span><span>Clarity begins with your experience.</span></footer>
     <p class="session-note">Usage counts and masked session replays help improve this prototype. Personal inputs, document details, and coaching results are blocked from replay. Browser Do Not Track is respected.</p>
   </div>
 
   <dialog id="reset-dialog" aria-labelledby="reset-dialog-title"><form method="dialog"><p class="eyebrow">A FRESH PAGE</p><h2 id="reset-dialog-title">Start this exercise over?</h2><p>This clears the current exercise. Export first if you want to keep a copy.</p><div class="form-actions"><button id="confirm-reset-button" type="button" class="button button-primary">Start over</button><button class="button button-secondary" value="cancel">Keep working</button></div></form></dialog>
-  <noscript><p class="noscript-message">This local workshop needs JavaScript enabled to show the exercise.</p></noscript>
+  <noscript><p class="noscript-message">This workshop needs JavaScript enabled to show the exercise.</p></noscript>
 </body>
 </html>

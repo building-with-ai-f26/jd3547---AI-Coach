@@ -1,4 +1,4 @@
-"""Local-only Build 1 prototype. Session content stays in server memory."""
+"""Single-process coaching prototype. Session content stays in server memory."""
 
 from copy import deepcopy
 from io import BytesIO
@@ -16,6 +16,7 @@ from coach import CoachError, LiveCoach, SAMPLE, SAMPLE_PROPOSAL, SAMPLE_QUESTIO
 from documents import DocumentError, MAX_PDF_BYTES, MAX_PDF_PAGES, extract_pdf
 import workshop
 import introductions
+import production
 
 
 MAX_CHARS = 6000
@@ -34,16 +35,18 @@ def create_app(config=None, coach=None):
     load_dotenv(Path(__file__).parent / ".env")
     app = Flask(__name__)
     app.request_class = MemoryUploadRequest
+    app.config.update(production.environment_config())
     app.config.update(
         MAX_CONTENT_LENGTH=40000,
         MAX_FORM_PARTS=2,
-        TRUSTED_HOSTS=["localhost", "127.0.0.1", "[::1]"],
         OPENROUTER_API_KEY=os.getenv("OPENROUTER_API_KEY", ""),
         OPENROUTER_MODEL=os.getenv("OPENROUTER_MODEL", "anthropic/claude-sonnet-4.6"),
         BODY_OF_WORK_SOURCE_PATH=os.getenv("BODY_OF_WORK_SOURCE_PATH", str(Path.home() / ".config" / "ai-coach" / "body-of-work-v1.json")),
     )
     if config:
         app.config.update(config)
+    limits = production.install(app)
+    app.extensions["request_limits"] = limits
     generator = coach or LiveCoach()
     # A reviewed, private packet is loaded once per process. Never place it in
     # session state, browser configuration, exports, or the public repository.
@@ -63,6 +66,22 @@ def create_app(config=None, coach=None):
 
     @app.before_request
     def protect_request():
+        g.sid = request.cookies.get(COOKIE)
+        g.client_key = limits.identity(production.client_address(request, app.config["RENDER_PROXY"]))
+        g.paid_counted_without_session = False
+        if request.path.startswith("/api/"):
+            # Count even invalid input before parsing, session creation, or a paid
+            # request. Changing routes, resetting, or dropping cookies cannot
+            # clear the shared per-IP allowance. Sample attempts count too.
+            limits.api(g.client_key)
+            if request.method == "POST" and request.path in production.PAID_PATHS:
+                with lock:
+                    entry = sessions.get(g.sid)
+                    if entry and time.monotonic() - entry["touched"] > SESSION_TTL:
+                        entry = None
+                    quota_id = entry["quota_id"] if entry else None
+                limits.paid(g.client_key, quota_id)
+                g.paid_counted_without_session = quota_id is None
         if request.method == "POST":
             upload = request.path == "/api/documents"
             if upload:
@@ -75,7 +94,6 @@ def create_app(config=None, coach=None):
                 return error("This request came from a different website.", 403)
             if request.headers.get("Sec-Fetch-Site") == "cross-site":
                 return error("This request came from a different website.", 403)
-        g.sid = request.cookies.get(COOKIE)
 
     @app.after_request
     def response_headers(response):
@@ -87,8 +105,18 @@ def create_app(config=None, coach=None):
             "connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com; "
             "object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
         )
+        if app.config["PRODUCTION"] and request.is_secure:
+            response.headers["Strict-Transport-Security"] = "max-age=31536000"
         if getattr(g, "new_sid", None):
-            response.set_cookie(COOKIE, g.new_sid, httponly=True, samesite="Strict", max_age=SESSION_TTL)
+            response.set_cookie(COOKIE, g.new_sid, httponly=True, samesite="Strict", max_age=SESSION_TTL,
+                                secure=app.config["SESSION_COOKIE_SECURE"])
+        return response
+
+    @app.errorhandler(production.RateLimitExceeded)
+    def rate_limited(exc):
+        response = jsonify(error="Too many requests. Please wait before trying again.")
+        response.status_code = 429
+        response.headers["Retry-After"] = str(exc.retry_after)
         return response
 
     @app.errorhandler(413)
@@ -105,7 +133,7 @@ def create_app(config=None, coach=None):
         data = request.get_json(silent=True)
         return data if isinstance(data, dict) else {}
 
-    def session(create=False):
+    def session(create=False, quota_id=None):
         # Caller holds lock. Cookies contain an opaque identifier, never personal text.
         now = time.monotonic()
         for sid in list(sessions):
@@ -115,8 +143,14 @@ def create_app(config=None, coach=None):
         if entry is None and create:
             if len(sessions) >= 100:
                 return None
+            if quota_id is None:
+                limits.session_creation(g.client_key)
+            quota_id = quota_id or secrets.token_hex(16)
+            if g.paid_counted_without_session:
+                limits.first_paid_session(quota_id)
+                g.paid_counted_without_session = False
             g.sid = g.new_sid = secrets.token_urlsafe(32)
-            entry = {"state": None, "version": 0, "operation": None, "touched": now}
+            entry = {"state": None, "version": 0, "operation": None, "touched": now, "quota_id": quota_id}
             sessions[g.sid] = entry
         if entry:
             entry["touched"] = now
@@ -153,6 +187,11 @@ def create_app(config=None, coach=None):
             entry["state"] = state
             return jsonify(deepcopy(state))
 
+    @app.get("/health")
+    def health():
+        # Hosting health probes neither create sessions nor consume user quotas.
+        return jsonify(status="ok")
+
     @app.get("/")
     def index():
         return render_template("app.html")
@@ -165,7 +204,7 @@ def create_app(config=None, coach=None):
     def workshop_configuration():
         with lock:
             if not session(create=True):
-                return error("Too many sessions are open. Please restart the local server.", 503)
+                return error("The app is busy. Please try again later.", 503)
         return jsonify(live_ready=ready(), available=workshop_packet is not None,
                        method=workshop.public_metadata(), steps=workshop.STEPS,
                        sample_answers=workshop.SAMPLE_ANSWERS,
@@ -177,7 +216,7 @@ def create_app(config=None, coach=None):
         with lock:
             entry = session(create=True)
             if not entry:
-                return error("Too many sessions are open. Please restart the local server.", 503)
+                return error("The app is busy. Please try again later.", 503)
             state = entry["state"]
             is_workshop = bool(state and state.get("flow") == "body_of_work")
             return jsonify(state=deepcopy(state) if is_workshop else None,
@@ -313,7 +352,7 @@ def create_app(config=None, coach=None):
         # Establish the cookie before a slow model call so Start over can cancel it.
         with lock:
             if not session(create=True):
-                return error("Too many sessions are open. Please restart the local server.", 503)
+                return error("The app is busy. Please try again later.", 503)
         return jsonify(live_ready=ready(), model=app.config["OPENROUTER_MODEL"] if ready() else None,
                        source=SOURCE, sample=SAMPLE, max_chars=MAX_CHARS,
                        document_limits={"max_bytes": MAX_PDF_BYTES, "max_pages": MAX_PDF_PAGES,
@@ -322,7 +361,7 @@ def create_app(config=None, coach=None):
     @app.post("/api/documents")
     def upload_document():
         if not ready():
-            return error("Document review needs an API key in the local .env file. You can still use the fictional example.", 503)
+            return error("Document review is not configured. You can still use the fictional example.", 503)
         if set(request.files) != {"file"} or len(request.files.getlist("file")) != 1 or request.form:
             return error("Choose exactly one PDF file, or paste the relevant text instead.")
         uploaded = request.files["file"]
@@ -403,7 +442,7 @@ def create_app(config=None, coach=None):
         if mode not in ("sample", "live"):
             return error("Choose the fictional example or the live exercise.")
         if mode == "live" and not ready():
-            return error("Live coaching needs an API key in the local .env file. The fictional example is available now.", 503)
+            return error("Live coaching is not configured. The fictional example is available now.", 503)
         if data.get("use_document") is True:
             if mode != "live":
                 return error("Document experiences can only be used in live coaching.")
@@ -475,9 +514,14 @@ def create_app(config=None, coach=None):
     @app.post("/api/reset")
     def reset():
         with lock:
-            if g.sid in sessions:
+            entry = session()
+            quota_id = entry["quota_id"] if entry else None
+            if entry:
                 del sessions[g.sid]
-            session(create=True)
+            # Rotate the opaque cookie and invalidate old operations while
+            # preserving the same hourly allowance. This does not add capacity.
+            if not session(create=True, quota_id=quota_id):
+                return error("The app is busy. Please try again later.", 503)
         return jsonify(ok=True)
 
     @app.get("/api/export")
