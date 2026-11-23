@@ -68,7 +68,7 @@ Check Python:
 python3 --version
 ```
 
-The app requires Python 3.9 or newer. If Python is missing, use the [official Python installer for macOS](https://www.python.org/downloads/macos/), reopen Terminal, and return to the project folder.
+Use Python 3.12 or newer for the current requirements; Python 3.12.16 is the verified deployment version. If Python is missing, use the [official Python installer for macOS](https://www.python.org/downloads/macos/), reopen Terminal, and return to the project folder.
 
 ### 2. Install the app's packages
 
@@ -78,7 +78,7 @@ On your first setup, create a separate Python environment for this project. It i
 python3.12 -m venv .venv
 ```
 
-If this project already has a working `.venv`, skip that command. Install the packages listed by the project:
+If this project already has a working `.venv` using Python 3.12 or newer, skip that command. Check with `.venv/bin/python --version`. Do not install these requirements into an older environment; keep that environment intact and ask your coding agent to help create a separate Python 3.12 environment. Install the packages listed by the project:
 
 ```bash
 .venv/bin/python -m pip install -r requirements.txt
