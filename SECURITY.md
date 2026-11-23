@@ -16,7 +16,7 @@ The app keeps short-lived exercises in server memory. It does not provide durabl
 
 - Production host, exact deployment revision, secure-cookie and proxy behavior: pending.
 - Limits implemented and checked: 20 AI-capable attempts/hour per IP and session across all five routes; 100/hour global. API flood: 120/min/IP and 600/min global. New sessions: 10/hour/IP and 60/hour global. Reset rotates cookies while preserving the session allowance; IP allowance survives cookie removal. Health checks allocate no session and do not consume visitor quotas. Public proxy-header behavior is still pending live verification.
-- Provider monthly spending cap: pending owner choice and account verification. The existing key was observed with a $100 lifetime cap; that is not a verified monthly cap.
+- Provider monthly spending cap: owner-approved $100 per month, saved in OpenRouter on November 23 and verified through the current-key API (`limit: 100`, `limit_reset: monthly`). Resets on the first of each month at midnight UTC. This changes the cap only; no credits were purchased.
 - Live source/asset key scan and 30-request rate-limit test: pending deployment. The test uses empty invalid request bodies so it exercises the real paid endpoint and limiter without purchasing 30 model responses; this is not a live model throughput test.
 - Separate visitor cookies and state isolation, invalid host/origin checks, cookie-reset resistance, and production configuration were covered by focused tests. Public Render forwarding-header behavior remains pending deployment verification. The resolved production dependency audit passed as above.
 - Live PostHog events and masked replay: pending deployment verification.
