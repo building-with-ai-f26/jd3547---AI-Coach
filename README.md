@@ -5,7 +5,7 @@
 - **Builder:** Jason Daniels (`@jd3547-nyu`)
 - **Pod:** [Pod Name / Number]
 - **Product Page & Living PRD:** [AI Coach Product Page](https://building-with-ai-f26.github.io/jd3547---AI-Coach/)
-- **App:** runs locally through Week 4; add a cloud URL in Build 5.
+- **App:** currently local. Build 3 now requires a publicly usable app by November 23 at noon; deployment is still pending.
 
 To use the prototype, go to [Run on your Mac](#run-on-your-mac). The Product Page above describes the project; the working app opens separately on your laptop.
 
@@ -21,7 +21,7 @@ To use the prototype, go to [Run on your Mac](#run-on-your-mac). The Product Pag
 6. Push meaningful commits on **at least two separate days each week outside class**, including the November 3 break.
 7. Submit your **Product Page URL and repository URL in Icerynk**. Come ready to demo the prototype in two minutes on November 10.
 
-Create your PostHog account in Week 1. Install it on the Product Page and local app in **Build 2**, then verify events. The Product Page is public from Build 1; the app can stay local through Week 4.
+Create your PostHog account in Week 1. Install it on the Product Page and local app in **Build 2**, then verify events. The Product Page is public from Build 1. The current Build 3 assignment supersedes the original schedule: the working app must be publicly usable by November 23 at noon.
 
 ## Repository map
 
@@ -30,6 +30,7 @@ Create your PostHog account in Week 1. Install it on the Product Page and local 
 | [`app.py`](./app.py) | Local server, exercise steps, session handling, and export. |
 | [`coach.py`](./coach.py) | Fictional example, model requests, and response checks. |
 | [`workshop.py`](./workshop.py) | Body of Work questions, typed landscape records, source/evidence checks, and review transitions. |
+| [`introductions.py`](./introductions.py) | Audience/settings filters, bounded introduction drafts, and explicit review. |
 | [`documents.py`](./documents.py) | PDF text reading with file, page, memory, and time limits. |
 | [`templates/app.html`](./templates/app.html), [`static/`](./static/) | The app's browser interface. |
 | [`content/method.json`](./content/method.json) | Reviewed coaching source and its coverage limits. |
@@ -211,3 +212,14 @@ node tests/analytics.test.js
 It uses built-in Node modules and no network calls. Node is not required to run the app; this is a separate developer check, not proof that PostHog received events.
 
 On November 11, 2026, all **73 Python checks and 10 JavaScript checks passed**. No paid live-model calls were made during that day's setup and analytics checks.
+
+
+## Opening lines and Build 3
+
+Start at `/workshop` with an optional introduction you use today and up to three settings. For each, name the audience and purpose; optionally specify what to emphasize or leave out and a tone. These preferences do not establish facts about you. Complete the existing Body of Work reflections and review your landscape, then draft, edit, and explicitly keep a short introduction for each context. You can write versions yourself without an AI request. The original draft and context-specific versions are included in your workshop export; they share the workshop's memory-only lifetime.
+
+The introduction exercise is app-authored, drawing on a publicly documented introduction by Jen Gottlieb in [The Art of Charm's guide](https://theartofcharm.com/art-of-conversation/how-to-introduce-yourself-in-a-group/). The name → audience → helpful work → benefit structure is an inference from that example, not a verified transcription of her Brand Snap method. It is separate from the private Pamela Slim method guide and implies no endorsement.
+
+The optional introduction request uses approved experience summaries, reviewed landscape additions, the starting introduction, and presentation settings. It excludes the book guide, raw PDFs, and unreviewed reflections. A starting introduction is a draft, not citable evidence. Evidence quotation checks do not establish the truth of a claim; read every version before keeping it.
+
+See [the two-day Build 3 plan](journal/build-3-nov22-23.md). Deployment, the live security audit, live analytics verification, and submission remain required before November 23 at noon. The local feature work does not complete those requirements.

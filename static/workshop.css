@@ -42,6 +42,34 @@
 .workshop-history-item p { font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .workshop-history-item .button { margin-top: 0; }
 #workshop-conversation { scroll-margin-top: 20px; }
+.opening-section { margin-top: 24px; }
+.opening-section > label { display: block; margin-bottom: 8px; }
+.opening-section > textarea { min-height: 100px; }
+.optional-label { color: var(--muted); font-weight: 400; }
+.opening-section h3 { font-size: 19px; line-height: 1.4; margin: 24px 0 8px; }
+.opening-context-list { display: grid; gap: 18px; margin: 18px 0; }
+.opening-context-core { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.opening-context-core > div { min-width: 0; }
+.opening-context textarea { min-height: 84px; padding: 10px 12px; }
+.opening-context select { display: block; width: 100%; min-height: 44px; color: var(--ink); background: #fff; border: 1px solid #cbd3c7; border-radius: 8px; padding: 10px 12px; font: inherit; font-size: 13px; }
+.opening-context select:focus { border-color: var(--teal); outline: 2px solid #d4e0d0; outline-offset: 2px; }
+.opening-context select:disabled { opacity: .7; }
+.opening-context input[type="text"] { padding: 10px 12px; }
+.opening-preferences { border-top: 1px solid var(--line); padding-top: 13px; margin-top: 15px; }
+.opening-method { margin: 20px 0; }
+.opening-method > summary, .opening-preferences > summary, .opening-evidence > summary { cursor: pointer; font-size: 12px; line-height: 1.6; font-weight: 600; }
+.opening-method > p, .opening-preferences > div:first-of-type { margin-top: 12px; }
+.opening-experiences-title { font-size: 19px; margin: 30px 0 10px; padding-top: 24px; border-top: 1px solid var(--line); }
+.opening-return { margin: 28px 0; padding-top: 25px; border-top: 1px solid var(--line); }
+.opening-return > h3 { margin-top: 9px; }
+.opening-baseline-card { padding: 16px; margin: 18px 0; background: var(--soft); border-radius: 8px; }
+.opening-baseline-card h4, .opening-kept > h4 { font-size: 12px; margin-bottom: 8px; }
+.opening-baseline-card p { font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+.opening-kept { border-top: 1px solid var(--line); padding-top: 20px; margin-top: 24px; }
+.opening-word-count { text-align: right; margin: 6px 0 0; }
+.opening-evidence[open] > summary { margin-bottom: 12px; }
+.opening-evidence cite { display: block; margin-bottom: 12px; }
+.introduction-editor textarea { min-height: 100px; }
 @media (max-width: 760px) {
   .workshop-progress { gap: 6px; }
   .workshop-progress li { display: flex; flex-direction: column; align-items: center; gap: 9px; text-align: center; }
@@ -50,4 +78,6 @@
   .workshop-question { font-size: 23px; }
   .workshop-grid { grid-template-columns: minmax(0, 1fr); }
   .workshop-entry { padding: 13px; }
+  .opening-context-core { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .opening-context select, .opening-context textarea, .opening-context input[type="text"] { font-size: 16px; }
 }

@@ -21,25 +21,35 @@
       <div id="workshop-loading" class="processing-note" role="status">Opening your workshop…</div>
       <div id="workshop-body" hidden>
         <section id="workshop-mode" class="mode-panel is-live" aria-label="Workshop mode"><div class="mode-copy"><span class="mode-dot" aria-hidden="true"></span><div><h2 id="mode-title">Your experience</h2><p id="mode-description">Reflect in your own words. AI connections are an optional final step.</p></div></div><div class="mode-actions"><button id="personal-mode" type="button" class="button button-small button-secondary">Use my experience</button><button id="sample-mode" type="button" class="button button-small button-quiet">Fictional example</button></div></section>
-        <ol id="workshop-progress" class="progress workshop-progress" aria-label="Workshop progress"><li><span class="step-dot">1</span><span>Experiences</span></li><li><span class="step-dot">2</span><span>Roots</span></li><li><span class="step-dot">3</span><span>Ingredients</span></li><li><span class="step-dot">4</span><span>Direction</span></li><li><span class="step-dot">5</span><span>Review</span></li></ol>
+        <ol id="workshop-progress" class="progress workshop-progress" aria-label="Workshop progress"><li><span class="step-dot">1</span><span>Starting point</span></li><li><span class="step-dot">2</span><span>Roots</span></li><li><span class="step-dot">3</span><span>Ingredients</span></li><li><span class="step-dot">4</span><span>Direction</span></li><li><span class="step-dot">5</span><span>Review</span></li></ol>
         <div class="workshop-grid">
           <div>
             <section id="workshop-conversation" class="work-card ph-no-capture" data-analytics-private aria-busy="false">
-              <p id="step-label" class="eyebrow">CHOOSE YOUR EXPERIENCES</p>
+              <p id="step-label" class="eyebrow">YOUR OPENING LINE</p>
               <section id="start-section" aria-labelledby="start-title">
-                <h2 id="start-title" tabindex="-1">Start with something real.</h2><p class="section-description">A role, project, life experience, or unfinished contribution is enough. Choose what you want to explore today.</p>
+                <h2 id="start-title" tabindex="-1">How do you introduce yourself today?</h2><p class="section-description">Start with the words you have now and a situation where you might use them. After seven reflections, you can try a new version. This is a starting point, not a final identity.</p>
                 <div id="legacy-note" class="processing-note" hidden><strong>You have another exercise open.</strong><p>Starting this workshop replaces that exercise. Approved PDF experiences can carry over below. <a href="/api/export" download>Export the earlier exercise first</a> if you want to keep it.</p></div>
                 <p id="availability-note" class="processing-note" hidden></p>
                 <div id="sample-intro" class="processing-note" hidden><strong>A fixed, fictional walkthrough.</strong><p>Follow a person who improved an onboarding checklist and a volunteer guide. All reflections are prerecorded. No AI call is made.</p></div>
+                <div id="opening-inputs" class="opening-section">
+                  <label for="opening-baseline">Your current introduction <span class="optional-label">(optional)</span></label>
+                  <textarea id="opening-baseline" rows="3" maxlength="600" aria-describedby="opening-baseline-help opening-baseline-count" placeholder="How would you introduce yourself right now?"></textarea>
+                  <div class="field-foot"><p id="opening-baseline-help">A sentence or two is enough. You can leave this open.</p><span id="opening-baseline-count">0 / 600</span></div>
+                  <h3>Where will you introduce yourself?</h3><p class="small-copy">Choose one situation to begin. You can explore up to three, with different audiences and intentions.</p>
+                  <div id="opening-contexts" class="opening-context-list"></div>
+                  <button id="add-opening-context" type="button" class="button button-small button-secondary">+ Add another situation</button>
+                </div>
+                <details class="opening-method"><summary>About this opening exercise</summary><p id="opening-method-adaptation" class="small-copy"></p><a id="opening-method-source" class="small-copy" href="https://theartofcharm.com/art-of-conversation/how-to-introduce-yourself-in-a-group/" target="_blank" rel="noopener noreferrer">Jen Gottlieb’s public introduction example ↗</a></details>
                 <div id="experience-inputs">
+                  <h3 class="opening-experiences-title">Now choose something real to explore.</h3><p class="section-description">A role, project, life experience, or unfinished contribution is enough.</p>
                   <div id="experience-choice" class="input-choice" role="group" aria-label="Experience source" hidden><button id="use-imported" class="input-choice-button" type="button" aria-pressed="true">Approved PDF experiences</button><button id="use-manual" class="input-choice-button" type="button" aria-pressed="false">Write my own</button></div>
                   <div id="imported-cards"></div>
                   <div id="manual-cards"></div>
                   <button id="add-experience" type="button" class="button button-small button-secondary">+ Add an experience</button>
                   <p class="small-copy workshop-space">Prefer a résumé? <a href="/">Import and review a PDF in the quick reflection</a>, then return here.</p>
                 </div>
-                <p id="start-disclosure" class="small-copy">Starting confirms these experiences in your own words. Nothing is sent to the AI service unless you later choose “Suggest connections with AI.”</p>
-                <div class="form-actions"><button id="start-workshop" type="button" class="button button-primary">Use these experiences →</button></div>
+                <p id="start-disclosure" class="small-copy">Starting saves your introduction, situations, and chosen experiences. Nothing is sent to the AI service unless you explicitly ask for AI suggestions later.</p>
+                <div class="form-actions"><button id="start-workshop" type="button" class="button button-primary">Save my starting point →</button></div>
               </section>
               <section id="reflection-section" hidden aria-labelledby="reflection-title">
                 <h2 id="reflection-title" tabindex="-1"></h2><p id="reflection-prompt" class="workshop-question"></p><p id="reflection-help" class="section-description"></p>
@@ -52,7 +62,22 @@
               <section id="review-section" hidden aria-labelledby="review-title">
                 <h2 id="review-title" tabindex="-1">You decide what belongs.</h2><p class="section-description">Keep, edit, or leave out each item. A matching quotation shows where the words came from; it does not prove that an interpretation fits you.</p><form id="review-form"><div id="proposal-cards"></div><p id="empty-proposals" class="processing-note" hidden>No additions were proposed. Your experiences and reflections are still here; an open question is a valid outcome.</p><div class="form-actions"><button id="save-review" type="submit" class="button button-primary">Save my reviewed landscape →</button></div></form>
               </section>
-              <section id="complete-section" hidden aria-labelledby="complete-title"><h2 id="complete-title" tabindex="-1">A direction you can revisit.</h2><p class="section-description">Your reviewed landscape is ready. It can contain possibilities and open questions; it does not have to be a finished personal brand.</p><p id="completion-summary"></p><a class="button button-primary" href="/api/workshop/export" download>Export my workshop ↓</a></section>
+              <section id="complete-section" hidden aria-labelledby="complete-title">
+                <h2 id="complete-title" tabindex="-1">A direction you can revisit.</h2><p class="section-description">Your reviewed landscape is ready. It can contain possibilities and open questions; it does not have to be a finished personal brand.</p><p id="completion-summary"></p>
+                <section class="opening-section opening-return" aria-labelledby="opening-return-title">
+                  <p class="eyebrow">YOUR OPENING LINE, REVISITED</p><h3 id="opening-return-title">What would you say now?</h3><p class="section-description">Try words that fit a particular situation. You can write them yourself or request a draft, then decide what to keep.</p>
+                  <div class="opening-baseline-card"><h4>Your original introduction</h4><p id="opening-original"></p></div>
+                  <details id="opening-settings" class="opening-method"><summary>Review your situations and preferences</summary><p class="small-copy">Updating these settings clears all introduction drafts and saved introductions. Your reviewed landscape and original introduction stay.</p><div id="complete-opening-contexts" class="opening-context-list"></div><button id="add-complete-context" type="button" class="button button-small button-secondary">+ Add another situation</button><div class="form-actions"><button id="update-opening" type="button" class="button button-secondary">Update introduction settings</button></div></details>
+                  <p id="opening-settings-dirty" class="processing-note" hidden>Save your changed introduction settings before drafting or saving introductions.</p>
+                  <div class="form-actions"><button id="draft-introductions" type="button" class="button button-secondary">Draft my opening lines</button></div>
+                  <p id="introductions-disclosure" class="small-copy workshop-space">This optional request sends your approved experiences, reviewed landscape, original introduction, and situation preferences through OpenRouter. It uses your configured model and API credit. Read every draft before keeping it.</p>
+                  <p id="introductions-unavailable" class="small-copy workshop-space" hidden>AI drafts are not connected. You can write and save your own introductions below.</p>
+                  <p id="introductions-sample-note" class="small-copy workshop-space" hidden>The fictional opening lines are prerecorded. No AI call is made.</p>
+                  <section id="kept-introductions-section" class="opening-kept" hidden aria-labelledby="kept-introductions-title"><h4 id="kept-introductions-title">Introductions you kept</h4><div id="kept-introductions"></div></section>
+                  <form id="introductions-form"><div id="introduction-editors" class="opening-context-list"></div><p class="small-copy">Only checked versions are saved. You can edit freely; supporting words help you review a draft but do not verify every change.</p><p id="introduction-replacement-note" class="small-copy" hidden>Saving replaces your previously kept introductions with the checked versions below.</p><div class="form-actions"><button id="save-introductions" type="submit" class="button button-primary">Save my introductions</button></div></form>
+                </section>
+                <a class="button button-secondary workshop-space" href="/api/workshop/export" download>Export my workshop ↓</a>
+              </section>
               <div id="workshop-working" class="working-status" role="status" hidden><span class="loading-dot" aria-hidden="true"></span><span id="working-message">Saving…</span></div>
               <div id="workshop-error" class="error-panel" role="alert" hidden><div><h3>We couldn't finish that step.</h3><p id="error-message"></p><p class="error-reassurance">Your saved experiences and reflections are still here.</p></div><button id="recover-workshop" type="button" class="button button-small button-secondary">Reload saved progress</button></div>
             </section>

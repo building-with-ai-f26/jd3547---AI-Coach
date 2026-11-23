@@ -15,6 +15,7 @@ from flask import Flask, Request, g, jsonify, make_response, render_template, re
 from coach import CoachError, LiveCoach, SAMPLE, SAMPLE_PROPOSAL, SAMPLE_QUESTION, SOURCE, SOURCE_IDS, valid_text
 from documents import DocumentError, MAX_PDF_BYTES, MAX_PDF_PAGES, extract_pdf
 import workshop
+import introductions
 
 
 MAX_CHARS = 6000
@@ -168,6 +169,7 @@ def create_app(config=None, coach=None):
         return jsonify(live_ready=ready(), available=workshop_packet is not None,
                        method=workshop.public_metadata(), steps=workshop.STEPS,
                        sample_answers=workshop.SAMPLE_ANSWERS,
+                       opening_method=introductions.public_metadata(), sample_opening=introductions.sample_settings(),
                        error=None if workshop_packet else "The book workshop's local source guide is not configured. The fictional walkthrough is still available.")
 
     @app.get("/api/workshop/state")
@@ -221,8 +223,8 @@ def create_app(config=None, coach=None):
         if failure:
             return failure
         try:
-            state = workshop.new_state(mode, experiences)
-        except workshop.WorkshopError as exc:
+            state = workshop.new_state(mode, experiences, data.get("opening"))
+        except (workshop.WorkshopError, introductions.IntroductionError) as exc:
             return finish(ticket, failure=exc, failure_status=400)
         return finish(ticket, state)
 
@@ -234,7 +236,7 @@ def create_app(config=None, coach=None):
             return failure
         try:
             state = operation(ticket[3], data)
-        except workshop.WorkshopError as exc:
+        except (workshop.WorkshopError, introductions.IntroductionError) as exc:
             return finish(ticket, failure=exc, failure_status=400)
         except CoachError as exc:
             return finish(ticket, failure=exc)
@@ -269,6 +271,22 @@ def create_app(config=None, coach=None):
     @app.post("/api/workshop/review")
     def workshop_review():
         return workshop_transition(lambda state, data: workshop.review(state, data.get("decisions")))
+
+    @app.post("/api/workshop/opening")
+    def workshop_opening():
+        return workshop_transition(lambda state, data: introductions.configure(state, data.get("opening")))
+
+    @app.post("/api/workshop/introductions")
+    def workshop_introductions():
+        def generate(state, data):
+            if state["mode"] != "sample" and not ready():
+                raise introductions.IntroductionError("AI introductions need a configured API key. You can write and save your own versions instead.")
+            return introductions.generate(state, app.config)
+        return workshop_transition(generate)
+
+    @app.post("/api/workshop/introductions/review")
+    def workshop_introduction_review():
+        return workshop_transition(lambda state, data: introductions.save_review(state, data.get("choices")))
 
     @app.get("/api/workshop/export")
     def workshop_export():

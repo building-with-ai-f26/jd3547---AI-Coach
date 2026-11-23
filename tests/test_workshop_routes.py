@@ -53,6 +53,52 @@ class WorkshopRouteTests(unittest.TestCase):
         self.assertEqual(state["phase"], "synthesize")
         return state
 
+    def test_introductions_sample_review_export_and_revision(self):
+        state = self.answered("sample")
+        state = self.post("synthesize", {"version": state["version"], "own_words": True}).json
+        decisions = [{"id": item["id"], "decision": "accept"} for item in state["proposals"]]
+        state = self.post("review", {"version": state["version"], "decisions": decisions}).json
+        config = self.client.get("/api/workshop/config").json
+        self.assertTrue(config["opening_method"]["source_url"].startswith("https://"))
+        self.assertTrue(state["opening"]["contexts"])
+        generated = self.post("introductions", {"version": state["version"]})
+        self.assertEqual(generated.status_code, 200, generated.json)
+        fresh = generated.json
+        self.assertTrue(fresh["opening"]["drafts"])
+        self.assertEqual(self.post("introductions", {"version": state["version"]}).status_code, 409)
+        choices = [{"context_id": draft["context_id"], "keep": index == 0, "line": draft["line"]}
+                   for index, draft in enumerate(fresh["opening"]["drafts"])]
+        saved = self.post("introductions/review", {"version": fresh["version"], "choices": choices})
+        self.assertEqual(saved.status_code, 200, saved.json)
+        self.assertEqual(len(saved.json["opening"]["kept"]), 1)
+        self.assertEqual(saved.json["opening"]["drafts"], [])
+        exported = self.client.get("/api/workshop/export").json
+        self.assertEqual(exported["opening"]["kept"], saved.json["opening"]["kept"])
+        revised = self.post("revise", {"version": saved.json["version"], "step_id": "roots_value"}).json
+        self.assertFalse(revised["opening"]["kept"])
+        self.assertFalse(revised["opening"]["drafts"])
+        self.assertEqual(revised["opening"]["contexts"], saved.json["opening"]["contexts"])
+
+    def test_opening_context_is_separate_and_new_routes_keep_guards(self):
+        from workshop import personal_context
+        state = self.start("live")
+        preferences = {"baseline": "PRIVATE_STARTING_DRAFT", "contexts": [{"setting": "Networking event", "audience": "PRIVATE_AUDIENCE", "tone": "professional"}]}
+        configured = self.post("opening", {"version": state["version"], "opening": preferences})
+        self.assertEqual(configured.status_code, 200, configured.json)
+        self.assertEqual(configured.json["opening"]["baseline"], preferences["baseline"])
+        context_text = json.dumps(personal_context(configured.json))
+        self.assertNotIn("PRIVATE_STARTING_DRAFT", context_text)
+        self.assertNotIn("PRIVATE_AUDIENCE", context_text)
+        before = configured.json
+        invalid = self.post("opening", {"version": before["version"], "opening": {"baseline": "x", "contexts": []}})
+        self.assertEqual(invalid.status_code, 400)
+        self.assertEqual(self.client.get("/api/workshop/state").json["state"], before)
+        for endpoint in ("opening", "introductions", "introductions/review"):
+            with self.subTest(endpoint=endpoint):
+                response = self.client.post("/api/workshop/" + endpoint, json={}, headers={"X-Coach-Request": "1", "Origin": "https://elsewhere.example"})
+                self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.post("introductions", {"version": before["version"]}).status_code, 400)
+
     def test_private_packet_never_in_config_state_or_export(self):
         state = self.start()
         for path in ("/api/workshop/config", "/api/workshop/state", "/api/workshop/export", "/api/export"):

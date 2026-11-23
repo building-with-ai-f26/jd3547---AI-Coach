@@ -178,6 +178,28 @@ class WorkshopTests(unittest.TestCase):
             w.synthesize(state, packet(), {})
         self.assertEqual(state, original)
 
+    def test_skipped_answers_constrain_generation_without_weakening_validation(self):
+        state = completed_answers(skipped={"roots_example", "roots_service", "ingredient_current", "direction", "direction_why"})
+        original = deepcopy(state)
+        valid = [proposal(), proposal("future_ingredient", "ingredient_future", "I want to learn facilitation.")]
+        with patch("workshop._request_json", return_value={"proposals": valid}) as call:
+            result = w.synthesize(state, packet(), {})
+        call.assert_called_once()
+        prompt = call.call_args.args[1]
+        rules = json.loads(prompt.split("SESSION EVIDENCE RULES: ", 1)[1].split(". Only propose kinds", 1)[0])
+        self.assertEqual(set(rules), {"root", "future_ingredient", "theme"})
+        self.assertEqual(rules["root"]["cite_at_least_one_of"], ["roots_value"])
+        self.assertEqual(rules["future_ingredient"]["cite_at_least_one_of"], ["ingredient_future"])
+        self.assertEqual([item["kind"] for item in result["proposals"]], ["root", "future_ingredient"])
+        self.assertEqual(state, original)
+        # Even if the model ignores the rules, reject rather than invent evidence or retry automatically.
+        invalid = proposal("ingredient", "ingredient_future")
+        with patch("workshop._request_json", return_value={"proposals": [invalid]}) as call:
+            with self.assertRaises(CoachError):
+                w.synthesize(state, packet(), {})
+        call.assert_called_once()
+        self.assertEqual(state, original)
+
     def test_packet_validation_fails_closed_and_discards_private_extra_fields(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "private.json"

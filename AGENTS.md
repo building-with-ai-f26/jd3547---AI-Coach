@@ -34,6 +34,7 @@
 | `app.py` | Flask routes, opaque session cookies, state/version checks, document review, and exports. |
 | `coach.py` | OpenRouter transport, experience extraction, question/proposal validation, and the fixed fictional sample. |
 | `workshop.py` | Seven fixed book-informed prompts, typed state, bounded synthesis, evidence/source validation, revision, review, and export. |
+| `introductions.py` | Separate presentation context, bounded AI introduction generation from reviewed material, and explicit keep/edit/omit review. |
 | `documents.py` | Memory-only PDF extraction in a bounded subprocess; no original PDF saved. |
 | `content/method.json` | Reviewed article source, adaptation, attribution, and coverage limits. |
 | `templates/app.html`, `static/app.js`, `static/app.css` | Local browser interface. |
@@ -66,3 +67,27 @@ Keep analytics events and properties inside the helper's allowlists: fixed actio
 The SDK is configured for in-memory identifiers; exercise cookies and server state are separate. PostHog is an external recipient. Do not claim that local reset removes remote events, or invent remote retention/deletion guarantees.
 
 Use `?analytics_test=build2-nov11` for the dated builder-check marker; it is a fixed allowlisted marker, not arbitrary query-string capture. Verify actual events for `app_surface` values `local_app` and `product_page`, and inspect a masked replay using fictional input. The private dashboard is https://us.posthog.com/project/697808/dashboard/2337055. Record what was observed in the Build 2 log; deterministic tests and configured settings alone do not establish event receipt, replay masking, user adoption, or coaching value.
+
+
+## 6. Opening-line rules and Build 3 handoff
+
+- Keep introduction context separate from personal evidence. Audience, desired impression, tone, and aspirations do not establish credentials, results, clients, or expertise. Never attribute the app-authored exercise to the exact Brand Snap method without a verified source.
+- The original introduction is a starting draft; only reviewed experience summaries and landscape records provide citable evidence to this generation step. Do not send the private book guide, raw PDFs, or unreviewed reflections to the introduction request. Reset and expiry clear this state; exports do not restore a session.
+- A generation creates drafts. Keep/edit/omit review is explicit; edited text retains original evidence for comparison without claiming the edit is verified. Revising source reflections clears dependent introduction drafts and kept versions.
+- Real mistake rule (November 17): generated workshop records cited answers of the wrong kind after questions were skipped. Derive generation rules from the validator's available evidence mapping, omit unsupported kinds, and never disable evidence checks to make a model response pass.
+- Focused checks for this feature: `.venv/bin/python -B -m unittest discover -s tests -p 'test_introductions.py'` and the relevant workshop/route checks. Mocked provider tests do not prove live model quality.
+
+### Shipping — Build 3 plan, not yet deployed
+
+The current assignment requires the Python app to be public by November 23 at noon. Follow the Beginner lane. The GitHub Pages Product Page is not the Python app's deployment.
+
+1. Finish and review local changes; commit real work on each actual build day. Do not alter dates to manufacture separate workdays.
+2. Before public deployment, configure production host/port, a production WSGI server, session isolation, and bounded rate limits on every paid route, including `/api/workshop/introductions`.
+3. Configure hosting secrets separately from Git. The private reviewed Body of Work guide must be provisioned privately on the host, never in public assets, repository, browser state, or exports.
+4. Apply an approved provider spending cap; audit dependencies and source for secrets; perform the assignment's appropriate live access/rate-limit test and write `SECURITY.md` with evidence and remaining issues.
+5. Verify a complete phone workflow and masked PostHog events/replay on the public app. Record the actual production URL, commands, deployment settings, and results here after deployment.
+6. Update PRD v3/build log and submit the live URL, repository, lane, SECURITY.md link, and security-test screenshot. Check the live Icerynk assignment if requirements change.
+
+### Ask me first
+
+Get explicit authorization before deleting user data, making destructive database changes, changing secrets or access permissions, buying services or committing to new charges, or expanding a spending cap. Existing task-specific authorization still applies. Never publish personal demo inputs, exports, private screenshots, or source-book material. Explain and export active workshop work before a restart that would clear it.

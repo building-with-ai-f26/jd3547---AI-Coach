@@ -23,6 +23,21 @@
   let decisions = {};
   let busy = false;
   let renderedVersion = null;
+  const contextFields = ["setting", "audience", "purpose", "emphasize", "leave_out", "tone"];
+  const commonSettings = ["Networking event", "Class or workshop", "Interview", "New team", "Online profile"];
+  const blankContext = () => ({ setting: "", audience: "", purpose: "", emphasize: "", leave_out: "", tone: "conversational" });
+  let openingStart = { baseline: "", contexts: [blankContext()] };
+  let openingSettings = null;
+  let introductionChoices = {};
+
+  function cleanOpening(opening) {
+    return {
+      baseline: (opening?.baseline || "").trim(),
+      contexts: (opening?.contexts || []).map((context) => Object.fromEntries(contextFields.map((key) => [key, (context[key] || (key === "tone" ? "conversational" : "")).trim()])))
+    };
+  }
+  const validOpening = (opening) => Boolean(opening?.contexts.length && opening.contexts.length <= 3 && opening.contexts.every((context) => context.setting.trim()));
+  const openingChanged = () => Boolean(state && openingSettings && JSON.stringify(cleanOpening(openingSettings)) !== JSON.stringify(cleanOpening(state.opening)));
 
   function confirmInPage(message, confirmLabel = "Continue") {
     const dialog = el("workshop-confirm");
@@ -69,11 +84,11 @@
   function announce(message) { text("workshop-status", message); }
   function displayError(message) { text("error-message", message); show("workshop-error", true); announce(message); }
   function updateControls() {
-    document.querySelectorAll("#workshop-body button, #workshop-body input, #workshop-body textarea").forEach((control) => { control.disabled = busy || !config; });
+    document.querySelectorAll("#workshop-body button, #workshop-body input, #workshop-body textarea, #workshop-body select").forEach((control) => { control.disabled = busy || !config; });
     el("personal-mode").disabled = busy || !config || Boolean(state) || mode === "live" || config.available === false;
     el("sample-mode").disabled = busy || !config || Boolean(state) || mode === "sample";
     const manualValid = manual.length > 0 && manual.every((item) => item.title.trim() && item.details.trim());
-    el("start-workshop").disabled = busy || !config || Boolean(state) || (mode === "live" && (config.available === false || !(useImported ? selectedImported.size : manualValid)));
+    el("start-workshop").disabled = busy || !config || Boolean(state) || (mode === "live" && (config.available === false || !validOpening(openingStart) || !(useImported ? selectedImported.size : manualValid)));
     el("add-experience").disabled = busy || manual.length >= 3;
     el("save-answer").disabled = busy || !state || state.phase !== "reflect" || !el("reflection-answer").value.trim();
     el("skip-answer").disabled = busy || !state || state.phase !== "reflect";
@@ -82,9 +97,20 @@
     const completeDecisions = state && (state.proposals || []).every((item) => decisions[item.id] && (decisions[item.id].decision !== "edit" || decisions[item.id].wording.trim()));
     el("save-review").disabled = busy || !state || state.phase !== "review" || !completeDecisions;
     el("recover-workshop").disabled = busy;
+    el("add-opening-context").disabled = busy || mode === "sample" || openingStart.contexts.length >= 3;
+    el("add-complete-context").disabled = busy || mode === "sample" || !openingSettings || openingSettings.contexts.length >= 3;
+    const complete = Boolean(state && state.phase === "complete");
+    const settingsChanged = openingChanged();
+    el("update-opening").disabled = busy || !complete || mode === "sample" || !settingsChanged || !validOpening(openingSettings);
+    el("draft-introductions").disabled = busy || !complete || settingsChanged || (mode !== "sample" && !config?.live_ready);
+    const validChoices = Object.values(introductionChoices).every((choice) => !choice.keep || choice.line.trim());
+    el("save-introductions").disabled = busy || !complete || settingsChanged || !validChoices || !Object.keys(introductionChoices).length;
+    show("opening-settings-dirty", complete && settingsChanged);
+    if (mode === "sample") document.querySelectorAll("#opening-inputs input, #opening-inputs textarea, #opening-inputs select, #complete-opening-contexts input, #complete-opening-contexts textarea, #complete-opening-contexts select, #complete-opening-contexts button").forEach((control) => { control.disabled = true; });
     el("workshop-conversation").setAttribute("aria-busy", String(busy));
     show("workshop-working", busy);
     text("reflection-count", `${el("reflection-answer").value.length.toLocaleString()} / 1,200`);
+    text("opening-baseline-count", `${el("opening-baseline").value.length.toLocaleString()} / 600`);
   }
 
   async function perform(action, message = "Saving your progress…") {
@@ -159,6 +185,159 @@
     });
   }
 
+  function renderContexts(containerId, opening, prefix) {
+    const container = el(containerId);
+    container.replaceChildren();
+    opening.contexts.forEach((context, index) => {
+      const field = node("fieldset", undefined, "workshop-entry opening-context");
+      field.append(node("legend", `Situation ${index + 1}`));
+      const settingLabel = node("label", "Where will you introduce yourself?");
+      const setting = node("select");
+      setting.id = `${prefix}-${index}-setting`;
+      settingLabel.htmlFor = setting.id;
+      [["", "Choose a situation"], ...commonSettings.map((value) => [value, value]), ["custom", "Another situation…"]].forEach(([value, label]) => {
+        const option = node("option", label);
+        option.value = value;
+        setting.append(option);
+      });
+      setting.value = context.custom || (context.setting && !commonSettings.includes(context.setting)) ? "custom" : context.setting;
+      const customLabel = node("label", "Your situation");
+      const custom = node("input");
+      custom.type = "text";
+      custom.maxLength = 80;
+      custom.id = `${prefix}-${index}-custom-setting`;
+      custom.value = setting.value === "custom" ? context.setting : "";
+      customLabel.htmlFor = custom.id;
+      customLabel.hidden = custom.hidden = setting.value !== "custom";
+      setting.addEventListener("change", () => {
+        context.custom = setting.value === "custom";
+        context.setting = context.custom ? custom.value : setting.value;
+        customLabel.hidden = custom.hidden = !context.custom;
+        updateControls();
+        if (context.custom) custom.focus();
+      });
+      custom.addEventListener("input", () => { context.setting = custom.value; updateControls(); });
+      field.append(settingLabel, setting, customLabel, custom);
+      const core = node("div", undefined, "opening-context-core");
+      const addField = (parent, key, labelText) => {
+        const wrapper = node("div");
+        const label = node("label", labelText);
+        const input = node("textarea");
+        input.rows = 2;
+        input.maxLength = 240;
+        input.id = `${prefix}-${index}-${key}`;
+        input.value = context[key] || "";
+        label.htmlFor = input.id;
+        input.addEventListener("input", () => { context[key] = input.value; updateControls(); });
+        wrapper.append(label, input);
+        parent.append(wrapper);
+      };
+      addField(core, "audience", "Who will you meet? (optional)");
+      addField(core, "purpose", "What do you want them to understand? (optional)");
+      field.append(core);
+      const preferences = node("details", undefined, "opening-preferences");
+      preferences.append(node("summary", "Emphasis, boundaries, and tone (optional)"));
+      addField(preferences, "emphasize", "What would you like to bring forward?");
+      addField(preferences, "leave_out", "What should this introduction leave out?");
+      preferences.append(node("p", "This preference guides the wording. It does not remove material from the inputs sent when you request an AI draft.", "small-copy"));
+      const toneLabel = node("label", "How should it sound?");
+      const tone = node("select");
+      tone.id = `${prefix}-${index}-tone`;
+      toneLabel.htmlFor = tone.id;
+      [["conversational", "Conversational"], ["professional", "Professional"], ["warm", "Warm"]].forEach(([value, label]) => {
+        const option = node("option", label);
+        option.value = value;
+        tone.append(option);
+      });
+      tone.value = context.tone || "conversational";
+      tone.addEventListener("change", () => { context.tone = tone.value; updateControls(); });
+      preferences.append(toneLabel, tone);
+      field.append(preferences);
+      if (opening.contexts.length > 1 && mode !== "sample") {
+        const remove = node("button", "Remove this situation", "button button-small button-quiet");
+        remove.type = "button";
+        remove.addEventListener("click", () => { opening.contexts.splice(index, 1); renderContexts(containerId, opening, prefix); updateControls(); });
+        field.append(remove);
+      }
+      container.append(field);
+    });
+  }
+
+  function renderOpeningStart() {
+    const opening = mode === "sample" ? (config.sample_opening || { baseline: "", contexts: [blankContext()] }) : openingStart;
+    el("opening-baseline").value = opening.baseline || "";
+    renderContexts("opening-contexts", opening, "opening");
+    show("add-opening-context", mode !== "sample");
+  }
+
+  function introductionEvidenceLabel(reference) {
+    const record = (state.records || []).find((item) => item.id === reference || `record:${item.id}` === reference || `landscape:${item.id}` === reference);
+    return record ? `Reviewed landscape: ${kinds[record.kind] || "your words"}` : evidenceLabel(reference);
+  }
+
+  function renderIntroductions() {
+    const opening = state.opening || { baseline: "", contexts: [], drafts: [], kept: [] };
+    openingSettings = cleanOpening(opening);
+    if (!openingSettings.contexts.length) openingSettings.contexts.push(blankContext());
+    text("opening-original", opening.baseline || "You left your starting introduction open.");
+    renderContexts("complete-opening-contexts", openingSettings, "complete-opening");
+    show("add-complete-context", mode !== "sample");
+    show("update-opening", mode !== "sample");
+    show("draft-introductions", mode === "sample" || config.live_ready);
+    show("introductions-disclosure", mode !== "sample" && config.live_ready);
+    show("introductions-unavailable", mode !== "sample" && !config.live_ready);
+    show("introductions-sample-note", mode === "sample");
+    text("draft-introductions", mode === "sample" ? "See the fictional opening lines" : "Draft my opening lines");
+    const keptContainer = el("kept-introductions");
+    keptContainer.replaceChildren();
+    show("kept-introductions-section", Boolean(opening.kept?.length));
+    show("introduction-replacement-note", Boolean(opening.kept?.length));
+    (opening.kept || []).forEach((item) => {
+      const context = opening.contexts.find((candidate) => candidate.id === item.context_id);
+      const card = node("div", undefined, "opening-baseline-card");
+      card.append(node("h4", context?.setting || "Your introduction"), node("p", item.line));
+      keptContainer.append(card);
+    });
+    const editors = el("introduction-editors");
+    editors.replaceChildren();
+    introductionChoices = {};
+    (opening.contexts || []).forEach((context, index) => {
+      const draft = (opening.drafts || []).find((item) => item.context_id === context.id);
+      const kept = (opening.kept || []).find((item) => item.context_id === context.id);
+      const choice = { context_id: context.id, keep: Boolean(!draft && kept), line: draft?.line || kept?.line || "" };
+      introductionChoices[context.id] = choice;
+      const field = node("fieldset", undefined, "workshop-entry introduction-editor");
+      field.append(node("legend", context.setting));
+      if (context.audience) field.append(node("p", `For: ${context.audience}`, "small-copy"));
+      if (context.purpose) field.append(node("p", `What you want them to understand: ${context.purpose}`, "small-copy"));
+      const label = node("label", draft ? "Review and edit this draft" : kept ? "Your saved wording, ready to revise" : "Write your opening line");
+      const editor = node("textarea");
+      editor.id = `introduction-${index}`;
+      editor.maxLength = 600;
+      editor.rows = 3;
+      editor.value = choice.line;
+      editor.readOnly = mode === "sample";
+      label.htmlFor = editor.id;
+      const count = node("p", `${editor.value.length} / 600`, "small-copy opening-word-count");
+      editor.addEventListener("input", () => { choice.line = editor.value; count.textContent = `${editor.value.length} / 600`; updateControls(); });
+      field.append(label, editor, count);
+      if (draft?.evidence?.length) {
+        const evidence = node("details", undefined, "workshop-evidence opening-evidence");
+        evidence.append(node("summary", "Words supporting this draft"));
+        draft.evidence.forEach((quote) => { evidence.append(node("blockquote", quote.text), node("cite", introductionEvidenceLabel(quote.ref_id))); });
+        field.append(evidence);
+      }
+      const keepLabel = node("label", undefined, "workshop-choice");
+      const checkbox = node("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = choice.keep;
+      checkbox.addEventListener("change", () => { choice.keep = checkbox.checked; updateControls(); });
+      keepLabel.append(checkbox, node("span", "Keep this version"));
+      field.append(keepLabel);
+      editors.append(field);
+    });
+  }
+
   function renderStart() {
     show("legacy-note", legacyPresent);
     show("sample-intro", mode === "sample");
@@ -172,7 +351,8 @@
     show("add-experience", !useImported);
     el("use-imported").setAttribute("aria-pressed", String(useImported));
     el("use-manual").setAttribute("aria-pressed", String(!useImported));
-    text("start-workshop", mode === "sample" ? "Try the fictional workshop →" : "Use these experiences →");
+    text("start-workshop", mode === "sample" ? "Try the fictional workshop →" : "Save my starting point →");
+    renderOpeningStart();
     renderManual();
     renderImported();
   }
@@ -296,7 +476,7 @@
       li.classList.toggle("is-done", index < progress || phase === "complete");
       if (index === progress) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current");
     });
-    text("step-label", phase === "start" ? "CHOOSE YOUR EXPERIENCES" : phase === "reflect" ? `REFLECTION ${state.step_index + 1} OF ${config.steps.length}` : phase === "complete" ? "REVIEWED BY YOU" : "REVIEW YOUR LANDSCAPE");
+    text("step-label", phase === "start" ? "YOUR OPENING LINE" : phase === "reflect" ? `REFLECTION ${state.step_index + 1} OF ${config.steps.length}` : phase === "complete" ? "REVIEWED BY YOU" : "REVIEW YOUR LANDSCAPE");
     if (phase === "start") renderStart();
     if (phase === "reflect" && step) {
       text("reflection-title", step.title);
@@ -314,6 +494,7 @@
     }
     if (phase === "review" && state.version !== renderedVersion) renderProposals();
     if (phase === "complete") text("completion-summary", `${(state.records || []).length} reviewed additions kept. Anything you left out is excluded from your landscape.`);
+    if (phase === "complete" && state.version !== renderedVersion) renderIntroductions();
     renderLandscape();
     renderedVersion = state?.version ?? null;
     updateControls();
@@ -337,10 +518,25 @@
   el("use-imported").addEventListener("click", () => { useImported = true; renderStart(); updateControls(); });
   el("use-manual").addEventListener("click", () => { useImported = false; renderStart(); updateControls(); });
   el("add-experience").addEventListener("click", () => { if (manual.length < 3) manual.push({ title: "", details: "" }); renderManual(); updateControls(); el(`manual-${manual.length - 1}-title`).focus(); });
+  el("opening-baseline").addEventListener("input", () => { if (mode !== "sample") openingStart.baseline = el("opening-baseline").value; updateControls(); });
+  el("add-opening-context").addEventListener("click", () => {
+    if (openingStart.contexts.length >= 3 || mode === "sample") return;
+    openingStart.contexts.push(blankContext());
+    renderContexts("opening-contexts", openingStart, "opening");
+    updateControls();
+    el(`opening-${openingStart.contexts.length - 1}-setting`).focus();
+  });
+  el("add-complete-context").addEventListener("click", () => {
+    if (!openingSettings || openingSettings.contexts.length >= 3 || mode === "sample") return;
+    openingSettings.contexts.push(blankContext());
+    renderContexts("complete-opening-contexts", openingSettings, "complete-opening");
+    updateControls();
+    el(`complete-opening-${openingSettings.contexts.length - 1}-setting`).focus();
+  });
   el("start-workshop").addEventListener("click", async () => {
     if (legacyPresent && !await confirmInPage("Start this workshop and replace the earlier exercise? Export the earlier exercise first if you want a copy.", "Start this workshop")) return;
     perform(async () => {
-      const payload = { mode, version: currentVersion };
+      const payload = { mode, version: currentVersion, opening: cleanOpening(mode === "sample" ? config.sample_opening : openingStart) };
       if (mode === "live" && useImported) Object.assign(payload, { use_document: true, experience_ids: [...selectedImported] });
       else if (mode === "live") payload.experiences = manual.map((item) => ({ title: item.title.trim(), details: item.details.trim() }));
       acceptState(await request("/api/workshop/start", payload));
@@ -362,6 +558,28 @@
       acceptState(await request("/api/workshop/review", { version: state.version, decisions: reviewed }));
     });
   });
+  el("update-opening").addEventListener("click", async () => {
+    if (!await confirmInPage("Update these situations and preferences? All introduction drafts and saved introductions will be cleared. Your reviewed landscape and original introduction stay.", "Update introduction settings")) return;
+    perform(async () => {
+      acceptState(await request("/api/workshop/opening", { version: state.version, opening: cleanOpening(openingSettings) }));
+      announce("Introduction settings saved. Your landscape is unchanged.");
+    });
+  });
+  el("draft-introductions").addEventListener("click", async () => {
+    if (Object.values(introductionChoices).some((choice) => choice.line.trim()) && !await confirmInPage("Request new opening lines? The editable versions below will be replaced. Copy any unsaved wording you want to keep first.", mode === "sample" ? "Show fictional lines" : "Draft opening lines")) return;
+    perform(async () => {
+      acceptState(await request("/api/workshop/introductions", { version: state.version }));
+      announce("Opening lines are ready for your review. Choose which versions to keep.");
+    }, mode === "sample" ? "Opening the fictional lines…" : "Drafting opening lines. This can take a moment…");
+  });
+  el("introductions-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    perform(async () => {
+      const choices = (state.opening?.contexts || []).map((context) => introductionChoices[context.id]);
+      acceptState(await request("/api/workshop/introductions/review", { version: state.version, choices }));
+      announce("Your introduction choices are saved and included in your workshop export.");
+    });
+  });
   el("recover-workshop").addEventListener("click", async () => {
     if (!config) { perform(initialize, "Reconnecting to the workshop…"); return; }
     if (!await confirmInPage("Reload the last saved progress? Text you have not submitted and unsaved review choices will be discarded.", "Reload saved progress")) return;
@@ -369,7 +587,7 @@
   });
   el("reset-workshop").addEventListener("click", async () => {
     if (!await confirmInPage("Clear this workshop and start over? Export first if you want a copy.", "Start over")) return;
-    perform(async () => { await request("/api/reset", {}); manual = [{ title: "", details: "" }]; await loadSaved(); });
+    perform(async () => { await request("/api/reset", {}); manual = [{ title: "", details: "" }]; openingStart = { baseline: "", contexts: [blankContext()] }; openingSettings = null; introductionChoices = {}; await loadSaved(); });
   });
 
   async function initialize() {
@@ -378,6 +596,10 @@
       config.steps = config.steps || [];
       config.sample_answers = config.sample_answers || {};
       config.method = config.method || {};
+      config.opening_method = config.opening_method || {};
+      text("opening-method-adaptation", config.opening_method.adaptation || "An app-authored exercise adapted from Jen Gottlieb’s public introduction example. It is not a reproduction of Brand Snap or an endorsed service. Situations and presentation preferences are app-authored additions.");
+      const openingSource = config.opening_method.source_url;
+      if (typeof openingSource === "string" && openingSource.startsWith("https://")) el("opening-method-source").href = openingSource;
       if (config.available === false) mode = "sample";
       text("method-adaptation", config.method.adaptation);
       text("method-coverage", config.method.coverage);

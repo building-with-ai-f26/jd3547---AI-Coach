@@ -4,10 +4,24 @@ import json
 from pathlib import Path
 import re
 import secrets
+import introductions
 from coach import CoachError, _request_json, valid_text
 
 METHOD_ID = "body-of-work-mini-v1"
 MAX_ANSWER = MAX_WORDING = 1200
+# Share the same evidence contract between generation and validation.
+METHODS_BY_KIND = {
+    "root": {"roots"}, "ingredient": {"ingredients"},
+    "future_ingredient": {"ingredients"}, "direction": {"contribution"},
+    "theme": {"roots", "ingredients", "contribution"},
+}
+REQUIRED_REFS = {
+    "root": {"roots_value", "roots_example", "roots_service"},
+    "ingredient": {"ingredient_current"},
+    "future_ingredient": {"ingredient_future"},
+    "direction": {"direction", "direction_why"},
+}
+FORBIDDEN_REFS = {"ingredient": {"ingredient_future", "direction", "direction_why"}}
 METHODS = [
     {"id": "roots", "title": "Identify Your Roots", "locator": "Chapter 2; supplied Markdown lines 490–524"},
     {"id": "ingredients", "title": "Determine Your Ingredients", "locator": "Chapter 3; supplied Markdown lines 718–764"},
@@ -99,11 +113,13 @@ def _check_state(state, phases):
         raise WorkshopError("This workshop step has changed. Reload the workshop to continue.")
 
 
-def new_state(mode, experiences):
+def new_state(mode, experiences, opening=None):
     if not isinstance(mode, str) or mode not in {"live", "sample"}:
         raise WorkshopError("Choose your experience or the fictional example.")
     if mode == "sample":
         experiences = SAMPLE_EXPERIENCES
+        opening = introductions.sample_settings()
+    opening_settings = introductions.validate_settings(opening)
     if not isinstance(experiences, list) or not 1 <= len(experiences) <= 6:
         raise WorkshopError("Choose between one and six experiences to explore.")
     seen = set()
@@ -117,7 +133,8 @@ def new_state(mode, experiences):
         raise WorkshopError("Choose a shorter set of experiences, up to 8,000 characters in total.")
     return {"flow": "body_of_work", "stage": "workshop", "phase": "reflect", "step_index": 0,
             "reflections": [], "proposals": [], "records": [], "revision": 1,
-            "method_id": METHOD_ID, "mode": mode, "accepted_experiences": deepcopy(experiences), "decisions": []}
+            "method_id": METHOD_ID, "mode": mode, "accepted_experiences": deepcopy(experiences), "decisions": [],
+            "opening": opening_settings}
 
 
 def advance(state, answer, skip=False):
@@ -148,6 +165,8 @@ def revise(state, step_id):
     result = deepcopy(state)
     result.update(phase="reflect", step_index=index, reflections=result["reflections"][:index],
                   proposals=[], records=[], decisions=[], revision=state["revision"] + 1)
+    if result.get("opening"):
+        result["opening"].update(drafts=[], kept=[])
     return result
 
 
@@ -170,19 +189,15 @@ def validate_proposals(data, state):
     if not isinstance(data, dict) or set(data) != {"proposals"} or not isinstance(data["proposals"], list) or len(data["proposals"]) > 6:
         raise CoachError("The AI returned an unexpected workshop format. Your answers are still here; please retry.")
     inputs = {item["id"]: item for item in personal_context(state)}
-    allowed = {"root": {"roots"}, "ingredient": {"ingredients"}, "future_ingredient": {"ingredients"},
-               "direction": {"contribution"}, "theme": {"roots", "ingredients", "contribution"}}
-    must_reference = {"root": {"roots_value", "roots_example", "roots_service"}, "ingredient": {"ingredient_current"},
-                      "future_ingredient": {"ingredient_future"}, "direction": {"direction", "direction_why"}}
     results = []
     for item in data["proposals"]:
         if (not isinstance(item, dict) or set(item) != {"kind", "wording", "evidence", "method_ids"}
-                or not isinstance(item["kind"], str) or item["kind"] not in allowed or not valid_text(item["wording"], 600)):
+                or not isinstance(item["kind"], str) or item["kind"] not in METHODS_BY_KIND or not valid_text(item["wording"], 600)):
             raise CoachError("The AI returned an incomplete workshop suggestion. Please retry or keep your own words.")
         method_ids = item["method_ids"]
         if (not isinstance(method_ids, list) or not 1 <= len(method_ids) <= 3
                 or not all(isinstance(value, str) for value in method_ids) or len(set(method_ids)) != len(method_ids)
-                or not set(method_ids) <= allowed[item["kind"]]):
+                or not set(method_ids) <= METHODS_BY_KIND[item["kind"]]):
             raise CoachError("The workshop suggestion did not pass the method reference check. Please retry.")
         evidence = item["evidence"]
         if not isinstance(evidence, list) or not 1 <= len(evidence) <= 4:
@@ -197,9 +212,9 @@ def validate_proposals(data, state):
             refs.add(quote["ref_id"])
             quoted.append(quote["text"])
         kind = item["kind"]
-        if kind in must_reference and not refs.intersection(must_reference[kind]):
+        if kind in REQUIRED_REFS and not refs.intersection(REQUIRED_REFS[kind]):
             raise CoachError("The AI mixed a goal or interpretation with the wrong kind of evidence. Please retry or keep your own words.")
-        if kind == "ingredient" and refs.intersection({"ingredient_future", "direction", "direction_why"}):
+        if refs.intersection(FORBIDDEN_REFS.get(kind, set())):
             raise CoachError("The AI used a future goal as evidence of a current ingredient. Please retry.")
         supplied_numbers = set(re.findall(r"\d+(?:[.,]\d+)*%?", " ".join(quoted)))
         proposed_numbers = set(re.findall(r"\d+(?:[.,]\d+)*%?", item["wording"]))
@@ -216,6 +231,19 @@ def synthesize(state, packet, settings):
         return build_own_words(state)
     if not packet or packet.get("method_id") != METHOD_ID:
         raise WorkshopError("The reviewed book context is not available. Check the private workshop setup.")
+    inputs = personal_context(state)
+    available = {item["id"] for item in inputs}
+    evidence_rules = {}
+    for kind, methods in METHODS_BY_KIND.items():
+        required = REQUIRED_REFS.get(kind, set()) & available
+        # A skipped reflection must not be filled in from a resume or another answer.
+        if kind in REQUIRED_REFS and not required:
+            continue
+        evidence_rules[kind] = {
+            "cite_at_least_one_of": sorted(required),
+            "do_not_cite": sorted(FORBIDDEN_REFS.get(kind, set())),
+            "allowed_method_ids": sorted(methods),
+        }
     system = (
         "Facilitate an independent, shortened adaptation of Pamela Slim's Body of Work exercises. "
         "Do not speak as Slim or imply endorsement. The private method packet explains the exercise; it is never evidence about this person. "
@@ -235,8 +263,15 @@ def synthesize(state, packet, settings):
         "theme may cite roots, ingredients, contribution. Schema: "
         '{"proposals":[{"kind":"root|ingredient|future_ingredient|direction|theme","wording":"...",'
         '"evidence":[{"ref_id":"input id","revision":1,"text":"exact quote"}],"method_ids":["roots"]}]}. '
+        "SESSION EVIDENCE RULES: " + json.dumps(evidence_rules) + ". "
+        "Only propose kinds listed in these session rules. For each item, its evidence.ref_id values MUST include "
+        "at least one id from cite_at_least_one_of when that list is nonempty, and none from do_not_cite. "
+        "Quote that answer directly, not a different answer or an experience card instead. "
+        "An absent kind means its required reflection was skipped: omit it completely. "
+        "Do not relabel an unsupported root, ingredient, future ingredient or direction as a theme to bypass these rules. "
+        "Check each proposed kind and evidence.ref_id against the rules before returning JSON. "
         "PRIVATE REVIEWED METHOD: " + json.dumps(packet))
-    response = _request_json(settings, system, {"inputs": personal_context(state)}, max_tokens=2400)
+    response = _request_json(settings, system, {"inputs": inputs}, max_tokens=2400)
     proposals = validate_proposals(response, state)
     result = deepcopy(state)
     result.update(phase="review", proposals=proposals, records=[], decisions=[])
@@ -295,4 +330,6 @@ def export_state(state):
             "method": public_metadata(), "revision": state["revision"], "phase": state["phase"],
             "experiences": deepcopy(state["accepted_experiences"]), "reflections": deepcopy(state["reflections"]),
             "accepted": deepcopy(state["records"]), "pending": deepcopy(state["proposals"]) if state["phase"] == "review" else [],
-            "decisions": deepcopy(state["decisions"])}
+            "decisions": deepcopy(state["decisions"]),
+            "opening": deepcopy(state.get("opening", introductions.validate_settings(None))),
+            "opening_method": introductions.public_metadata()}
