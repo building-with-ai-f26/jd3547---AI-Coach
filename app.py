@@ -17,6 +17,7 @@ from documents import DocumentError, MAX_PDF_BYTES, MAX_PDF_PAGES, extract_pdf
 import workshop
 import introductions
 import production
+import studio
 
 
 MAX_CHARS = 6000
@@ -83,9 +84,11 @@ def create_app(config=None, coach=None):
                 limits.paid(g.client_key, quota_id)
                 g.paid_counted_without_session = quota_id is None
         if request.method == "POST":
-            upload = request.path == "/api/documents"
+            upload = request.path in {"/api/documents", "/api/studio/documents"}
             if upload:
                 request.max_content_length = MAX_PDF_BYTES + 65536
+            elif request.path == "/api/studio/restore":
+                request.max_content_length = 262144
             expected_type = request.mimetype == "multipart/form-data" if upload else request.is_json
             if request.headers.get("X-Coach-Request") != "1" or not expected_type:
                 return error("Please use the app to submit this request.", 403)
@@ -121,8 +124,10 @@ def create_app(config=None, coach=None):
 
     @app.errorhandler(413)
     def too_large(_error):
-        if request.path == "/api/documents":
+        if request.path in {"/api/documents", "/api/studio/documents"}:
             return error("Choose one PDF no larger than 5 MB, or paste the relevant text instead.", 413)
+        if request.path == "/api/studio/restore":
+            return error("Choose a story-library export smaller than 256 KB.", 413)
         return error("That text is too long. Please use a shorter example.", 413)
 
     @app.errorhandler(400)
@@ -164,8 +169,8 @@ def create_app(config=None, coach=None):
             return None, error("This session expired. Please start again.", 409)
         if entry["operation"]:
             return None, error("A request is already running. Please wait.", 409)
-        if stage is None and not replace_workshop and entry["state"] and entry["state"].get("flow") == "body_of_work":
-            return None, error("Your book workshop is still open. Open the guided workshop to continue, or export it and choose Start over there before beginning a quick exercise.", 409)
+        if stage is None and not replace_workshop and entry["state"] and entry["state"].get("flow") in {"body_of_work", "story_studio"}:
+            return None, error("Your workshop or story library is still open. Export it and choose Start over before beginning a different exercise.", 409)
         if stage is not None:
             state = entry["state"]
             if not state or state["stage"] != stage or type(version) is not int or version != entry["version"]:
@@ -194,11 +199,166 @@ def create_app(config=None, coach=None):
 
     @app.get("/")
     def index():
+        return render_template("studio.html")
+
+    @app.get("/reflection")
+    def reflection_page():
         return render_template("app.html")
 
     @app.get("/workshop")
     def workshop_page():
+        return render_template("studio.html")
+
+    @app.get("/book-workshop")
+    def book_workshop_page():
         return render_template("workshop.html")
+
+    @app.get("/api/studio/config")
+    def studio_configuration():
+        with lock:
+            if not session(create=True):
+                return error("The app is busy. Please try again later.", 503)
+        return jsonify(live_ready=ready(), document_limits={"max_bytes": MAX_PDF_BYTES,
+                       "max_pages": MAX_PDF_PAGES, "max_cards": 6}, session_minutes=60,
+                       format="ai-coach-story-studio-v1")
+
+    @app.get("/api/studio/state")
+    def studio_current():
+        with lock:
+            entry = session(create=True)
+            if not entry:
+                return error("The app is busy. Please try again later.", 503)
+            current = entry["state"]
+            is_studio = bool(current and current.get("flow") == "story_studio")
+            return jsonify(state=deepcopy(current) if is_studio else None,
+                           current_version=entry["version"],
+                           legacy_present=bool(current and not is_studio),
+                           working=bool(entry["operation"]))
+
+    def reserve_studio_replacement(data):
+        # Caller holds lock; replacing an existing library is an explicit choice.
+        entry = session()
+        if not entry or type(data.get("version")) is not int or data["version"] != entry["version"]:
+            return None, error("This session has changed. Reload the saved library before continuing.", 409)
+        if entry["state"] and data.get("replace") is not True:
+            return None, error("Export your current work first, then confirm replacing this session.", 409)
+        return reserve(replace_workshop=True)
+
+    @app.post("/api/studio/start")
+    def studio_start():
+        data = body()
+        try:
+            state = studio.new_state(data.get("mode", "live"))
+        except studio.StudioError as exc:
+            return error(str(exc))
+        with lock:
+            ticket, failure = reserve_studio_replacement(data)
+        return failure if failure else finish(ticket, state)
+
+    def studio_transition(operation):
+        data = body()
+        with lock:
+            ticket, failure = reserve("studio", data.get("version"))
+        if failure:
+            return failure
+        try:
+            state = operation(ticket[3], data)
+        except studio.StudioError as exc:
+            return finish(ticket, failure=exc, failure_status=400)
+        except CoachError as exc:
+            return finish(ticket, failure=exc)
+        return finish(ticket, state)
+
+    @app.post("/api/studio/experience")
+    def studio_experience():
+        return studio_transition(studio.save_experience)
+
+    @app.post("/api/studio/core")
+    def studio_core():
+        return studio_transition(studio.save_core)
+
+    @app.post("/api/studio/generate")
+    def studio_generate():
+        def generate(state, data):
+            if state["mode"] != "sample" and not ready():
+                raise studio.StudioError("AI drafting is not configured. You can still save your experiences and write your core narrative.")
+            return studio.generate(state, data, app.config)
+        return studio_transition(generate)
+
+    @app.post("/api/studio/review")
+    def studio_review():
+        return studio_transition(studio.review)
+
+    @app.post("/api/studio/documents")
+    def studio_document():
+        if not ready():
+            return error("PDF review needs an AI connection. You can add an experience in your own words instead.", 503)
+        if (set(request.files) != {"file"} or len(request.files.getlist("file")) != 1
+                or set(request.form) != {"version"} or len(request.form.getlist("version")) != 1):
+            return error("Choose exactly one PDF and reload the saved library before uploading.")
+        try:
+            version = int(request.form["version"])
+        except (TypeError, ValueError):
+            return error("Reload the saved library before uploading.", 409)
+        uploaded = request.files["file"]
+        name = (uploaded.filename or "").replace("\\", "/").rsplit("/", 1)[-1]
+        name = "".join(character for character in name if character.isprintable())[:160]
+        if not name.lower().endswith(".pdf"):
+            return error("Choose a PDF with selectable text, or add an experience in your own words.")
+        content = uploaded.stream.read(MAX_PDF_BYTES + 1)
+        if len(content) > MAX_PDF_BYTES:
+            return error("Choose a PDF no larger than 5 MB.", 413)
+        with lock:
+            ticket, failure = reserve("studio", version)
+        if failure:
+            return failure
+        old = ticket[3]
+        if old["mode"] != "live" or old.get("pending") or old.get("import_review") or len(old["experiences"]) >= 6:
+            return finish(ticket, failure="Open your own library with room for more experiences, and finish any pending review before importing.", failure_status=400)
+        try:
+            pages = extract_pdf(content)
+            # Do not pay for extraction if a reset invalidated the parse operation.
+            with lock:
+                entry = sessions.get(ticket[0])
+                if not entry or entry["operation"] != ticket[1] or entry["version"] != ticket[2]:
+                    return error("This session was restarted. The upload was discarded.", 409)
+            cards = generator.extract_experiences(pages, app.config)
+            state = studio.set_import_candidates(old, cards, name)
+        except (DocumentError, studio.StudioError) as exc:
+            return finish(ticket, failure=exc, failure_status=400)
+        except CoachError as exc:
+            return finish(ticket, failure=exc)
+        return finish(ticket, state)
+
+    @app.post("/api/studio/documents/review")
+    def studio_document_review():
+        return studio_transition(lambda state, data: studio.review_import(state, data.get("cards")))
+
+    @app.get("/api/studio/export")
+    def studio_export():
+        with lock:
+            entry = session()
+            if not entry or not entry["state"] or entry["state"].get("flow") != "story_studio":
+                return error("There is no story library to export yet.", 409)
+            try:
+                payload = studio.export_state(deepcopy(entry["state"]))
+            except studio.StudioError as exc:
+                return error(str(exc), 400)
+        response = make_response(json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
+        response.headers["Content-Type"] = "application/json; charset=utf-8"
+        response.headers["Content-Disposition"] = 'attachment; filename="ai-coach-story-library.json"'
+        return response
+
+    @app.post("/api/studio/restore")
+    def studio_restore():
+        data = body()
+        try:
+            state = studio.restore_state(data.get("payload"))
+        except studio.StudioError as exc:
+            return error(str(exc))
+        with lock:
+            ticket, failure = reserve_studio_replacement(data)
+        return failure if failure else finish(ticket, state)
 
     @app.get("/api/workshop/config")
     def workshop_configuration():
@@ -533,6 +693,8 @@ def create_app(config=None, coach=None):
             state = deepcopy(entry["state"])
             if state.get("flow") == "body_of_work":
                 return workshop_export()
+            if state.get("flow") == "story_studio":
+                return studio_export()
             if state["stage"] == "import_review":
                 return error("Review the experience cards before exporting. Unapproved cards are not exported.", 409)
         payload = {

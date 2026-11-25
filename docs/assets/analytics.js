@@ -44,6 +44,10 @@
     "theme_reviewed": { decision: new Set(["accept", "edit", "reject"]) },
     "exercise_exported": {},
     "exercise_reset": {},
+    "studio_progress": {
+      action: new Set(["experience_saved", "import_reviewed", "draft_requested", "draft_reviewed", "core_saved", "exported", "restored"]),
+      kind: new Set(["core", "origin", "anecdote", "adaptation"])
+    },
     "workshop_progress": {
       phase: new Set(["reflect", "synthesize", "review", "complete"]),
       step: new Set(["roots_value", "roots_example", "roots_service", "ingredient_current", "ingredient_future", "direction", "direction_why"])

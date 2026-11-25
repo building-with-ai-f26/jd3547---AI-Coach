@@ -203,4 +203,16 @@ test("hosted events retain only an approved Render origin", () => {
   assert.equal(other.sent[0].properties.$current_url, "http://127.0.0.1:8787/");
 });
 
+test("story studio events exclude stories, audiences and unexpected categories", () => {
+  const { window, options, sdk, sent } = boot();
+  options.loaded(sdk);
+  window.AIAnalytics.track("studio_progress", { action: "draft_requested", kind: "origin", audience: "PRIVATE_AUDIENCE", text: "PRIVATE_STORY" });
+  window.AIAnalytics.track("studio_progress", { action: "PRIVATE_ACTION", kind: "PRIVATE_KIND" });
+  assert.equal(sent[1].properties.action, "draft_requested");
+  assert.equal(sent[1].properties.kind, "origin");
+  assert.equal(sent[2].properties.action, undefined);
+  assert.equal(sent[2].properties.kind, undefined);
+  assert.doesNotMatch(JSON.stringify(sent), /PRIVATE_/);
+});
+
 console.log(`${passed} analytics safeguard tests passed (stub SDK; no network).`);

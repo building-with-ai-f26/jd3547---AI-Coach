@@ -45,7 +45,7 @@ class AnalyticsTests(unittest.TestCase):
             self.assertEqual(self.client.get(path).status_code, 404)
 
     def test_app_loads_shared_scripts_without_waiting_for_third_party(self):
-        response = self.client.get("/")
+        response = self.client.get("/reflection")
         html = response.get_data(as_text=True)
         self.assertLess(html.index("/analytics/analytics-config.js"), html.index("/analytics/analytics.js"))
         self.assertLess(html.index("/analytics/analytics.js"), html.index("/static/app.js"))
@@ -59,7 +59,7 @@ class AnalyticsTests(unittest.TestCase):
 
     def test_every_personal_text_area_is_inside_an_explicit_replay_block(self):
         parser = PrivateElements()
-        parser.feed(self.client.get("/").get_data(as_text=True))
+        parser.feed(self.client.get("/reflection").get_data(as_text=True))
         for element in ("document-file", "document-file-status", "background", "answer", "coaching-question",
                         "document-review-name", "document-review-cards", "proposal-theme", "proposal-statement",
                         "evidence-list", "edit-theme", "edit-statement", "review-background", "review-question",
@@ -69,7 +69,22 @@ class AnalyticsTests(unittest.TestCase):
 
     def test_workshop_personal_content_is_inside_replay_blocks(self):
         parser = PrivateElements()
-        parser.feed(self.client.get("/workshop").get_data(as_text=True))
+        parser.feed(self.client.get("/book-workshop").get_data(as_text=True))
         for element in ("manual-cards", "imported-cards", "reflection-answer", "proposal-cards",
                         "landscape-experience-cards", "landscape-records", "history-list", "error-message"):
             self.assertIn(element, parser.private_ids, element)
+
+    def test_studio_private_inputs_and_generated_stories_are_blocked(self):
+        for path in ("/", "/workshop"):
+            response = self.client.get(path)
+            self.assertEqual(response.status_code, 200)
+            html = response.get_data(as_text=True)
+            self.assertLess(html.index("/analytics/analytics.js"), html.index("/static/studio.js"))
+            self.assertNotIn("unsafe-inline", response.headers["Content-Security-Policy"])
+            parser = PrivateElements()
+            parser.feed(html)
+            for element in ("experience-name", "experience-description", "reflection-situation", "reflection-action",
+                            "reflection-outcome", "reflection-learning", "review-name", "review-text", "review-evidence",
+                            "origins", "anecdotes", "adaptations", "context-audience", "context-purpose", "error-message",
+                            "pdf-file", "restore-file", "import-cards", "experience-details"):
+                self.assertIn(element, parser.private_ids, (path, element))

@@ -5,9 +5,23 @@
 - **Builder:** Jason Daniels (`@jd3547-nyu`)
 - **Pod:** [Pod Name / Number]
 - **Product Page & Living PRD:** [AI Coach Product Page](https://building-with-ai-f26.github.io/jd3547---AI-Coach/)
-- **Live app:** [Open the guided workshop](https://jd3547-ai-coach.onrender.com/workshop) · [Quick exercise](https://jd3547-ai-coach.onrender.com/)
+- **Public Build 3 app:** [Open the submitted workshop](https://jd3547-ai-coach.onrender.com/workshop)
 
-Use the live app above, or follow [Run on your Mac](#run-on-your-mac) for a local copy. The GitHub Pages Product Page describes the project; Render runs the working app. The free service may need about a minute to wake after inactivity.
+**Current source: Story Studio.** The redesigned first session turns experiences into a core narrative, multiple origin stories, and concrete anecdotes, then adapts the emphasis for a chosen audience. It is separate from the submitted Build 3 deployment: Render still serves revision `b83f1cb`, and automatic deploys are off. A GitHub push does not publish this redesign to Render.
+
+Follow [Run on your Mac](#run-on-your-mac) for the current source. The GitHub Pages Product Page describes the project; Render runs the public app. The free service may need about a minute to wake after inactivity.
+
+## Start with your story library
+
+1. Open the local app at [http://127.0.0.1:8787/](http://127.0.0.1:8787/). Start with your own experience, import and review one résumé/CV PDF, or try the fixed fictional example.
+2. Choose one experience. Add a situation, your contribution, the outcome, and what you learned; leave uncertain details open.
+3. Write your core narrative, or explicitly request an AI draft. Build origin stories from different real starting experiences and anecdotes from specific moments. Review, edit, keep, or omit each AI draft.
+4. Choose a kept origin story and a setting, audience, and purpose. Request a tailored introduction, résumé angle, and conversation question. The context changes emphasis; it does not establish new accomplishments.
+5. Export your story library as JSON before leaving. Restore that file in a later studio session to carry your work forward.
+
+Typing experiences and your own core narrative needs no API key. PDF extraction and AI drafting use the configured OpenRouter key. Sessions remain temporary: there is no account or database. Keep exports private and outside this repository.
+
+Current-source routes: `/` and `/workshop` open the studio; `/reflection` keeps the original quick exercise; `/book-workshop` keeps the seven-question *Body of Work* adaptation. These routes describe the new source, not the older public deployment.
 
 ## Start here: Build 1
 
@@ -29,10 +43,12 @@ Create your PostHog account in Week 1. Install it on the Product Page and local 
 | --- | --- |
 | [`app.py`](./app.py) | Local and hosted server, exercise steps, session handling, and export. |
 | [`coach.py`](./coach.py) | Fictional example, model requests, and response checks. |
+| [`studio.py`](./studio.py) | Story library, grounded draft/review transitions, audience adaptations, and validated export/restore. |
 | [`workshop.py`](./workshop.py) | Body of Work questions, typed landscape records, source/evidence checks, and review transitions. |
 | [`introductions.py`](./introductions.py) | Audience/settings filters, bounded introduction drafts, and explicit review. |
 | [`documents.py`](./documents.py) | PDF text reading with file, page, memory, and time limits. |
-| [`templates/app.html`](./templates/app.html), [`static/`](./static/) | The app's browser interface. |
+| [`templates/studio.html`](./templates/studio.html), [`static/studio.js`](./static/studio.js), [`static/studio.css`](./static/studio.css) | Current story-studio interface. |
+| [`templates/app.html`](./templates/app.html), [`templates/workshop.html`](./templates/workshop.html), [`static/`](./static/) | Earlier quick exercise and book-workshop interfaces. |
 | [`content/method.json`](./content/method.json) | Reviewed coaching source and its coverage limits. |
 | [`requirements.txt`](./requirements.txt) | Python packages needed to run the app. |
 | [`.env.example`](./.env.example) | Safe placeholder settings. The private `.env` copy stays on your computer. |
@@ -48,7 +64,7 @@ Create your PostHog account in Week 1. Install it on the Product Page and local 
 
 ## Run on your Mac
 
-This prototype runs on your laptop. The quick exercise uses pasted background or reviewed résumé/CV experiences: one reflection question → proposed theme → accept, edit, or reject. A separate **Body of Work mini-workshop** adds roots, ingredients, and future contribution to the same local app. It covers selected exercises, not the complete book or expert roundtable.
+The current source opens Story Studio on your laptop. You can develop a story library without completing a fixed seven-step sequence. The earlier quick reflection and **Body of Work mini-workshop** remain available through the links in the app; the latter covers selected exercises, not the complete book or expert roundtable.
 
 Use a normal Terminal prompt for the commands below. If Terminal is currently showing a conversation with a coding agent, open a new Terminal window. Run each command by pressing Return.
 
@@ -102,7 +118,7 @@ Stopping the server clears the current exercise. Use **Export** first if you wan
 
 ### Try it without a key
 
-The fictional walkthrough works immediately. Its background, answer and suggestion are prepared examples, not AI analysis. You can review, edit, accept or reject the suggestion and download an exercise record. It makes no paid API calls.
+The studio's fictional example uses prepared material and makes no model calls. Start your own library to enter personal material. You can also save your own experiences, reflection notes, and core wording without a key; AI drafting and PDF extraction need a working connection.
 
 ### Connect live coaching
 
@@ -124,11 +140,13 @@ Replace the placeholder on the `OPENROUTER_API_KEY` line with your own key. Leav
 
 Keep this key private: do not paste it into a chat, screenshot, browser script, or Git commit. `.gitignore` excludes `.env`; `.env.example` must contain placeholders only. The [OpenRouter quickstart](https://openrouter.ai/docs/quickstart) explains its API access. If the app shows an AI-service error, check your local key, configured model, and account credit; enabling the live button only means settings are present, not that a request has succeeded.
 
-Live mode sends your submitted background and answer, plus the method card, to OpenRouter and the configured model provider. It normally makes one request for the question and another for the suggestion. A question-format failure that returns within 20 seconds gets one automatic regeneration, which can add model cost; the second response must pass the same checks. Source, schema, transport, and credit errors are not automatically retried. Accepting, editing and rejecting do not make more requests. Failed requests display an error; they never switch silently to sample results. A working connection does not establish coaching quality.
+In the studio, each explicit AI drafting attempt sends the relevant reviewed experiences, reflection notes, and selected context to OpenRouter and the configured model provider. Core, origin-story, anecdote, and audience-adaptation requests are separate choices. Drafts need explicit review; context and aspirations are not treated as evidence of achievements. Studio drafting does not use the private book guide.
+
+In the earlier quick reflection, live mode sends your submitted background and answer, plus the method card, to the same providers. It normally makes one request for the question and another for the suggestion. A question-format failure that returns within 20 seconds gets one automatic regeneration, which can add model cost; the second response must pass the same checks. Source, schema, transport, and credit errors are not automatically retried. Accepting, editing and rejecting do not make more requests. Failed requests display an error; they never switch silently to sample results. A working connection does not establish coaching quality.
 
 ### Try the Body of Work mini-workshop
 
-Open **[http://127.0.0.1:8787/workshop](http://127.0.0.1:8787/workshop)** while the server runs. Choose the fixed fictional example, or confirm one to three experiences in your own words. You can also bring selected PDF experience cards that you have already approved in the quick exercise. Starting a workshop replaces that browser session's prior exercise; export it first if you want to keep it.
+Open **[http://127.0.0.1:8787/book-workshop](http://127.0.0.1:8787/book-workshop)** while the current-source server runs. Choose the fixed fictional example, or confirm one to three experiences in your own words. You can also bring selected PDF experience cards that you have already approved in the quick exercise. Starting a workshop replaces that browser session's prior exercise; export it first if you want to keep it.
 
 Seven questions explore what matters to you, the experiences behind it, whom you want to help, the ingredients you want to use or develop, and a possible future contribution. You can leave a question open. At the end, keep your own words or explicitly request AI suggestions, then accept, edit, or reject each proposed addition. Current ingredients and future learning goals stay separate. Revising an earlier question keeps earlier answers but clears that answer, later answers, and their results so you can work through them again.
 
@@ -136,21 +154,21 @@ Personal mode needs a reviewed local source guide, stored **outside the reposito
 
 The fixed questions and keeping your own words do not need an API key. **AI suggestions** require the OpenRouter connection above and make one request per explicit attempt, using the selected experiences, submitted answers, and a bounded private guide. There is no automatic retry. Review and export make no AI calls. The book file and detailed analysis are not browser assets or export content; only limited method attribution is shown.
 
-Refresh can restore a submitted workshop while its server-memory session remains active. Unsaved typing is not restored. Export is a record, not a way to resume after the server stops. The quick exercise remains available at `/`; its speech-to-text option has not been extended to this workshop.
+Refresh can restore a submitted workshop while its server-memory session remains active. Unsaved typing is not restored. Export is a record, not a way to resume after the server stops. The quick exercise remains available at `/reflection`; its speech-to-text option has not been extended to this book workshop or the studio.
 
 ### Speak your reflection
 
-In **Use my experience** mode, reach the reflection question, then choose **Speak your answer**. Allow microphone access when your browser asks. Speak in English, select **Stop dictation**, review/edit the text, and submit it normally. Each recording attempt is limited to 60 seconds. **Cancel dictation** removes that attempt's words and restores the text you had before starting. Existing text survives permission or connection failures. Switching away from the page stops listening.
+In the earlier quick exercise at `/reflection`, choose **Use my experience**, reach the reflection question, then choose **Speak your answer**. Allow microphone access when your browser asks. Speak in English, select **Stop dictation**, review/edit the text, and submit it normally. Each recording attempt is limited to 60 seconds. **Cancel dictation** removes that attempt's words and restores the text you had before starting. Existing text survives permission or connection failures. Switching away from the page stops listening.
 
-This uses the browser's speech service, with no additional API key or app transcription charge. It is not supported in every browser or embedded preview; try Chrome at `http://127.0.0.1:8787/`, or use keyboard dictation/typing if unavailable. The fictional walkthrough stays read-only. Browser speech recognition may send audio to an external service and require internet access; AI Coach does not record or save audio. Only the reviewed text is sent through the existing coaching request when you submit. See [browser speech recognition details](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition).
+This uses the browser's speech service, with no additional API key or app transcription charge. It is not supported in every browser or embedded preview; try Chrome at `http://127.0.0.1:8787/reflection`, or use keyboard dictation/typing if unavailable. The fictional walkthrough stays read-only. Browser speech recognition may send audio to an external service and require internet access; AI Coach does not record or save audio. Only the reviewed text is sent through the existing coaching request when you submit. See [browser speech recognition details](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition).
 
 Eight focused mock speech-recognition checks passed November 11. They cover text preservation, cancel/stop, late callbacks, errors, limits, and unavailable browsers. Actual microphone recognition still needs a hands-on check in the user's browser; these checks do not establish transcription accuracy.
 
 ### Upload a résumé or CV
 
-Choose **Use my experience**, then the PDF upload option. Select one PDF with selectable text and click **Find experiences**. Selecting the file alone does not send it to the AI service. Processing sends the extracted document text to OpenRouter and the configured model in one additional request, which uses your API credit.
+In the studio, choose the résumé/CV PDF import option. In the earlier quick exercise, choose **Use my experience**, then the PDF upload option. Select one PDF with selectable text and explicitly start extraction. Selecting the file alone does not send it to the AI service. Processing sends the extracted document text to OpenRouter and the configured model in one additional request, which uses your API credit.
 
-Review the proposed experience cards and the supporting quote/page for each. You can change a title or description and select the cards you want to keep. Adding the selected experiences puts only those approved cards on the landscape. **Find a question** then uses the approved titles and descriptions; rejected cards and the remaining document text are not sent to the coaching step. The original supporting passage stays visible for comparison with your edits. You can export approved experiences before continuing to coaching.
+Review the proposed experience cards and the supporting quote/page for each. You can change a title or description and select the cards you want to keep. Adding the selected experiences puts only those approved cards in the studio library or earlier landscape. In the quick exercise, **Find a question** then uses the approved titles and descriptions; rejected cards and the remaining document text are not sent to the coaching step. The original supporting passage stays visible for comparison with your edits. You can export approved experiences before continuing to coaching.
 
 The first version accepts one PDF up to 5 MB, 10 pages, and 30,000 extracted characters, producing at most six proposed cards. Password-protected files, unreadable/scanned pages, and documents exceeding those limits are rejected with guidance to paste text or use a smaller document. This version does not read Word files or perform OCR. Extraction can miss or misinterpret material even when a file is accepted, so check the source passages and edit or leave out inaccurate cards.
 
@@ -158,15 +176,17 @@ The original PDF is processed in memory and is not saved by the app. Extracted t
 
 ### Source and limitations
 
+The story studio is an app-authored approach to collecting evidence, exploring different starting points, and selecting relevant emphasis. It does not reproduce a named expert's complete method. The earlier source-informed exercises remain separate.
+
 The quick exercise adapts Pamela Slim's approach to finding themes across experiences, described in Dorie Clark's [article](https://dorieclark.com/blog/build-personal-brand/), section “Identify Your Themes.” Its source card remains in `content/method.json`.
 
 For the mini-workshop, all nine chapters and the conclusion of the supplied *Body of Work* transcription were reviewed on November 15. Its original app questions shorten and reorder “Identify Your Roots” (Chapter 2), “Determine Your Ingredients” (Chapter 3), and “Body of Work” (Chapter 1). This is an adaptation, not the full exercises, a replica of Slim, or an endorsed service. The supplied text has OCR gaps and no verified print-page mapping; source references use chapters, exercise titles, and transcription lines. User evidence and method references are kept separate.
 
 Suggestions remain tentative. The app checks that evidence quotations occur in the user's input and source IDs are known; those checks do **not** prove that a model's interpretation is correct or useful. The user decides what to keep. Edited statements are user-authored and can go beyond the original evidence.
 
-The app stores exercise content, including imported cards and their evidence, in server memory. It does not save exercise content in browser storage or a database. An opaque cookie identifies the exercise; it contains no background text or API key and lasts one hour. The server removes sessions inactive for over an hour when another session request arrives. Stopping the server clears all of its sessions; **Start over** clears the current exercise. Refreshing the quick exercise restarts its visible flow; the book workshop can restore submitted steps from the still-active server session. Neither flow has durable saved-session recovery.
+The app stores exercise content, including imported cards and their evidence, in server memory. It does not save exercise content in browser storage or a database. An opaque cookie identifies the exercise; it contains no background text or API key and lasts one hour. The server removes sessions inactive for over an hour when another session request arrives. Stopping the server clears all of its sessions; **Start over** clears the current exercise. Refreshing the quick exercise restarts its visible flow; the book workshop can restore submitted steps from the still-active server session. Those earlier flows do not support restoring their export files. The studio can restore its own validated story-library export into a new temporary session.
 
-An export is a downloaded JSON file: a structured record you can keep locally, not a resumable saved session. It may contain your background, answer, document name, approved experiences and evidence, and a theme still marked as a proposal. Unreviewed import cards cannot be exported, and rejected experience cards and rejected themes are excluded. Keep private résumés, PDFs, exports, and screenshots containing personal material **outside this public Git repository**. They are not all automatically covered by `.gitignore`.
+A studio export is a downloaded JSON story library that the studio can restore. It is not cloud storage or an automatic backup. Pending AI drafts and unreviewed PDF candidates are not restored as accepted material. Earlier quick-exercise and book-workshop exports are records only and cannot be resumed. Those earlier files may contain your background, answer, document name, approved experiences and evidence, and a theme still marked as a proposal. Unreviewed import cards cannot be exported, and rejected experience cards and rejected themes are excluded. Keep private résumés, PDFs, exports, and screenshots containing personal material **outside this public Git repository**. They are not all automatically covered by `.gitignore`.
 
 The workshop export distinguishes accepted records, pending proposals, and skipped reflections. Rejected proposal wording and the private source guide are excluded. Exact quotations verify where words came from, not whether an interpretation is correct; edited wording is marked as user-authored.
 
@@ -230,9 +250,9 @@ See [the Build 3 record](journal/build-3-nov22-23.md). The app is deployed, and 
 
 The app went live on a Free Render Python Web Service on November 23, 2026 at 8:20 AM New York time, serving revision `b83f1cb` with Python 3.12.16 and one Gunicorn worker. Automatic deploys are off so a documentation push does not clear active workshops. The checked-in `render.yaml` describes the configuration; [AGENTS.md Shipping](./AGENTS.md#shipping--render-beginner-lane) records the commands and private secret-file setup. The GitHub Pages Product Page remains separate.
 
-The app keeps exercises in one server process. It has no database or login. A free Render service sleeps after inactivity and may take about a minute to wake; sleep, deployments, and restarts clear exercises. Export anything you want to keep. The export cannot restore a workshop. See [Render's free-service limits](https://render.com/docs/free).
+The app keeps exercises in one server process. It has no database or login. A free Render service sleeps after inactivity and may take about a minute to wake; sleep, deployments, and restarts clear exercises. Export anything you want to keep. The submitted book-workshop export cannot restore a session; the new source adds separate story-studio export/restore. See [Render's free-service limits](https://render.com/docs/free).
 
-Production protects all five AI-capable routes with a shared 20-attempt/hour allowance per IP and session, plus a 100-attempt/hour global backstop. Invalid requests and fictional attempts also count. Opening more tabs or resetting an exercise does not refresh the allowance. A 429 response includes Retry-After; wait before trying again. Those counters reset with the process; the owner-approved $100 monthly OpenRouter key cap was saved and verified November 23 as a separate spending backstop. Network sharing can make classmates share an IP allowance.
+The submitted Build 3 deployment protects its five AI-capable routes with a shared 20-attempt/hour allowance per IP and session, plus a 100-attempt/hour global backstop. Invalid requests and fictional attempts also count. Opening more tabs or resetting an exercise does not refresh the allowance. A 429 response includes Retry-After; wait before trying again. Those counters reset with the process; the owner-approved $100 monthly OpenRouter key cap was saved and verified November 23 as a separate spending backstop. Network sharing can make classmates share an IP allowance.
 
 The production dependencies require Python 3.12+. An old Python 3.9 virtual environment must be upgraded separately before reinstalling the new requirements; do not delete private configuration or exports.
 

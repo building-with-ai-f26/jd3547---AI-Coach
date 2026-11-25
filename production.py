@@ -19,7 +19,8 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 # These are the real endpoints: start asks a question and answer makes a proposal.
 PAID_PATHS = frozenset({"/api/documents", "/api/start", "/api/answer",
-                        "/api/workshop/synthesize", "/api/workshop/introductions"})
+                        "/api/workshop/synthesize", "/api/workshop/introductions",
+                        "/api/studio/documents", "/api/studio/generate"})
 LIMIT_DEFAULTS = {
     "AI_REQUEST_LIMIT": 20, "AI_GLOBAL_LIMIT": 100,
     "API_REQUEST_LIMIT": 120, "API_GLOBAL_LIMIT": 600,
